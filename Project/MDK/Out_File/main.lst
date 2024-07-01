@@ -1,0 +1,494 @@
+C251 COMPILER V5.60.0,  main                                                               30/06/24  20:23:41  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE main
+OBJECT MODULE PLACED IN .\Out_File\main.obj
+COMPILER INVOKED BY: G:\Keil_v5\C251\C251\BIN\C251.EXE ..\USER\src\main.c XSMALL INTR2 WARNINGLEVEL(3) OPTIMIZE(0,SPEED)
+                    - BROWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;
+                    -..\USER\inc;..\USER\src;..\CODE) DEBUG PRINT(.\Out_File\main.lst) OBJECT(.\Out_File\main.obj) 
+
+stmt  level    source
+
+    1          /********************************************************************************************************
+             -*************
+    2           * COPYRIGHT NOTICE
+    3           * Copyright (c) 2020,逐飞科技
+    4           * All rights reserved.
+    5           * 技术讨论QQ群：一群：179029047(已满)  二群：244861897(已满)  三群：824575535
+    6           *
+    7           * 以下所有内容版权均属逐飞科技所有，未经允许不得用于商业用途，
+    8           * 欢迎各位使用并传播本程序，修改内容时必须保留逐飞科技的版权声明。
+    9           *
+   10           * @file                main
+   11           * @company                     成都逐飞科技有限公司
+   12           * @author              逐飞科技(QQ790875685)
+   13           * @version             查看doc内version文件 版本说明
+   14           * @Software                    MDK FOR C251 V5.60
+   15           * @Target core         STC32G12K128
+   16           * @Taobao                      https://seekfree.taobao.com/
+   17           * @date                2020-12-18
+   18           ********************************************************************************************************
+             -************/
+   19          
+   20          #include "headfile.h"
+   21          
+   22          /*
+   23           * 系统频率，可查看board.h中的 FOSC 宏定义修改。
+   24           * board.h文件中FOSC的值设置为0,则程序自动设置系统频率为33.1776MHZ
+   25           * 在board_init中,已经将P54引脚设置为复位
+   26           * 如果需要使用P54引脚,可以在board.c文件中的board_init()函数中删除SET_P54_RESRT即可
+   27           */
+   28          
+   29          
+   30          
+   31          void BUZZ_Init(void)
+   32          {
+   33   1          gpio_mode(P6_7, GPO_PP);
+   34   1          BUZZPin = 0;                // 先关闭蜂鸣器
+   35   1      }
+   36          
+   37          
+   38          
+   39          
+   40          unsigned char FlagEnter = 0, FlagCancel = 0, FlagUp = 0, FlagDown = 0;
+   41          unsigned char LastFlagEnter = 0, LastFlagCancel = 0, LastFlagUp = 0, LastFlagDown = 0;
+   42          void KeySystem(void);
+   43          struct GUIS{
+   44                  unsigned char names[3];
+   45                  float* floatval;
+   46                  int* intval;
+   47                  unsigned char p1, p2;
+   48                  unsigned char sceneGoTo;
+   49                  unsigned char type;
+   50          }guis[5][8];
+   51          unsigned char guiNumber[5] = {5, 8, 6, 7, 4};
+   52          unsigned char guiSelect = 0, guiScene = 0, guiEdit = 0;
+   53          unsigned char guiTop = 0;
+   54          void Gui_TEST_Init(void);
+   55          
+C251 COMPILER V5.60.0,  main                                                               30/06/24  20:23:41  PAGE 2   
+
+   56          void All_Init(void)
+   57          {
+   58   1          DisableGlobalIRQ();                                                                                 // 关闭总中断
+   59   1          board_init();                                                                                                               // 初始化寄存器,勿删除此句代码。
+   60   1          Encoder_Init();                                                                                                     // 编码器初始化
+   61   1          Motor_Init();                                                                                                               // 电机初始化
+   62   1          init_Steer_PWM();                                                                                           // 舵机初始化
+   63   1          BUZZ_Init();                                                                                                                // 蜂鸣器高电平点亮
+   64   1          Analog_Digital_Converter_Init();                            // ADC初始化
+   65   1          //Tof_Init();                                                                                                                       // 测距模块初始化
+   66   1          //  imu660ra_init();                                                                                                // 姿态传感器初始化
+   67   1          oled_init();                                                                                                                // 初始化oled屏幕
+   68   1          pit_timer_ms(TIM_1, 5);                                                             // 使用定时器做周期中断，时间5ms一次
+   69   1          wireless_uart_init();                                                                               // 无线串口初始化: UART4_TX_P03   UART4_RX_P02  115200  TIM2
+   70   1          //////////////////////////////////////////////////////////////////
+   71   1          Flag_Init();                                                                                                                // Fuse标志位初始化（置0）
+   72   1          PID_Parameter_Init(&TurnPID);                                               // 转向PID结构体初始化
+   73   1          PID_Parameter_Init(&SpeedPID);                                      // 速度PID结构体初始化
+   74   1          EnableGlobalIRQ();                                                                                  // 开启总中断
+   75   1          wireless_uart_send_buff("Init OK!\n", 9); // 无线串口发送初始化完成信息
+   76   1              //Tof_Init();
+   77   1              Gui_TEST_Init();
+   78   1      }
+   79          
+   80          void main()
+   81          {
+   82   1          //char txt[20];                                                                                     // sprintf容器
+   83   1          //char mess[30];                                                                            // wireless容器
+   84   1          /*----测试函数(内部本身有死循环)----*/
+   85   1          //  Test_Motor(1);                  // 1:正转  0:反转
+   86   1          // 速度参数
+   87   1          ClsLoop_Set_Speed  = 2500;                                          // 闭环速度（避障之后）
+   88   1          ClsLoop_Speed = ClsLoop_Set_Speed;
+   89   1          OpenLoop_Set_Speed = 2500;                                          // 开环速度（避障之前）
+   90   1          OpenLoop_Speed = OpenLoop_Set_Speed;
+   91   1          // 转向环参数
+   92   1          Turn_Suquence = 7;                                                                          // 转向PID下标
+   93   1              vtest = 10;
+   94   1          // 发车方向（0：左入左出  1：右入右出）
+   95   1          Default_Dir = 0;                                                                                    // 发车、入库、避障方向一致
+   96   1      
+   97   1          All_Init();                                                                                         // 全体硬件初始化
+   98   1          while (1) {
+   99   2                      KeySystem();
+  100   2                      Flag.start_go = go_flag;
+  101   2              /**********显示5个电感值************/
+  102   2      //        if(!showing){
+  103   2      //                      sprintf(txt, "Mid_Adc= %05d", adc_date[6]);
+  104   2      //                      oled_p6x8str(1, 1, txt);   // 显示
+  105   2      //                      sprintf(txt, "Left_Adc= %05d", adc_date[0]);
+  106   2      //                      oled_p6x8str(1, 4, txt);   // 显示
+  107   2      //                      sprintf(txt, "Right_Adc= %05d", adc_date[1]);
+  108   2      //                      oled_p6x8str(1, 5, txt);   // 显示
+  109   2      //                      sprintf(txt, "Left_Xie= %05d", adc_date[2]);
+  110   2      //                      oled_p6x8str(1, 6, txt);   // 显示
+  111   2      //                      sprintf(txt, "Right_Xie= %05d", adc_date[3]);
+  112   2      //                      oled_p6x8str(1, 7, txt);         // 显示
+  113   2      //                      sprintf(txt, "Left_Corner= %05d", adc_date[4]);
+  114   2      //                      oled_p6x8str(1, 2, txt);   // 显示
+  115   2      //                      sprintf(txt, "Right_Corner= %05d", adc_date[5]);
+  116   2      //                      oled_p6x8str(1, 3, txt);   // 显示
+  117   2      //              }else{
+  118   2      //                      sprintf(txt, "adc_deviation = %05d", adc_deviation);
+  119   2      //                      oled_p6x8str(1, 1, txt);   // 显示
+  120   2      //                      sprintf(txt, "Speed_PWM = %05d", Speed_PWM);
+  121   2      //                      oled_p6x8str(1, 2, txt);   // 显示
+C251 COMPILER V5.60.0,  main                                                               30/06/24  20:23:41  PAGE 3   
+
+  122   2      //                      sprintf(txt, "Turn_PWM = %05d", Turn_PWM);
+  123   2      //                      oled_p6x8str(1, 3, txt);   // 显示
+  124   2      //                      sprintf(txt, "LEFT_PWM = %05d", All_PWM_left);
+  125   2      //                      oled_p6x8str(1, 4, txt);   // 显示
+  126   2      //                      sprintf(txt, "RIGHT_PWM = %05d", All_PWM_right);
+  127   2      //                      oled_p6x8str(1, 5, txt);   // 显示
+  128   2      //              }
+  129   2                      
+  130   2              //                      sprintf(txt,"adc_deviation= %05d",adc_deviation);
+  131   2              //                      oled_p6x8str(1, 8, txt); // 显示
+  132   2      
+  133   2              /* 调试编码器 */
+  134   2              //                      sprintf(mess,"%d,%d,%d\n",right_speed,left_speed,real_speed);                   // 编码器
+  135   2      
+  136   2              /* 调试速度闭环 */
+  137   2              //                      sprintf(mess,"%d,%d\n",real_speed,Speed_PWM);
+  138   2              //                      wireless_uart_send_buff(mess,30);                               // 右轮速度发送
+  139   2      
+  140   2              /* 调试IMU660 */
+  141   2              //                              sprintf(mess,"%f\n",Slope_gyro);
+  142   2              //                              wireless_uart_send_buff(mess,30);
+  143   2      
+  144   2              /* 发车 */
+  145   2                      //go_motor(2000, 2000);
+  146   2                      
+  147   2              if (Flag.Game == 0) {
+  148   3                  LightOn;
+  149   3                  delay_ms(500);
+  150   3                  //OutInGarage(Default_Dir, 2000);   // 出库
+  151   3                  LightOff;
+  152   3                  Flag.Game = 1;                                                                      // 防止再次进入
+  153   3                  int_OK = 1;
+  154   3                  Flag_Slope = 1  ;
+  155   3                  go_flag = 1;                                                        // 执行Fuse全局控制
+  156   3              }
+  157   2      
+  158   2              // 先不编译方便调试，需要编译时将0 -> 1
+  159   2              #if 0
+                       /* 停车 */
+                       else if (Flag.Game == 1) {
+                           STOP_Analyse();    // 停车检测 + 入库
+                       }
+               
+                       #endif
+  166   2          }
+  167   1      }
+  168          
+  169          void Gui_TEST_Init(void){
+  170   1              float *PID;
+  171   1              guis[0][0].type = GUI_TYPE_SCENE_CHANGE;
+  172   1              guis[0][1].type = GUI_TYPE_SCENE_CHANGE;
+  173   1              guis[0][2].type = GUI_TYPE_SCENE_CHANGE;
+  174   1              guis[0][3].type = GUI_TYPE_SCENE_CHANGE;
+  175   1              guis[0][4].type = GUI_TYPE_EDIT_INT32_VALUE;
+  176   1              strcpy(guis[0][0].names, "ADC");
+  177   1              strcpy(guis[0][1].names, "SP");
+  178   1              strcpy(guis[0][2].names, "PID");
+  179   1              strcpy(guis[0][3].names, "RAT");
+  180   1              strcpy(guis[0][4].names, "GO");
+  181   1              guis[0][0].sceneGoTo = 1;
+  182   1              guis[0][1].sceneGoTo = 2;
+  183   1              guis[0][2].sceneGoTo = 3;
+  184   1              guis[0][3].sceneGoTo = 4;
+  185   1              guis[0][4].intval = &go_flag;
+  186   1              guis[0][4].p1 = 1; guis[0][4].p2 = 1;
+  187   1              
+C251 COMPILER V5.60.0,  main                                                               30/06/24  20:23:41  PAGE 4   
+
+  188   1              guis[1][0].type = GUI_TYPE_SCENE_CHANGE;
+  189   1              guis[1][1].type = GUI_TYPE_SHOW_INT32_VALUE;
+  190   1              guis[1][2].type = GUI_TYPE_SHOW_INT32_VALUE;
+  191   1              guis[1][3].type = GUI_TYPE_SHOW_INT32_VALUE;
+  192   1              guis[1][4].type = GUI_TYPE_SHOW_INT32_VALUE;
+  193   1              guis[1][5].type = GUI_TYPE_SHOW_INT32_VALUE;
+  194   1              guis[1][6].type = GUI_TYPE_SHOW_INT32_VALUE;
+  195   1              guis[1][7].type = GUI_TYPE_SHOW_INT32_VALUE;
+  196   1              strcpy(guis[1][0].names, "BK");
+  197   1              strcpy(guis[1][1].names, "M");
+  198   1              strcpy(guis[1][2].names, "L");
+  199   1              strcpy(guis[1][3].names, "R");
+  200   1              strcpy(guis[1][4].names, "LX");
+  201   1              strcpy(guis[1][5].names, "RX");
+  202   1              strcpy(guis[1][6].names, "LC");
+  203   1              strcpy(guis[1][7].names, "RC");
+  204   1              guis[1][0].sceneGoTo = 0;
+  205   1              guis[1][1].intval = (int*)(&adc_date[6]);
+  206   1              guis[1][2].intval = (int*)(&adc_date[0]);
+  207   1              guis[1][3].intval = (int*)(&adc_date[1]);
+  208   1              guis[1][4].intval = (int*)(&adc_date[2]);
+  209   1              guis[1][5].intval = (int*)(&adc_date[3]);
+  210   1              guis[1][6].intval = (int*)(&adc_date[4]);
+  211   1              guis[1][7].intval = (int*)(&adc_date[5]);
+  212   1              
+  213   1              guis[2][0].type = GUI_TYPE_SCENE_CHANGE;
+  214   1              guis[2][1].type = GUI_TYPE_SHOW_INT32_VALUE;
+  215   1              guis[2][2].type = GUI_TYPE_SHOW_INT32_VALUE;
+  216   1              guis[2][3].type = GUI_TYPE_SHOW_INT32_VALUE;
+  217   1              guis[2][4].type = GUI_TYPE_SHOW_INT32_VALUE;
+  218   1              guis[2][5].type = GUI_TYPE_SHOW_INT32_VALUE;
+  219   1              strcpy(guis[2][0].names, "BK");
+  220   1              strcpy(guis[2][1].names, "TOR");
+  221   1              strcpy(guis[2][2].names, "TPM");
+  222   1              strcpy(guis[2][3].names, "SPM");
+  223   1              strcpy(guis[2][4].names, "LPM");
+  224   1              strcpy(guis[2][5].names, "RPM");
+  225   1              guis[2][0].sceneGoTo = 0;
+  226   1              guis[2][1].intval = &adc_deviation;
+  227   1              guis[2][2].intval = &Turn_PWM;
+  228   1              guis[2][3].intval = &Speed_PWM;
+  229   1              guis[2][4].intval = &All_PWM_left;
+  230   1              guis[2][5].intval = &All_PWM_right;
+  231   1              
+  232   1              guis[3][0].type = GUI_TYPE_SCENE_CHANGE;
+  233   1              guis[3][1].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+  234   1              guis[3][2].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+  235   1              guis[3][3].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+  236   1              guis[3][4].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+  237   1              guis[3][5].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+  238   1              guis[3][6].type = GUI_TYPE_EDIT_INT32_VALUE;
+  239   1              strcpy(guis[3][0].names, "BK");
+  240   1              strcpy(guis[3][1].names, "KP"); //实际上不完全是kp
+  241   1              strcpy(guis[3][2].names, "KP2");        //???
+  242   1              strcpy(guis[3][3].names, "KI");
+  243   1              strcpy(guis[3][4].names, "KD");
+  244   1              strcpy(guis[3][5].names, "KT");
+  245   1              strcpy(guis[3][6].names, "SP");
+  246   1              guis[3][0].sceneGoTo = 0;
+  247   1              guis[3][1].floatval = &vtest;
+  248   1              PID = Turn_Pid[Turn_Suquence];
+  249   1              guis[3][2].floatval = &(PID[KP]);
+  250   1              guis[3][3].floatval = &(PID[KI]);
+  251   1              guis[3][4].floatval = &(PID[KD]);
+  252   1              guis[3][5].floatval = &(PID[KT]);
+  253   1              guis[3][6].intval = &(ClsLoop_Speed);
+C251 COMPILER V5.60.0,  main                                                               30/06/24  20:23:41  PAGE 5   
+
+  254   1              guis[3][1].p1 = 1; guis[3][1].p2 = 1;
+  255   1              guis[3][2].p1 = 1; guis[3][2].p2 = 10;
+  256   1              guis[3][3].p1 = 1; guis[3][3].p2 = 10;
+  257   1              guis[3][4].p1 = 10; guis[3][4].p2 = 1;
+  258   1              guis[3][5].p1 = 10; guis[3][5].p2 = 1;
+  259   1              guis[3][6].p1 = 100; guis[3][6].p2 = 1;
+  260   1              
+  261   1              guis[4][0].type = GUI_TYPE_SCENE_CHANGE;
+  262   1              guis[4][1].type = GUI_TYPE_EDIT_INT32_VALUE;
+  263   1              guis[4][2].type = GUI_TYPE_EDIT_INT32_VALUE;
+  264   1              guis[4][3].type = GUI_TYPE_EDIT_INT32_VALUE;
+  265   1              strcpy(guis[4][0].names, "BK");
+  266   1              strcpy(guis[4][1].names, "Sid");
+  267   1              strcpy(guis[4][2].names, "Cor");
+  268   1              strcpy(guis[4][3].names, "Xie");
+  269   1              guis[4][0].sceneGoTo = 0;
+  270   1              guis[4][1].intval = &SideRate;
+  271   1              guis[4][2].intval = &CornerRate;
+  272   1              guis[4][3].intval = &XieRate;
+  273   1              guis[4][1].p1 = 50; guis[4][1].p2 = 1;
+  274   1              guis[4][2].p1 = 50; guis[4][2].p2 = 1;
+  275   1              guis[4][3].p1 = 50; guis[4][3].p2 = 1;
+  276   1              return;
+  277   1      }
+  278          
+  279          void keyStateChange(unsigned char* FlagButtom, unsigned char ButtomPin){
+  280   1              if(*FlagButtom == 0){
+  281   2                      if(ButtomPin == 0){
+  282   3                              delay_ms(10);
+  283   3                              if(ButtomPin == 0){
+  284   4                                      *FlagButtom = 1;
+  285   4                              }
+  286   3                      }
+  287   2              }else{
+  288   2                      if(ButtomPin == 1){
+  289   3                              delay_ms(10);
+  290   3                              if(ButtomPin == 1){
+  291   4                                      *FlagButtom = 0;
+  292   4                              }
+  293   3                      }
+  294   2              }
+  295   1              return;
+  296   1      }
+  297          
+  298          char keyPressed(unsigned char FlagButtom, unsigned char LastFlagButtom){
+  299   1              return (FlagButtom == 1 && FlagButtom != LastFlagButtom);
+  300   1      }
+  301          
+  302          void moveGuiSelection(char dir){
+  303   1              if(!dir){
+  304   2                      if(guiSelect == 0){
+  305   3                              return;
+  306   3                      }
+  307   2                      guiSelect--;
+  308   2                      if(guiSelect < guiTop){
+  309   3                              guiTop = guiSelect;
+  310   3                      }
+  311   2              }else{
+  312   2                      if(guiSelect == guiNumber[guiScene] - 1){
+  313   3                              return;
+  314   3                      }
+  315   2                      guiSelect++;
+  316   2                      if(guiSelect > guiTop + 6){
+  317   3                              guiTop = guiSelect - 6;
+  318   3                      }
+  319   2              }
+C251 COMPILER V5.60.0,  main                                                               30/06/24  20:23:41  PAGE 6   
+
+  320   1              return;
+  321   1      }
+  322          
+  323          void KeySystem(void){
+  324   1              int i = 0;
+  325   1              char txt[20];
+  326   1              keyStateChange(&FlagEnter, (BUTTOM_ENTER == 0) ? 0 : 1);
+  327   1              keyStateChange(&FlagCancel, (BUTTOM_CANCEL == 0) ? 0 : 1);
+  328   1              keyStateChange(&FlagUp, (BUTTOM_UP == 0) ? 0 : 1);
+  329   1              keyStateChange(&FlagDown, (BUTTOM_DOWN == 0) ? 0 : 1);
+  330   1              /*if(FlagEnter == 1 && FlagEnter != LastFlagEnter){
+  331   1                      oled_fill(0x00);
+  332   1                      showing = !showing;
+  333   1              }*/
+  334   1              if(!guiEdit){
+  335   2                      if(keyPressed(FlagUp, LastFlagUp)){
+  336   3                              oled_fill(0x00);
+  337   3                              moveGuiSelection(0);
+  338   3                      }else
+  339   2                      if(keyPressed(FlagDown, LastFlagDown)){
+  340   3                              oled_fill(0x00);
+  341   3                              moveGuiSelection(1);
+  342   3                      }
+  343   2              }
+  344   1              for(i = guiTop; i < guiNumber[guiScene], i < guiTop + 7; i++){
+  345   2                      if(guiSelect == i){
+  346   3                              if(guis[guiScene][i].type == GUI_TYPE_SCENE_CHANGE){
+  347   4                                      if(keyPressed(FlagEnter, LastFlagEnter)){
+  348   5                                              oled_fill(0x00);
+  349   5                                              guiScene = guis[guiScene][i].sceneGoTo;
+  350   5                                              guiTop = 0;
+  351   5                                              guiSelect = 0;
+  352   5                                      }
+  353   4                                      sprintf(txt, "*%s", guis[guiScene][i].names);
+  354   4                              }else
+  355   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_FLOAT_VALUE){
+  356   4                                      sprintf(txt, "*%-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  357   4                              }else
+  358   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_INT32_VALUE){
+  359   4                                      sprintf(txt, "*%-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  360   4                              }else
+  361   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_FLOAT_VALUE){
+  362   4                                      if(guiEdit == 0){
+  363   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
+  364   6                                                      oled_fill(0x00);
+  365   6                                                      guiEdit = 1;
+  366   6                                              }
+  367   5                                              sprintf(txt, "*%-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  368   5                                      }else{
+  369   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
+  370   6                                                      oled_fill(0x00);
+  371   6                                                      guiEdit = 0;
+  372   6                                              }else
+  373   5                                              if(keyPressed(FlagUp, LastFlagUp)){
+  374   6                                                      oled_fill(0x00);
+  375   6                                                      *(guis[guiScene][i].floatval) -= (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  376   6                                              }else
+  377   5                                              if(keyPressed(FlagDown, LastFlagDown)){
+  378   6                                                      oled_fill(0x00);
+  379   6                                                      *(guis[guiScene][i].floatval) += (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  380   6                                              }
+  381   5                                              sprintf(txt, "*%-8s<%.2f>", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  382   5                                      }
+  383   4                              }else
+  384   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_INT32_VALUE){
+  385   4                                      if(guiEdit == 0){
+C251 COMPILER V5.60.0,  main                                                               30/06/24  20:23:41  PAGE 7   
+
+  386   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
+  387   6                                                      oled_fill(0x00);
+  388   6                                                      guiEdit = 1;
+  389   6                                              }
+  390   5                                              sprintf(txt, "*%-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  391   5                                      }else{
+  392   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
+  393   6                                                      oled_fill(0x00);
+  394   6                                                      guiEdit = 0;
+  395   6                                              }else
+  396   5                                              if(keyPressed(FlagUp, LastFlagUp)){
+  397   6                                                      oled_fill(0x00);
+  398   6                                                      *(guis[guiScene][i].intval) -= (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  399   6                                              }else
+  400   5                                              if(keyPressed(FlagDown, LastFlagDown)){
+  401   6                                                      oled_fill(0x00);
+  402   6                                                      *(guis[guiScene][i].intval) += (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  403   6                                              }
+  404   5                                              sprintf(txt, "*%-8s<%05d>", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  405   5                                      }
+  406   4                              }
+  407   3                              oled_p6x8str(1, (uint8)(i - guiTop + 1), txt);
+  408   3                      }else{
+  409   3                              if(guis[guiScene][i].type == GUI_TYPE_SCENE_CHANGE){
+  410   4                                      sprintf(txt, " %-s", guis[guiScene][i].names);
+  411   4                              }else
+  412   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_FLOAT_VALUE){
+  413   4                                      sprintf(txt, " %-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  414   4                              }else
+  415   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_INT32_VALUE){
+  416   4                                      sprintf(txt, " %-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  417   4                              }else
+  418   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_FLOAT_VALUE){
+  419   4                                      if(guiEdit == 0){
+  420   5                                              sprintf(txt, " %-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  421   5                                      }else{
+  422   5                                              sprintf(txt, " %-8s<%.2f>", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  423   5                                      }
+  424   4                              }else
+  425   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_INT32_VALUE){
+  426   4                                      if(guiEdit == 0){
+  427   5                                              sprintf(txt, " %-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  428   5                                      }else{
+  429   5                                              sprintf(txt, " %-8s<%05d>", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  430   5                                      }
+  431   4                              }
+  432   3                              oled_p6x8str(1, (uint8)(i - guiTop + 1), txt);
+  433   3                      }
+  434   2              }
+  435   1              
+  436   1              LastFlagEnter = FlagEnter;
+  437   1              LastFlagCancel = FlagCancel;
+  438   1              LastFlagUp = FlagUp;
+  439   1              LastFlagDown = FlagDown;
+  440   1      }
+  441          
+  442          
+  443          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =      4224     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+C251 COMPILER V5.60.0,  main                                                               30/06/24  20:23:41  PAGE 8   
+
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =       651     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =       271     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

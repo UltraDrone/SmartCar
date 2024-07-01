@@ -1,0 +1,154 @@
+C251 COMPILER V5.60.0,  fuse                                                               30/06/24  20:23:42  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE fuse
+OBJECT MODULE PLACED IN .\Out_File\fuse.obj
+COMPILER INVOKED BY: G:\Keil_v5\C251\C251\BIN\C251.EXE ..\CODE\fuse.c XSMALL INTR2 WARNINGLEVEL(3) OPTIMIZE(0,SPEED) BRO
+                    -WSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\U
+                    -SER\inc;..\USER\src;..\CODE) DEBUG PRINT(.\Out_File\fuse.lst) OBJECT(.\Out_File\fuse.obj) 
+
+stmt  level    source
+
+    1          #include "fuse.h"
+    2          #include "math.h"
+    3          
+    4          Body Flag;                  // ½á¹¹Ìå¶¨Òå¸÷Àà¹Ø¼ü±êÖ¾Î»
+    5          int16 Turn_PWM = 0;                             // ×îÖÕ×ªÏòPWM
+    6          float vtest = 0;
+    7          //float vtest_t = 0;
+    8          float maxPWM = 0;
+    9          float minPWM = 0;
+   10          int SideRate = 900, CornerRate = 900, XieRate = 100;
+   11          /*******************PIT¶¨Ê±ÖÐ¶Ï******************
+   12          º¯Êý£ºvoid Fuse_result(void)
+   13          ¹¦ÄÜ£ºËÙ¶È»·¡¢×ªÏò»·¿ØÖÆ
+   14          ²ÎÊý£ºÎÞ
+   15          ËµÃ÷£º
+   16          ·µ»ØÖµ£ºÎÞ
+   17           **********************************************/
+   18          unsigned char int_OK = 0;                                                               // ³õÊ¼»¯³É¹¦±êÖ¾Î»
+   19          unsigned char Flag_OpenLoop = 0;                                // Ä¬ÈÏ½øÐÐ±Õ»·¿ØÖÆ
+   20          void Fuse_result(void)
+   21          {
+   22   1          if(int_OK)
+   23   1          {
+   24   2              if(!Flag.start_go){
+   25   3                  go_motor(0, 0);     // ³ö½ç±£»¤
+   26   3                              Flag.T_Inmost = 0;
+   27   3                              Flag.T_Turn = 0;
+   28   3                              Flag.T_Distance = 0;
+   29   3                              Flag.T_IMU = 0;
+   30   3                              Flag.T_Speed = 0;
+   31   3                              Electromagnetism_Control();                  // µç¸Ð²É¼¯´¦Àí Ã°ÅÝÅÅÐò»¬¶¯ÂË²¨
+   32   3                      }
+   33   2              else
+   34   2              {
+   35   3                  // 5ms¿ØÖÆ×îÄÚ»·:Çý¶¯ÂÖ×ÓÍùÇ°×ß
+   36   3                  if(1 == Flag.T_Inmost)
+   37   3                  {
+   38   4                      Flag.T_Inmost = 0;
+   39   4                      if(!Flag_Slope)                                                                                                         // Ö»Òª²»ÊÇÆÂµÀ
+   40   4                                      {
+   41   5                          Speed_PWM = OpenLoop_Speed;                                         // Ôò²»ÐèÒªÌí¼ÓËÙ¶È±Õ»·£¬Ö±½Ó½«µÍËÙÖµ¸³¸øÕ¼¿Õ±È
+   42   5                                      }
+   43   4                                      Speed_PWM = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ClsLoop_Speed - abs(Turn_PWM) * 10);          // ËÙ
+             -¶ÈÎ»ÖÃÊ½PID
+   44   4                                      Speed_PWM = range_protect(Speed_PWM, 500, ClsLoop_Speed - abs(Turn_PWM) * 10 + 500);                                                                                                    // ×
+             -¢ÒâÕý¸ººÅ
+   45   4                      // ·ñÔòÔò½«ËÙ¶È»·ÔËËã½á¹ûÍ¶ÈëÕ¼¿Õ±È
+   46   4                      All_PWM_left = Speed_PWM - (Turn_PWM) * (vtest);
+   47   4                      All_PWM_right = Speed_PWM + (Turn_PWM) * (vtest);
+   48   4                                      //maxPWM = abs(All_PWM_left) > abs(All_PWM_right) ? abs(All_PWM_left) : abs(All_PWM_right);
+   49   4                                      //maxPWM = maxPWM > 5000 ? 5000 / maxPWM : 1;
+   50   4                                      All_PWM_left = range_protect(All_PWM_left, -3200, 7000);
+   51   4                                      All_PWM_right = range_protect(All_PWM_right, -3200, 7000);
+   52   4                                      go_motor(All_PWM_left/*  * maxPWM*/, All_PWM_right/* * maxPWM*/);
+   53   4                  }
+   54   3      
+   55   3                  // 10ms¿ØÖÆ£º¶æ»ú×ªÏò»·
+C251 COMPILER V5.60.0,  fuse                                                               30/06/24  20:23:42  PAGE 2   
+
+   56   3                  if(1 == Flag.T_Turn && 0 == Flag_OpenLoop)
+   57   3                  {
+   58   4                      Flag.T_Turn = 0;
+   59   4                      Electromagnetism_Control();                                             // µç´Å²É¼¯ËùÓÐ
+   60   4                      adc_deviation = 0
+   61   4                                              + Cha_BI_He_Sqrt(Left_Adc, Right_Adc, SideRate) 
+   62   4                                              + Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
+   63   4                                              + Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9£º 1
+   64   4                      Turn_PWM = PlacePID_Control(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //×ªÏò¶
+             -¯Ì¬PID
+   65   4                      Turn_PWM = -Turn_PWM;
+   66   4                                      Turn_PWM = range_protect(Turn_PWM, -750, 750);
+   67   4                                      Annulus_Analysis();                                                             // Ô²»·Ê¶±ð´¦Àí
+   68   4                      //Steering_Control_Out(Turn_PWM);                               // ¶æ»ú×îÖÕÊä³ö£¨º¯ÊýÄÚ²¿ÒÑÏÞ·ù£©
+   69   4                  }
+   70   3      
+   71   3                  // 30ms¿ØÖÆ£ºTOF±ÜÕÏ
+   72   3                  if(1 == Flag.T_Distance)
+   73   3                  {
+   74   4                      Flag.T_Distance = 0;
+   75   4      
+   76   4                      if(!Flag_Tof_Finish)                                            // »¹Î´Íê³É¹ýÒ»´Î¼ì²â
+   77   4                          Tof_Control();                                                              // ÕÏ°­Îï¼ì²â¿ØÖÆ
+   78   4                  }
+   79   3      
+   80   3                  // 40ms¿ØÖÆ£ºÆÂµÀ¼ì²â(IMU660)
+   81   3                  if(1 == Flag.T_IMU)
+   82   3                  {
+   83   4                      Flag.T_IMU = 0;
+   84   4      //                                                              if(!Flag_Slope_Finish)
+   85   4      //                                                                      IMU_Control();
+   86   4                  }
+   87   3      
+   88   3                  // 50ms¿ØÖÆ£ºËÙ¶È±Õ»·¿ØÖÆ
+   89   3                  if(1 == Flag.T_Speed)
+   90   3                  {
+   91   4                      Flag.T_Speed = 0;
+   92   4                      //Speed_PWM = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ClsLoop_Speed);             // ËÙ¶ÈÎ»ÖÃÊ
+             -½PID
+   93   4                      //Speed_PWM = range_protect(Speed_PWM, -0, 4000);                                                                                                       // ×¢ÒâÕý¸ººÅ
+   94   4                  }
+   95   3              }
+   96   2          }
+   97   1      }
+   98          
+   99          //ºËÐÄ¹Ø¼üµÄ±êÖ¾Î»½á¹¹Ìå³õÊ¼»¯
+  100          void Flag_Init(void)
+  101          {
+  102   1          Flag.start_go = 0;
+  103   1          Flag.T_Inmost = 0;
+  104   1          Flag.T_Turn = 0;
+  105   1          Flag.T_Distance = 0;
+  106   1          Flag.T_Speed = 0;
+  107   1          Flag.T_IMU = 0;
+  108   1          Flag.STOP = 0;                                                              // Í£³µ½áÊø
+  109   1          Flag.OUT_Garage = 0;                                  // ³ö¿â±êÖ¾Î»
+  110   1          Flag.Game = 0;
+  111   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       637     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+C251 COMPILER V5.60.0,  fuse                                                               30/06/24  20:23:42  PAGE 3   
+
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =        31     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        58     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

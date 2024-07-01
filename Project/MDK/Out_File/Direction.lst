@@ -1,0 +1,304 @@
+C251 COMPILER V5.60.0,  Direction                                                          30/06/24  20:23:42  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Direction
+OBJECT MODULE PLACED IN .\Out_File\Direction.obj
+COMPILER INVOKED BY: G:\Keil_v5\C251\C251\BIN\C251.EXE ..\CODE\Direction.c XSMALL INTR2 WARNINGLEVEL(3) OPTIMIZE(0,SPEED
+                    -) BROWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE
+                    -;..\USER\inc;..\USER\src;..\CODE) DEBUG PRINT(.\Out_File\Direction.lst) OBJECT(.\Out_File\Direction.obj) 
+
+stmt  level    source
+
+    1          #include "Direction.h"
+    2          
+    3          // ADC²É¼¯Öµ
+    4          // Êý×éË÷Òý0~4·Ö±ðÎª
+    5          // ×óµç¸Ð×îÖÕÖµ  ÓÒµç¸Ð×îÖÕÖµ  ×óÐ±µç¸Ð×îÖÕÖµ  ÓÒÐ±µç¸Ð×îÖÕÖµ  ÖÐ¼äµç¸Ð×îÖÕÖµ
+    6          uint16  adc_date[7];                                                             // ´¢´æµç¸Ð²É¼¯Öµ Ô­Ê¼Öµ 5¸öµç¸Ð
+    7          
+    8          // ADCÏÞ·ùÖµ
+    9          uint16 adc_max[7] = {2000, 2000, 2200, 2200, 2200, 2200, 2000};      // ×î´óÖµ
+   10          uint16 adc_min[7] = {0, 0, 100, 100, 100, 100, 100};                             // ×îÐ¡Öµ  (¸ø¶¨Ò»¸öÐèÒª)
+   11          
+   12          int16  adc_deviation;                                                                                                            // µç¸ÐÆ«²î
+   13          int go_flag;
+   14          // ADC²É¼¯×îÖÕÖµ
+   15          int16 Left_Adc = 0, Right_Adc = 0, Mid_Adc = 0, Left_Xie_Adc = 0, Right_Xie_Adc = 0, Left_Corner_Adc = 0,
+             - Right_Corner_Adc = 0;         //µç¸ÐÖµ
+   16          
+   17          /****************ADC³õÊ¼»¯**************************
+   18          º¯  Êý£ºvoid ADC_Init(void)
+   19          ¹¦  ÄÜ£ºADCÍ¨µÀÒý½Å³õÊ¼»¯
+   20          ²Î  Êý£ºÎÞ
+   21          Ëµ  Ã÷£ºADC_Init(ADC_P10,ADC_SYSclk_DIV_2);//³õÊ¼»¯P1.0ÎªADC¹¦ÄÜ,ADCÊ±ÖÓÆµÂÊ£ºSYSclk/2
+   22          Òý  ½Å£º¼ûÍ·ÎÄ¼þ¶¨Òå
+   23          ·µ»ØÖµ£ºÎÞ
+   24          ***************************************************/
+   25          void Analog_Digital_Converter_Init(void)
+   26          {
+   27   1          adc_init(Left_ADC_Pin, ADC_SYSclk_DIV_2); //³õÊ¼»¯ADC¹¦ÄÜ
+   28   1          adc_init(LeftXie_ADC_Pin, ADC_SYSclk_DIV_2); //³õÊ¼»¯ADC¹¦ÄÜ
+   29   1          adc_init(Mid_ADC_Pin, ADC_SYSclk_DIV_2); //³õÊ¼»¯ADC¹¦ÄÜ
+   30   1          adc_init(RightXie_ADC_Pin, ADC_SYSclk_DIV_2); //³õÊ¼»¯ADC¹¦ÄÜ
+   31   1          adc_init(Right_ADC_Pin, ADC_SYSclk_DIV_2); //³õÊ¼»¯ADC¹¦ÄÜ
+   32   1              adc_init(LeftCorner_ADC_Pin,ADC_SYSclk_DIV_2);//³õÊ¼»¯ADC¹¦ÄÜ
+   33   1              adc_init(RightCorner_ADC_Pin,ADC_SYSclk_DIV_2);//³õÊ¼»¯ADC¹¦ÄÜ
+   34   1      }
+   35          
+   36          
+   37          /****************µç¸Ð²É¼¯**************************
+   38          º¯  Êý£ºvoid ADC_MAX_Collect(void)
+   39          ¹¦  ÄÜ£º
+   40          ²Î  Êý£ºÎÞ
+   41          Ëµ  Ã÷£ºµ÷ÓÃ¿âº¯Êý£¨×Ô¼ºÐ´µÄ£©    adc_mean_filter (ADC_P10, ADC_12BIT, 10)
+   42          ·µ»ØÖµ£ºÎÞ
+   43          **************************************************/
+   44          void ADC_MAX_Collect(void)
+   45          {
+   46   1          int i, j;
+   47   1      
+   48   1          for(i = 600; i > 0; i--)
+   49   1          {
+   50   2              adc_date[0] = adc_mean_filter(Left_ADC_Pin, ADC_12BIT, 2);
+   51   2              adc_date[1] = adc_mean_filter(Right_ADC_Pin, ADC_12BIT, 2);
+   52   2              adc_date[2] = adc_mean_filter(LeftXie_ADC_Pin, ADC_12BIT, 2);
+   53   2              adc_date[3] = adc_mean_filter(RightXie_ADC_Pin, ADC_12BIT, 2);
+   54   2                      adc_date[4] = adc_mean_filter(LeftCorner_ADC_Pin, ADC_12BIT, 2);
+   55   2              adc_date[5] = adc_mean_filter(RightCorner_ADC_Pin, ADC_12BIT, 2);
+   56   2              adc_date[6] = adc_mean_filter(Mid_ADC_Pin, ADC_12BIT, 2);
+C251 COMPILER V5.60.0,  Direction                                                          30/06/24  20:23:42  PAGE 2   
+
+   57   2      
+   58   2              for(j = 0; j < 7; j++)                                                                  // Èý¸öºáµç¸Ð×÷ÏÞ·ù
+   59   2              {
+   60   3                  if(adc_date[j] >= adc_max[j])                                                       // ÉÏÏÞ·ù
+   61   3                      adc_max[j] = adc_date[j];
+   62   3      
+   63   3                              if(adc_date[j] <= adc_min[j])                                                   // ÏÂÏÞ·ù
+   64   3                                      adc_min[j] = adc_date[j];
+   65   3                  delay_ms(2);//ÑÓÊ±²É¼¯
+   66   3              }
+   67   2          }
+   68   1      }
+   69          
+   70          /****************µç¸Ð²É¼¯**************************
+   71          º¯  Êý£ºvoid AD_Date_Fitier()
+   72          ¹¦  ÄÜ£º¶Ôµç¸Ð²ÉÖµ½øÐÐÃ°ÅÝÅÅÐò»¬¶¯ÂË²¨
+   73          ²Î  Êý£ºÎÞ
+   74          Ëµ  Ã÷£º12bit  4096   µ÷ÓÃ¿âº¯Êý£¨×Ô¼ºÐ´µÄ£©    adc_mean_filter(ADC_P10, ADC_12BIT, 10)
+   75          ·µ»ØÖµ£ºÎÞ
+   76          **************************************************/
+   77          #define FILTER_N 5 //ÂË²¨Éî¶È
+   78          
+   79          void AD_Date_Fitier(void)
+   80          {
+   81   1          uint8 i;
+   82   1          int16 filter_buf_L[FILTER_N];  //×óºáµç¸Ð´¢´æÊý×é
+   83   1          int16 filter_buf_LC[FILTER_N]; //×óÐ±µç¸Ð´¢´æÊý×é
+   84   1              int16 filter_buf_LX[FILTER_N]; //×óÐ±µç¸Ð´¢´æÊý×é
+   85   1          int16 filter_buf_M[FILTER_N];  //ÖÐºáµç¸Ð´¢´æÊý×é
+   86   1          int16 filter_buf_R[FILTER_N];  //ÓÒºáµç¸Ð´¢´æÊý×é
+   87   1          int16 filter_buf_RC[FILTER_N];  //ÓÒÐ±µç¸Ð´¢´æÊý×é
+   88   1              int16 filter_buf_RX[FILTER_N]; //×óÐ±µç¸Ð´¢´æÊý×é
+   89   1      
+   90   1          //--------»¬¶¯ÂË²¨--------------
+   91   1          for(i = 0; i < FILTER_N; i++)       //²ÉÖµ
+   92   1          {
+   93   2              filter_buf_L[i]  = adc_mean_filter(Left_ADC_Pin, ADC_12BIT, 10); //×óºá
+   94   2              filter_buf_LX[i] = adc_mean_filter(LeftXie_ADC_Pin, ADC_12BIT, 5); //×óÐ±
+   95   2                      filter_buf_LC[i] = adc_mean_filter(LeftCorner_ADC_Pin, ADC_12BIT, 5); //×óÐ±
+   96   2              filter_buf_M[i]  = adc_mean_filter(Mid_ADC_Pin, ADC_12BIT, 5); //ÖÐ¼ä
+   97   2              filter_buf_RC[i] = adc_mean_filter(RightCorner_ADC_Pin, ADC_12BIT, 5);  //ÓÒÐ±
+   98   2                      filter_buf_RX[i] = adc_mean_filter(RightXie_ADC_Pin, ADC_12BIT, 5); //×óÐ±
+   99   2              filter_buf_R[i]  = adc_mean_filter(Right_ADC_Pin, ADC_12BIT, 10); //ÓÒºá
+  100   2          }
+  101   1              //13 14 16 05 01 00
+  102   1              //567321
+  103   1      
+  104   1          //--------Ã°ÅÝÅÅÐòÈ¥¼«ÖµÇóÆ½¾ù---------
+  105   1          adc_date[0] = I_Median_Average_Filter(filter_buf_L);  //×ó    3600
+  106   1          adc_date[1] = I_Median_Average_Filter(filter_buf_R);  //ÓÒ    3600
+  107   1          adc_date[2] = I_Median_Average_Filter(filter_buf_LX); //×óÐ±  3000
+  108   1          adc_date[3] = I_Median_Average_Filter(filter_buf_RX); //ÓÒÐ±
+  109   1              adc_date[4] = I_Median_Average_Filter(filter_buf_LC); //×óÐ±  3000
+  110   1          adc_date[5] = I_Median_Average_Filter(filter_buf_RC); //ÓÒÐ±
+  111   1          adc_date[6] = I_Median_Average_Filter(filter_buf_M);  //ÖÐ¼ä  4050
+  112   1      
+  113   1          Left_Adc = adc_date[0];                                                           //×óµç¸Ð×îÖÕÖµ
+  114   1          Right_Adc = adc_date[1];                                                  //ÓÒµç¸Ð×îÖÕÖµ
+  115   1          Left_Xie_Adc = adc_date[2];                                               //×óÐ±µç¸Ð×îÖÕÖµ
+  116   1          Right_Xie_Adc = adc_date[3];                                              //ÓÒÐ±µç¸Ð×îÖÕÖµ
+  117   1              Left_Corner_Adc = adc_date[4];
+  118   1              Right_Corner_Adc = adc_date[5];
+  119   1          Mid_Adc = adc_date[6];                                                            //ÖÐ¼äµç¸Ð×îÖÕÖµ
+  120   1      }
+  121          
+  122          void Protect_Anticollision(void)
+C251 COMPILER V5.60.0,  Direction                                                          30/06/24  20:23:42  PAGE 3   
+
+  123          {
+  124   1          if(Left_Adc < 100 && Right_Adc < 100){
+  125   2              //Flag.start_go = 0;
+  126   2                      go_flag = 0;
+  127   2              }else{
+  128   2                      //Flag.start_go = 1;
+  129   2              }
+  130   1      }
+  131          
+  132          
+  133          /*************************************
+  134          º¯Êý£ºvoid Electromagnetism_Control(void)
+  135          ¹¦ÄÜ£ºµç´Å¿ØÖÆ
+  136          ²ÎÊý£ºÎÞ
+  137          ËµÃ÷£º
+  138          **************************************/
+  139          void Electromagnetism_Control(void)
+  140          {
+  141   1          AD_Date_Fitier();                  // µç¸Ð²É¼¯´¦Àí Ã°ÅÝÅÅÐò»¬¶¯ÂË²¨
+  142   1          
+  143   1          /// normalize_date();               // ²É¼¯µç¸Ð¹éÒ»»¯  0--100 ²»ÄÜÓÃ£¬Î´ÕÒµ½Ô­Òò£¬²»Òª¹éÒ»»¯À²
+  144   1          Protect_Anticollision();                                            // ±£»¤
+  145   1      }
+  146          
+  147          /*****************»·µº´¦Àí´úÂë***********************
+  148          º¯Êý£ºvoid  annulus_analysis()
+  149          ¹¦ÄÜ£ºÅÐ±ð»·µº´¦Àí
+  150          ²ÎÊý£ºÎÞ
+  151          ËµÃ÷£º
+  152          ·µ»ØÖµ£º
+  153          ÈÕÆÚ£º
+  154          Ô­Àí£º·Ç³£¼òµ¥£¬µ½Ô²»·£¬ÅÐ¶Ïµ½µç¸ÐÖµÔö´ó£¬ÎÒÃÇÉè¶¨Ò»¸ö¹Ì¶¨µÄËÙ¶ÈµÍËÙ£¬
+  155                Í¨¹ý¼ÆÊýÑÓÊ±ÈÃ³µ×ÓÔÙÍùÇ°ÅÜÒ»µãµã¾àÀë£¨·ÀÖ¹²ÁÂ·¼ç£©£¬È»ºó¹Ì¶¨´ò½ÇÖ±½Ó¿ØÖÆ¶æ»ú´ò½Ç£¬
+  156                È»ºóÒ²ÊÇÍ¨¹ý¼ÆÊýÑÓÊ±£¬³µÖ»Òª°Ñ³µÉí¹Õ½øÈ¥ÁË£¬ÎÒÃÇ¾Í»Ö¸´Õý³£Ñ­¼££¬²»ÐèÒª´¦Àí³ö»·ÎÊÌâ£¬³ö»·ºóÎÒÃÇÍ¨¹ýÍ
+             -ÓÂÝÒÇ»òÕß±àÂëÆ÷»òÕßÑÓÊ±°Ñ±êÖ¾Î»Çå³ý£¬
+  157                È»ºó·ÀÖ¹³µ×Ó¶¶¶¯£¬ÎÒÃÇ°Ñ×ªÏòpid²ÎÊýµ÷Ð¡ºÜ¶à£¬°ÑËÙ¶È»Ö¸´Õý³£¼´¿É¡£
+  158                ÔÚµ÷ÊÔÊ±ÎÒÃÇÖ»Ðèµ÷½ÚÄÇ¸ö´ò½ÇµÄÑÓÊ±ºÍ¼ÌÐøÐÐ×ßµÄÑÓÊ±£¬ÆäËû¶¼²»ÓÃ¹Ü
+  159          
+  160          ÏÂÃæ´úÂë£¬ÓÐµÄ±äÁ¿»òÕßÓï¾äÏàµ±ÓÚÃ»ÓÐ×÷ÓÃ£¬¿É²Î¿¼
+  161          ½ö¹©²Î¿¼£¡£¡£¡£¡£¡£¡£¡£¡£¡
+  162          ****************************************************/
+  163          //uint8 annulus_sucess = 0;                                                                             // Èë»·³É¹¦´ÎÊý
+  164          //uint8 Left_annulus = 0;                                                                                       // ×ó»·±êÖ¾Î»
+  165          uint8 Flag_Right_annulus = 0;                                                                   // ÓÒ»·±êÖ¾Î»
+  166          uint8 PreFlag_Right_annulus = 0;                // ÓÒ»·Ô¤ÅÐ±êÖ¾Î»
+  167          // ÓÒÈëÔ²»·
+  168          void Right_Annulus(void)
+  169          {
+  170   1          if(Flag_Right_annulus == 0 && PreFlag_Right_annulus == 0 && Left_Xie_Adc > 3500 &&
+  171   1                  Left_Adc > 3500 && Mid_Adc > 3500)
+  172   1              PreFlag_Right_annulus = 1;
+  173   1      
+  174   1      //                              LightOn;
+  175   1      
+  176   1          if(PreFlag_Right_annulus == 1 /*&& Right_Xie_Adc > 1900 && Right_Adc > 2500*/ && Flag_Right_annulus =
+             -= 0)
+  177   1          {
+  178   2              BUZZOn;
+  179   2              // LightOn;
+  180   2              PreFlag_Right_annulus = 0;
+  181   2                      Turn_PWM = 1000;
+  182   2              //pwm_duty(Steer_Pin, 700);
+  183   2              delay_ms(300);
+  184   2              BUZZOff;
+  185   2          }
+  186   1      }
+C251 COMPILER V5.60.0,  Direction                                                          30/06/24  20:23:42  PAGE 4   
+
+  187          
+  188          // ×óÈëÔ²»·
+  189          void Left_Annulus(void)
+  190          {
+  191   1      
+  192   1      }
+  193          
+  194          void Annulus_Analysis(void)
+  195          {
+  196   1          Right_Annulus();
+  197   1          Left_Annulus();
+  198   1      }
+  199          
+  200          
+  201          /***********************************¶æ»ú³õÊ¼»¯*****************************************
+  202          º¯Êý£ºvoid init_Steer_PWM(void)
+  203          ²ÎÊý£ºÎÞ
+  204          ËµÃ÷£º·ÖÄ¸10000£¬Ê¹ÓÃ£¬ÈçÐèÐÞ¸ÄÒý½ÅÐÞ¸Ä¶ÔÓ¦ºê¶¨Òå¼´¿É
+  205                 pwm_init(PWM0_P00, 100, 5000);     //³õÊ¼»¯PWM0  Ê¹ÓÃÒý½ÅP0.0  Êä³öPWMÆµÂÊ100HZ   Õ¼¿Õ±ÈÎª°Ù·ÖÖ® 5
+             -000/PWM_DUTY_MAX*100
+  206          //               PWM_DUTY_MAXÔÚzf_pwm.hÎÄ¼þÖÐ                           Ä¬ÈÏÎª10000
+  207          *
+  208          *×¢Òâ£¬ÏÈµ÷½Ú¶æ»ú£¬Èç¹û¶æ»úÎªSD05£¬ÔòÆµÂÊÎª200hz ,Èç¹û¶æ»úÎªS3010,ÆµÂÊÔòÎª50hz
+  209          *ÆµÂÊÈ·¶¨ºó£¬ÏÈ°ÑÕ¼¿Õ±È·ÖÄ¸£¬¼´PWM_DUTY_MAXÈ·¶¨£¬Ò»°ãÎÞÐèÐÞ¸ÄÁË
+  210          *È»ºó¾Í¿ªÊ¼µ÷½Ú¶æ»úÁË£¬µ÷Õ¼¿Õ±ÈµÄ·Ö×Ó£¬¼´µ÷ÓÃµÄº¯ÊýµÄ×îºóÄÇ¸ö²ÎÊý£¬¸ù¾Ý¾­ÑéËãÒ»ÏÂ£¬´ó¸ÅÊÇ1/20µÄÕ¼¿Õ±È£¬È»
+             -ºóÍù×óÍùÓÒÂýÂýÊÔ
+  211          *¼ÆËã¹«Ê½£ºÖÐÖµÕ¼¿Õ±È´ó¸ÅÊÇ7.5% £¨ºÍÆµÂÊ¾«¶È¶¼ÓÐ¹ØÏµ£© 20ms(1.5ms¸ßµçÆ½)
+  212          ·µ»ØÖµ£ºÎÞ
+  213          **************************************************************************************/
+  214          void init_Steer_PWM(void)
+  215          {
+  216   1          pwm_init(Steer_Pin, 50, Steer_Duty_Midle);   //³õÊ¼»¯¶æ»ú  Êä³öPWMÆµÂÊ50HZ£¬²¢ÉèÖÃÖÐÖµ
+  217   1      }
+  218          
+  219          
+  220          /*******************¶æ»ú×ªÏò¿ØÖÆÊä³ö*************************
+  221          º¯Êý£ºvoid Steering_Control_Out(int16 duty)
+  222          ¹¦ÄÜ£º
+  223          ²ÎÊý£ºÎÞ
+  224          ËµÃ÷£º¶æ»ú×ªÏò¿ØÖÆ    ×¢Òâµ÷ºÃ¶æ»úÖÐÖµºó£¬×óÓÒ¼«ÏÞÒ²µ÷³öÀ´£¬ÒªÐÞ¸ÄÉÏÃæµÄºê¶¨Òå
+  225          ·µ»ØÖµ£º
+  226          ************************************************************/
+  227          void Steering_Control_Out(int16 duty)
+  228          {
+  229   1          duty = Steer_Duty_Midle + duty;                                                                                                     // ÔÚ¶æ»úÖÐÖµµÄ»ù´¡ÉÏ½øÐÐÆ«ÒÆ
+  230   1      
+  231   1          if(duty >= Steer_Duty_Max)                                                                                                                  // ´ò½Ç¹ý´ó¾Í¼õËÙ
+  232   1          {
+  233   2              duty = Steer_Duty_Max;
+  234   2              ClsLoop_Speed  -=  100;                                                                                                                         // ÎÞÂÛÊÇ¿ª±Õ»·×´Ì¬¶¼¼õËÙ
+  235   2              OpenLoop_Speed -=  100;
+  236   2          }
+  237   1          else                // ·ñÔò°´ÕÕÔ­À´µÄËÙ¶ÈÐÐÊ»
+  238   1          {
+  239   2              OpenLoop_Speed = OpenLoop_Set_Speed;
+  240   2              ClsLoop_Speed = ClsLoop_Set_Speed;
+  241   2          }
+  242   1      
+  243   1          if(duty <= Steer_Duty_Min)                                                                                                                          // ´ò½Ç¹ý´ó¾Í¼õËÙ
+  244   1          {
+  245   2              duty = Steer_Duty_Min;
+  246   2              ClsLoop_Speed  -=  100;                                                                                                                         // ÎÞÂÛÊÇ¿ª±Õ»·×´Ì¬¶¼¼õËÙ
+  247   2              OpenLoop_Speed -=  100;
+  248   2          }
+  249   1          else        // ·ñÔò°´ÕÕÔ­À´µÄËÙ¶ÈÐÐÊ»
+  250   1          {
+C251 COMPILER V5.60.0,  Direction                                                          30/06/24  20:23:42  PAGE 5   
+
+  251   2              OpenLoop_Speed = OpenLoop_Set_Speed;
+  252   2              ClsLoop_Speed = ClsLoop_Set_Speed;
+  253   2          }
+  254   1      
+  255   1          pwm_duty(Steer_Pin, duty);
+  256   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =      1103     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =       139     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        88     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
