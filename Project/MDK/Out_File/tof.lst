@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  tof                                                                30/06/24  20:23:43  PAGE 1   
+C251 COMPILER V5.60.0,  tof                                                                01/07/24  18:40:53  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE tof
@@ -66,7 +66,7 @@ stmt  level    source
    53   3                  Flag_OpenLoop = 1;                                  // 执行开环避障控制
    54   3                  Obstacle_Step = 1;                                  // 避障步骤标志位
    55   3              }
-C251 COMPILER V5.60.0,  tof                                                                30/06/24  20:23:43  PAGE 2   
+C251 COMPILER V5.60.0,  tof                                                                01/07/24  18:40:53  PAGE 2   
 
    56   2      
    57   2              // 如果 arr[index]==2 就是坡道
@@ -134,7 +134,7 @@ stmt  level    source
   119   3                  {
   120   4                      Obstacle_Step = 4;
   121   4                      T_Tof = 0;
-C251 COMPILER V5.60.0,  tof                                                                30/06/24  20:23:43  PAGE 3   
+C251 COMPILER V5.60.0,  tof                                                                01/07/24  18:40:53  PAGE 3   
 
   122   4                  }
   123   3              }
@@ -202,7 +202,7 @@ stmt  level    source
   185   3                  LightOff;                                                           // 避障结束，关灯
   186   3                  Tof_Index++;                                                // 完成一次检测
   187   3      
-C251 COMPILER V5.60.0,  tof                                                                30/06/24  20:23:43  PAGE 4   
+C251 COMPILER V5.60.0,  tof                                                                01/07/24  18:40:53  PAGE 4   
 
   188   3                  //                          while(1)                                                        // 调试避障时使用
   189   3                  //                                  go_motor(0,0);

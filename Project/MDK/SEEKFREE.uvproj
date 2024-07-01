@@ -729,6 +729,16 @@
               <FileType>1</FileType>
               <FilePath>..\CODE\tof.c</FilePath>
             </File>
+            <File>
+              <FileName>MyIIC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\MyIIC.c</FilePath>
+            </File>
+            <File>
+              <FileName>..\..\..\智能车\SmartCar-main\SmartCar-main\Project\CODE\MyIIC.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>$TC_ROOT$\..\..\..\智能车\SmartCar-main\SmartCar-main\Project\CODE\MyIIC.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

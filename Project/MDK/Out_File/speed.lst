@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  speed                                                              30/06/24  20:23:42  PAGE 1   
+C251 COMPILER V5.60.0,  speed                                                              01/07/24  18:40:52  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE speed
@@ -66,7 +66,7 @@ stmt  level    source
    55   1      
    56   1          if (1 == Right_Ecoder_Pin2)
    57   1              right_speed = -right_speed;
-C251 COMPILER V5.60.0,  speed                                                              30/06/24  20:23:42  PAGE 2   
+C251 COMPILER V5.60.0,  speed                                                              01/07/24  18:40:52  PAGE 2   
 
    58   1      
    59   1          real_speed = (right_speed + left_speed) / 2;      // 速度平均值
@@ -134,7 +134,7 @@ stmt  level    source
   121   1      //    {
   122   1      //        right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
   123   1      //        pwm_duty(Right_DIR_Pin, 0); //反转
-C251 COMPILER V5.60.0,  speed                                                              30/06/24  20:23:42  PAGE 3   
+C251 COMPILER V5.60.0,  speed                                                              01/07/24  18:40:52  PAGE 3   
 
   124   1      //        pwm_duty(Right_PWM_Pin, right_PWM); // 反转
   125   1      //    }
@@ -203,7 +203,7 @@ Module Information          Static   Overlayable
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
-C251 COMPILER V5.60.0,  speed                                                              30/06/24  20:23:42  PAGE 4   
+C251 COMPILER V5.60.0,  speed                                                              01/07/24  18:40:52  PAGE 4   
 
   far data size        =    ------     ------
   huge data size       =    ------     ------

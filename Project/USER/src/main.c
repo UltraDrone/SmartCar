@@ -18,7 +18,7 @@
  ********************************************************************************************************************/
 
 #include "headfile.h"
-
+float a = 0.1;
 /*
  * 系统频率，可查看board.h中的 FOSC 宏定义修改。
  * board.h文件中FOSC的值设置为0,则程序自动设置系统频率为33.1776MHZ
@@ -40,18 +40,12 @@ void BUZZ_Init(void)
 unsigned char FlagEnter = 0, FlagCancel = 0, FlagUp = 0, FlagDown = 0;
 unsigned char LastFlagEnter = 0, LastFlagCancel = 0, LastFlagUp = 0, LastFlagDown = 0;
 void KeySystem(void);
-struct GUIS{
-	unsigned char names[3];
-	float* floatval;
-	int* intval;
-	unsigned char p1, p2;
-	unsigned char sceneGoTo;
-	unsigned char type;
-}guis[5][8];
+GUIS guis[5][8];
 unsigned char guiNumber[5] = {5, 8, 6, 7, 4};
 unsigned char guiSelect = 0, guiScene = 0, guiEdit = 0;
 unsigned char guiTop = 0;
 void Gui_TEST_Init(void);
+
 
 void All_Init(void)
 {
@@ -75,6 +69,7 @@ void All_Init(void)
     wireless_uart_send_buff("Init OK!\n", 9); // 无线串口发送初始化完成信息
 	//Tof_Init();
 	Gui_TEST_Init();
+	slInit();
 }
 
 void main()
@@ -89,12 +84,16 @@ void main()
     OpenLoop_Set_Speed = 2500;						// 开环速度（避障之前）
     OpenLoop_Speed = OpenLoop_Set_Speed;
     // 转向环参数
-    Turn_Suquence = 7;										// 转向PID下标
+    Turn_Suquence = 0;										// 转向PID下标
 	vtest = 10;
     // 发车方向（0：左入左出  1：右入右出）
     Default_Dir = 0;											// 发车、入库、避障方向一致
 
     All_Init();												// 全体硬件初始化
+	/*while(1){
+		KeySystem();
+		delay_ms(500);
+	}*/
     while (1) {
 		KeySystem();
 		Flag.start_go = go_flag;
@@ -369,6 +368,7 @@ void KeySystem(void){
 					if(keyPressed(FlagEnter, LastFlagEnter)){
 						oled_fill(0x00);
 						guiEdit = 0;
+						saveConfig();
 					}else
 					if(keyPressed(FlagUp, LastFlagUp)){
 						oled_fill(0x00);
@@ -392,6 +392,7 @@ void KeySystem(void){
 					if(keyPressed(FlagEnter, LastFlagEnter)){
 						oled_fill(0x00);
 						guiEdit = 0;
+						saveConfig();
 					}else
 					if(keyPressed(FlagUp, LastFlagUp)){
 						oled_fill(0x00);
@@ -432,7 +433,10 @@ void KeySystem(void){
 			oled_p6x8str(1, (uint8)(i - guiTop + 1), txt);
 		}
 	}
-	
+	/*At24c02_Write_float(0x04, a++);
+	a = At24c02_Read_float(0x04);
+	sprintf(txt, "%.1f", a);
+	oled_p6x8str(1, 7, txt);*/
 	LastFlagEnter = FlagEnter;
 	LastFlagCancel = FlagCancel;
 	LastFlagUp = FlagUp;

@@ -50,6 +50,7 @@
 #include "function.h"
 #include "Others.h"
 #include "tof.h"
+#include "MyIIC.h"
 
 /* 引脚定义 */
 // P52 LED 核心板载LED
@@ -112,9 +113,9 @@
 #define BUTTOM_UP				P72
 #define BUTTOM_DOWN				P73
 
-#define GUI_TYPE_SCENE_CHANGE			0
-#define GUI_TYPE_SHOW_FLOAT_VALUE		1
-#define GUI_TYPE_SHOW_INT32_VALUE		2
-#define GUI_TYPE_EDIT_FLOAT_VALUE		3
-#define GUI_TYPE_EDIT_INT32_VALUE		4
+//#define GUI_TYPE_SCENE_CHANGE			0
+//#define GUI_TYPE_SHOW_FLOAT_VALUE		1
+//#define GUI_TYPE_SHOW_INT32_VALUE		2
+//#define GUI_TYPE_EDIT_FLOAT_VALUE		3
+//#define GUI_TYPE_EDIT_INT32_VALUE		4
 #endif

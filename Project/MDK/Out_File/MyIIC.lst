@@ -1,0 +1,639 @@
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE MyIIC
+OBJECT MODULE PLACED IN .\Out_File\MyIIC.obj
+COMPILER INVOKED BY: G:\Keil_v5\C251\C251\BIN\C251.EXE ..\CODE\MyIIC.c XSMALL INTR2 WARNINGLEVEL(3) OPTIMIZE(0,SPEED) BR
+                    -OWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\
+                    -USER\inc;..\USER\src;..\CODE) DEBUG PRINT(.\Out_File\MyIIC.lst) OBJECT(.\Out_File\MyIIC.obj) 
+
+stmt  level    source
+
+    1          #include "MyIIC.h"
+    2          
+    3          int ver = 2;
+    4          int iictmp;
+    5          
+    6          void I2C_Delay1us(u8 DelayTime) //@22.1184MHz
+    7          {
+    8   1              do
+    9   1              {
+   10   2                      unsigned long edata i;
+   11   2      
+   12   2                      //_nop_();
+   13   2                      i = 7UL;
+   14   2                      while (i) i--;
+   15   2                      
+   16   2              }while(DelayTime --);
+   17   1      }
+   18          
+   19          
+   20          /****************************/
+   21          u8 I2C_Start(void)               //start the I2C, SDA High-to-low when SCL is high
+   22          {
+   23   1          SDA = 1;
+   24   1          I2C_Delay1us(DELAY_TIME);
+   25   1          SCL = 1;
+   26   1          I2C_Delay1us(DELAY_TIME);
+   27   1              if(!SDA)  { return 0;}//SDA线为低电平则总线忙,退出
+   28   1          SDA = 0;
+   29   1          I2C_Delay1us(DELAY_TIME);
+   30   1              if(SDA) return 0;//SDA线为高电平则总线出错,退出
+   31   1          SCL = 0;
+   32   1          I2C_Delay1us(DELAY_TIME);
+   33   1              //PrintString1("SDA == 1");
+   34   1          return 1;
+   35   1      }       
+   36          
+   37          void I2C_Stop(void)                 //STOP the I2C, SDA Low-to-high when SCL is high
+   38          {
+   39   1          SDA = 0;
+   40   1              SCL = 0;
+   41   1          I2C_Delay1us(DELAY_TIME);
+   42   1          SCL = 1;
+   43   1          I2C_Delay1us(DELAY_TIME);
+   44   1          SDA = 1;
+   45   1          I2C_Delay1us(DELAY_TIME);
+   46   1      }
+   47          
+   48          void I2C_SendACK(u8 i)            //Send ACK (LOW)
+   49          {
+   50   1          if(1==i)
+   51   1                SDA=1;                     //准备好SDA电平状态，不应答
+   52   1          else 
+   53   1                SDA=0;                                                //准备好SDA电平状态，应答       
+   54   1                SCL=1;
+   55   1          I2C_Delay1us(DELAY_TIME);
+   56   1          SCL=0; 
+   57   1          I2C_Delay1us(DELAY_TIME);
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 2   
+
+   58   1      }
+   59          
+   60                  
+   61          u8 I2C_WaitAck(void)     //返回为:=1有ACK,=0无ACK
+   62          {
+   63   1              u8 i=0;
+   64   1              SDA=1;          //释放SDA
+   65   1              SCL=1;         //SCL拉高进行采样
+   66   1              while(SDA)//等待SDA拉低
+   67   1              {
+   68   2                      i++;      //等待计数
+   69   2                      if(i==2)//超时跳出循环
+   70   2                      break;
+   71   2              }
+   72   1              if(SDA)//再次判断SDA是否拉低
+   73   1              {
+   74   2                      SCL=0; 
+   75   2                      return 0;//从机应答失败，返回0
+   76   2              }
+   77   1          I2C_Delay1us(DELAY_TIME);
+   78   1          SCL = 0;
+   79   1          I2C_Delay1us(DELAY_TIME);
+   80   1              return 1;//从机应答成功
+   81   1      
+   82   1      }
+   83          
+   84          //向IIC总线发送一个字节数据
+   85          /*
+   86          一个字节8bit,当SCL低电平时，准备好SDA，SCL高电平时，从机采样SDA
+   87          */
+   88          //**************************************
+   89          void I2C_SendByte(u8 dat)
+   90          {
+   91   1        u8 i;
+   92   1              SCL=0;//SCL拉低，给SDA准备
+   93   1        for (i=0; i<8; i++)         //8位计数器
+   94   1        {
+   95   2              if(dat&0x80)//SDA准备
+   96   2               SDA=1;  
+   97   2              else 
+   98   2               SDA=0;
+   99   2          SCL=1;                //拉高时钟，给从机采样
+  100   2          I2C_Delay1us(DELAY_TIME);       //延时保持IIC时钟频率，也是给从机采样有充足时间
+  101   2          SCL=0;                //拉低时钟，给SDA准备
+  102   2              I2C_Delay1us(DELAY_TIME);                 //延时保持IIC时钟频率
+  103   2              dat <<= 1;          //移出数据的最高位  
+  104   2        }                                      
+  105   1      }
+  106          
+  107          //**************************************
+  108          //从IIC总线接收一个字节数据
+  109          //**************************************
+  110          u8 I2C_RecvByte()
+  111          {
+  112   1          u8 i;
+  113   1          u8 dat = 0;
+  114   1          SDA=1;//释放SDA，给从机使用
+  115   1          I2C_Delay1us(10);          //延时给从机准备SDA时间            
+  116   1          for (i=0; i<8; i++)         //8位计数器
+  117   1          { 
+  118   2                      dat <<= 1;
+  119   2                              
+  120   2              SCL=1;                //拉高时钟线，采样从机SDA
+  121   2           
+  122   2                        if(SDA) //读数据    
+  123   2                         dat |=0x01;      
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 3   
+
+  124   2             I2C_Delay1us(DELAY_TIME);     //延时保持IIC时钟频率              
+  125   2             SCL=0;           //拉低时钟线，处理接收到的数据
+  126   2             I2C_Delay1us(DELAY_TIME);   //延时给从机准备SDA时间
+  127   2          } 
+  128   1          return dat;
+  129   1      }
+  130          
+  131          ////向IIC设备写入一个字节数据
+  132          ////**************************************
+  133          //u8 Single_WriteI2C_byte(u8 Slave_Address,u8 REG_Address,u8 datas)
+  134          //{
+  135          //        if(I2C_Start()==0)  //起始信号
+  136          //              {I2C_Stop(); return 0;}           
+  137          
+  138          //    I2C_SendByte(Slave_Address);   //发送设备地址+写信号
+  139          //        if(!I2C_WaitAck()){I2C_Stop(); return 0;}
+  140          //   
+  141          //              I2C_SendByte(REG_Address);    //内部寄存器地址，
+  142          //        if(!I2C_WaitAck()){I2C_Stop(); return 0;}
+  143          //   
+  144          //              I2C_SendByte(datas);       //内部寄存器数据，
+  145          //        if(!I2C_WaitAck()){I2C_Stop(); return 0;}
+  146          //              
+  147          //              I2C_Stop();   //发送停止信号
+  148          //              
+  149          //              return 1;
+  150          //}
+  151          
+  152          
+  153          ////**************************************
+  154          ////从IIC设备读取一个字节数据
+  155          ////**************************************
+  156          //u8 Single_ReadI2C(u8 Slave_Address,u8 REG_Address,u8 *REG_data,u8 length)
+  157          //{
+  158          // if(I2C_Start()==0)  //起始信号
+  159          //      {I2C_Stop(); return 0;}          
+  160          //       
+  161          //      I2C_SendByte(Slave_Address);    //发送设备地址+写信号
+  162          //      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  163          //      
+  164          //      I2C_SendByte(REG_Address);     //发送存储单元地址
+  165          //      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  166          //      
+  167          //      if(I2C_Start()==0)  //起始信号
+  168          //                      {I2C_Stop(); return 0;}            
+  169          
+  170          //                      
+  171          //      I2C_SendByte(Slave_Address+1);  //发送设备地址+读信号
+  172          //      if(!I2C_WaitAck()){I2C_Stop(); return 0;}
+  173          //      
+  174          //      while(length-1)
+  175          //      {
+  176          //              *REG_data++=I2C_RecvByte();       //读出寄存器数据
+  177          //              I2C_SendACK(0);               //应答
+  178          //              length--;
+  179          //      }
+  180          //      *REG_data=I2C_RecvByte();  
+  181          //      I2C_SendACK(1);     //发送停止传输信号
+  182          //      I2C_Stop();                    //停止信号
+  183          //      return 1;
+  184          //}
+  185          
+  186          
+  187          u8 takeRangeReading(u8 Slave_Address)
+  188          {
+  189   1              I2C_Delay1us(40); 
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 4   
+
+  190   1        if(I2C_Start()==0)  //起始信号
+  191   1                      {I2C_Stop(); return 0;}           
+  192   1      
+  193   1          I2C_SendByte(Slave_Address);   //发送设备地址+写信号
+  194   1                if(!I2C_WaitAck()){I2C_Stop(); return 0;}
+  195   1          I2C_Delay1us(40);  
+  196   1                      I2C_SendByte(0x51);    //内部寄存器地址，
+  197   1                if(!I2C_WaitAck()){I2C_Stop(); return 0;}
+  198   1         
+  199   1                      
+  200   1                      I2C_Stop();     
+  201   1                      return 1;
+  202   1      }
+  203          
+  204          u8 requestRange(u8 Slave_Address,u8 *distance)
+  205          {
+  206   1              
+  207   1              u8 REG_data[2]={0,0};
+  208   1       
+  209   1              if(I2C_Start()==0)  //起始信号
+  210   1                      {I2C_Stop(); return 0;}          
+  211   1               
+  212   1              I2C_SendByte(Slave_Address);    //发送设备地址+写信号
+  213   1              if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  214   1              I2C_Delay1us(DELAY_TIME);  
+  215   1      
+  216   1      
+  217   1              REG_data[0]=I2C_RecvByte();       //读出寄存器数据
+  218   1      
+  219   1              I2C_SendACK(0);               //应答
+  220   1      
+  221   1              REG_data[1]=I2C_RecvByte();       //读出寄存器数据
+  222   1              
+  223   1              I2C_SendACK(1);     //发送停止传输信号
+  224   1              
+  225   1              I2C_Stop();                    //停止信号
+  226   1              //distance[0]=REG_data[0]<<8|REG_data[1];
+  227   1              distance[0]=REG_data[0];
+  228   1              distance[1]=REG_data[1];
+  229   1              return 1;
+  230   1      }
+  231          
+  232          u8 GY_WriteStartMeasure(void)
+  233          {
+  234   1      
+  235   1              return takeRangeReading(0xE0);
+  236   1      
+  237   1      }
+  238          
+  239          u8 GY_GetMeasureResultTemp(u8 *distance)
+  240          {
+  241   1      
+  242   1               return requestRange(0xE1, distance) ;
+  243   1      
+  244   1      }
+  245          
+  246          int GY_GetMeasureResult(u8 *distance)
+  247          {
+  248   1      
+  249   1               if(!GY_GetMeasureResultTemp(distance)) {return -1;}
+  250   1               return distance[0] << 8 | distance[1];
+  251   1      
+  252   1      }
+  253          
+  254          /*******************************************************************************
+  255          * 函数名         : void At24c02Write(unsigned char addr,unsigned char dat)
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 5   
+
+  256          * 函数功能                 : 往24c02的一个地址写入一个数据
+  257          * 输入           : 无
+  258          * 输出           : 1 通信正常 ； 0 通信失败
+  259          *******************************************************************************/
+  260          
+  261          u8 At24c02_Write_u8(u8 addr,u8 dat)
+  262          {
+  263   1              if(I2C_Start()==0)  //起始信号
+  264   1                      {I2C_Stop(); return 0;}  
+  265   1              I2C_SendByte(0xa0);//发送写器件地址
+  266   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  267   1              I2C_SendByte(addr);//发送要写入内存地址
+  268   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  269   1              I2C_SendByte(dat);      //发送数据
+  270   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  271   1              I2C_Stop(); 
+  272   1                      
+  273   1              return 1;
+  274   1      }
+  275          
+  276          u8 At24c02_Write_int(u8 addr,int dat)
+  277          {
+  278   1               u8 temp[INT_BYTE_NUM] = {0};
+  279   1               temp[0] = dat >> 8;
+  280   1               temp[1] = dat;
+  281   1               return At24c02_PageWrite(addr, temp, INT_BYTE_NUM);
+  282   1                      
+  283   1      }
+  284          
+  285          u8 At24c02_Write_float(u8 addr,float dat)
+  286          {
+  287   1               storFloatData temp;
+  288   1               temp.value = dat;
+  289   1               return At24c02_PageWrite(addr, temp.byte, FLOAT_BYTE_NUM);
+  290   1                      
+  291   1      }
+  292          
+  293          
+  294          u8 At24c02_Read_u8(u8 addr)
+  295          {
+  296   1              u8 Data;
+  297   1              I2C_Start();
+  298   1              I2C_SendByte(0xa0); //发送写器件地址
+  299   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  300   1              I2C_SendByte(addr); //发送要读取的地址
+  301   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  302   1              I2C_Start();
+  303   1              I2C_SendByte(0xa1); //发送读器件地址
+  304   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  305   1              
+  306   1              Data = I2C_RecvByte(); //读取数据
+  307   1              I2C_SendACK(1);     //发送停止传输信号
+  308   1              I2C_Stop(); 
+  309   1              
+  310   1              return Data;    
+  311   1      }
+  312          
+  313          
+  314          int At24c02_Read_int(u8 addr)
+  315          {
+  316   1              u8 temp[INT_BYTE_NUM] = {0};
+  317   1              At24c02_Sequential_Read(addr, temp, INT_BYTE_NUM);
+  318   1              return (int)(temp[0] << 8 | temp[1]);
+  319   1      }
+  320          
+  321          float At24c02_Read_float(u8 addr)
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 6   
+
+  322          {
+  323   1              storFloatData read_data;
+  324   1              At24c02_Sequential_Read(addr, read_data.byte, FLOAT_BYTE_NUM);
+  325   1              return read_data.value;
+  326   1      }
+  327          
+  328          
+  329          
+  330          
+  331          //如果长度过长，会触发延时
+  332          u8 At24c02_PageWrite(u8 addr, u8 *dat, u8 len)                                  //连续写入
+  333          {
+  334   1              I2C_Start();
+  335   1              I2C_SendByte(0xa0); //发送写器件地址
+  336   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  337   1              I2C_SendByte(addr);
+  338   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  339   1                      
+  340   1              while(len--){           //根据数组长度计算循环次数，遇到地址的8的整数倍,进行翻页
+  341   2                      I2C_SendByte(*dat);
+  342   2                              if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  343   2                      dat  ++;
+  344   2                      addr ++;
+  345   2              
+  346   2                      if(addr % (unsigned char)8 ==0){        //遇到写入地址为8的整数倍，翻页
+  347   3                              I2C_Stop();
+  348   3                              delay_ms(7);
+  349   3                              
+  350   3                              I2C_Start();
+  351   3                              I2C_SendByte(0xa0); //发送写器件地址
+  352   3                                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  353   3                              I2C_SendByte(addr);     
+  354   3                                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  355   3                      }
+  356   2                              
+  357   2              }
+  358   1      
+  359   1              I2C_Stop();     
+  360   1              return 1;
+  361   1      }
+  362          
+  363          u8 At24c02_Sequential_Read(u8 addr, u8 *dat, u8 len)                            //连续读取
+  364          {
+  365   1              I2C_Start();
+  366   1              I2C_SendByte(0xa0); //发送写器件地址
+  367   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  368   1              I2C_SendByte(addr);
+  369   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  370   1              I2C_Start();
+  371   1              I2C_SendByte(0xa1); //发送写器件地址
+  372   1                      if(!I2C_WaitAck()){I2C_Stop(); return 0;} 
+  373   1              while(len--)
+  374   1              {
+  375   2                      *dat = I2C_RecvByte();                                                                          //读取数组每一个元素
+  376   2                      if(len > 0)
+  377   2                      {
+  378   3                              I2C_SendACK(0);
+  379   3                      }
+  380   2                      
+  381   2                      dat++;  
+  382   2              }
+  383   1              
+  384   1              I2C_SendACK(1);
+  385   1              I2C_Stop();     
+  386   1              return 1;
+  387   1      }
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 7   
+
+  388          
+  389          //void WriteStartMeasure()
+  390          //{
+  391          //              I2C_Start();
+  392          //              I2C_WriteAbyte(0xE0);
+  393          //              I2C_Check_ACK();
+  394          //              I2C_WriteAbyte(0x51);
+  395          //              I2C_Check_ACK();
+  396          //              I2C_Stop();
+  397          //}
+  398          
+  399          //u16  GetMeasureResult()
+  400          //{
+  401          //              u8 HData, LData;
+  402          //              I2C_Start();
+  403          //              I2C_WriteAbyte(0xE1);
+  404          //              I2C_Check_ACK();
+  405          //              HData = I2C_ReadAbyte();
+  406          //              S_ACK();
+  407          //              LData = I2C_ReadAbyte();
+  408          //              S_NoACK();
+  409          //              I2C_Stop();
+  410          //              
+  411          //              return (HData << 8) | LData;
+  412          //}
+  413          
+  414          
+  415          
+  416          
+  417          ////
+  418          //static void I2C_Delay(unsigned char n)
+  419          //{
+  420          //    do
+  421          //    {
+  422          //        _nop_();_nop_();_nop_();_nop_();_nop_();
+  423          //        _nop_();_nop_();_nop_();_nop_();_nop_();
+  424          //        _nop_();_nop_();_nop_();_nop_();_nop_();              
+  425          //    }
+  426          //    while(n--);       
+  427          //}
+  428          
+  429          ////
+  430          //void I2CStart(void)
+  431          //{
+  432          //    sda = 1;
+  433          //    scl = 1;
+  434          //      I2C_Delay(DELAY_TIME);
+  435          //    sda = 0;
+  436          //      I2C_Delay(DELAY_TIME);
+  437          //    scl = 0;    
+  438          //}
+  439          
+  440          ////
+  441          //void I2CStop(void)
+  442          //{
+  443          //    sda = 0;
+  444          //    scl = 1;
+  445          //      I2C_Delay(DELAY_TIME);
+  446          //    sda = 1;
+  447          //      I2C_Delay(DELAY_TIME);
+  448          //}
+  449          
+  450          ////
+  451          //void I2CSendByte(unsigned char byt)
+  452          //{
+  453          //    unsigned char i;
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 8   
+
+  454          //      
+  455          //    for(i=0; i<8; i++){
+  456          //        scl = 0;
+  457          //              I2C_Delay(DELAY_TIME);
+  458          //        if(byt & 0x80){
+  459          //            sda = 1;
+  460          //        }
+  461          //        else{
+  462          //            sda = 0;
+  463          //        }
+  464          //              I2C_Delay(DELAY_TIME);
+  465          //        scl = 1;
+  466          //        byt <<= 1;
+  467          //              I2C_Delay(DELAY_TIME);
+  468          //    }
+  469          //      
+  470          //    scl = 0;  
+  471          //}
+  472          
+  473          ////
+  474          //unsigned char I2CReceiveByte(void)
+  475          //{
+  476          //      unsigned char da;
+  477          //      unsigned char i;
+  478          //      for(i=0;i<8;i++){   
+  479          //              scl = 1;
+  480          //              I2C_Delay(DELAY_TIME);
+  481          //              da <<= 1;
+  482          //              if(sda) 
+  483          //                      da |= 0x01;
+  484          //              scl = 0;
+  485          //              I2C_Delay(DELAY_TIME);
+  486          //      }
+  487          //      return da;    
+  488          //}
+  489          
+  490          ////
+  491          //unsigned char I2CWaitAck(void)
+  492          //{
+  493          //      unsigned char ackbit;
+  494          //      
+  495          //    scl = 1;
+  496          //      I2C_Delay(DELAY_TIME);
+  497          //    ackbit = sda; 
+  498          //    scl = 0;
+  499          //      I2C_Delay(DELAY_TIME);
+  500          //      
+  501          //      return ackbit;
+  502          //}
+  503          
+  504          
+  505          //void I2CSendAck(unsigned char ackbit)
+  506          //{
+  507          //    scl = 0;
+  508          //    sda = ackbit; 
+  509          //      I2C_Delay(DELAY_TIME);
+  510          //    scl = 1;
+  511          //      I2C_Delay(DELAY_TIME);
+  512          //    scl = 0; 
+  513          //      sda = 1;
+  514          //      I2C_Delay(DELAY_TIME);
+  515          //}
+  516          
+  517          
+  518          
+  519          //void MeasureStart(void)
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 9   
+
+  520          //{
+  521          //      I2CStart();//IIC起始信号
+  522          //      I2CSendByte(0xE0);//写入地址和读写方向
+  523          //      I2CWaitAck();//等待应答信号
+  524          //      I2CSendByte(0x51);//写入地址和读写方向
+  525          //      I2CWaitAck();//等待应答信号
+  526          //      I2CStop();//停止信号
+  527          //}
+  528          
+  529          //u16 GetMeasure(void)
+  530          //{
+  531          //      u8 Hdata, Ldata;
+  532          //      I2CStart();//IIC起始信号
+  533          //      I2CSendByte(0xE1);//写入地址和读写方向
+  534          //      I2CWaitAck();//等待应答信号
+  535          //      
+  536          //      Hdata=I2CReceiveByte();//读出高8位数据
+  537          //      I2CSendAck(1);//送入应答信号
+  538          //      Ldata=I2CReceiveByte();//读出高8位数据
+  539          //      I2CSendAck(0);//送入应答信号
+  540          
+  541          //      I2CStop();//停止信号
+  542          //}
+  543          
+  544          void saveConfig(void){
+  545   1              uint8 i, j;
+  546   1              iictmp = 0x04;
+  547   1              At24c02_Write_int(0x00, ver);
+  548   1              for(i = 0; i < 5; i++){
+  549   2                      for(j = 0; j < 8; j++){
+  550   3                              if(guis[i][j].type == GUI_TYPE_EDIT_FLOAT_VALUE){
+  551   4                                      At24c02_Write_float((u8)iictmp, *(guis[i][j].floatval));
+  552   4                                      iictmp += 4;
+  553   4                              }else
+  554   3                              if(guis[i][j].type == GUI_TYPE_EDIT_INT32_VALUE){
+  555   4                                      At24c02_Write_int((u8)iictmp, *(guis[i][j].intval));
+  556   4                                      iictmp += 4;
+  557   4                              }
+  558   3                      }
+  559   2              }
+  560   1      }
+  561          void loadConfig(void){
+  562   1              uint8 i, j;
+  563   1              iictmp = 0x04;
+  564   1              for(i = 0; i < 5; i++){
+  565   2                      for(j = 0; j < 8; j++){
+  566   3                              if(guis[i][j].type == GUI_TYPE_EDIT_FLOAT_VALUE){
+  567   4                                      *(guis[i][j].floatval) = At24c02_Read_float((u8)iictmp);
+  568   4                                      iictmp += 4;
+  569   4                              }else
+  570   3                              if(guis[i][j].type == GUI_TYPE_EDIT_INT32_VALUE){
+  571   4                                      *(guis[i][j].intval) = At24c02_Read_int((u8)iictmp);
+  572   4                                      iictmp += 4;
+  573   4                              }
+  574   3                      }
+  575   2              }
+  576   1      }
+  577          void slinit(void){
+  578   1              iictmp =  At24c02_Read_int(0x00);
+  579   1              if(iictmp != ver){
+  580   2                      iictmp = -1;
+  581   2              }else{
+  582   2                      loadConfig();
+  583   2                      iictmp = 0;
+  584   2              }
+  585   1              return;
+C251 COMPILER V5.60.0,  MyIIC                                                              01/07/24  20:05:25  PAGE 10  
+
+  586   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =      1926     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =        73     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        12     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
