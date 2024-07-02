@@ -108,10 +108,10 @@
 // ∏…ª…π‹Õ£≥µºÏ≤‚
 #define HALL_PIN 				P26					  //
 
-#define BUTTOM_ENTER			P70
-#define BUTTOM_CANCEL			P71
-#define BUTTOM_UP				P72
-#define BUTTOM_DOWN				P73
+#define BUTTOM_ENTER			P73
+#define BUTTOM_CANCEL			P72
+#define BUTTOM_UP				P70
+#define BUTTOM_DOWN				P71
 
 //#define GUI_TYPE_SCENE_CHANGE			0
 //#define GUI_TYPE_SHOW_FLOAT_VALUE		1

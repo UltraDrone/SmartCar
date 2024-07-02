@@ -41,7 +41,7 @@ unsigned char FlagEnter = 0, FlagCancel = 0, FlagUp = 0, FlagDown = 0;
 unsigned char LastFlagEnter = 0, LastFlagCancel = 0, LastFlagUp = 0, LastFlagDown = 0;
 void KeySystem(void);
 GUIS guis[5][8];
-unsigned char guiNumber[5] = {5, 8, 6, 7, 4};
+unsigned char guiNumber[5] = {5, 8, 6, 7, 6};
 unsigned char guiSelect = 0, guiScene = 0, guiEdit = 0;
 unsigned char guiTop = 0;
 void Gui_TEST_Init(void);
@@ -57,7 +57,7 @@ void All_Init(void)
     BUZZ_Init();														// 蜂鸣器高电平点亮
     Analog_Digital_Converter_Init();				// ADC初始化
     //Tof_Init();															// 测距模块初始化
-    //	imu660ra_init();												// 姿态传感器初始化
+    //imu660ra_init();												// 姿态传感器初始化
     oled_init();														// 初始化oled屏幕
     pit_timer_ms(TIM_1, 5);  								// 使用定时器做周期中断，时间5ms一次
     wireless_uart_init();										// 无线串口初始化: UART4_TX_P03   UART4_RX_P02  115200  TIM2
@@ -69,7 +69,7 @@ void All_Init(void)
     wireless_uart_send_buff("Init OK!\n", 9); // 无线串口发送初始化完成信息
 	//Tof_Init();
 	Gui_TEST_Init();
-	slInit();
+	slinit();
 }
 
 void main()
@@ -79,13 +79,13 @@ void main()
     /*----测试函数(内部本身有死循环)----*/
     //	Test_Motor(1);			// 1:正转  0:反转
     // 速度参数
-    ClsLoop_Set_Speed  = 2500;						// 闭环速度（避障之后）
+    ClsLoop_Set_Speed  = 2300;						// 闭环速度（避障之后）
     ClsLoop_Speed = ClsLoop_Set_Speed;
-    OpenLoop_Set_Speed = 2500;						// 开环速度（避障之前）
+    OpenLoop_Set_Speed = 2300;						// 开环速度（避障之前）
     OpenLoop_Speed = OpenLoop_Set_Speed;
     // 转向环参数
     Turn_Suquence = 0;										// 转向PID下标
-	vtest = 10;
+	vtest = 5;
     // 发车方向（0：左入左出  1：右入右出）
     Default_Dir = 0;											// 发车、入库、避障方向一致
 
@@ -94,6 +94,12 @@ void main()
 		KeySystem();
 		delay_ms(500);
 	}*/
+	while(P60 == 0 || P64 == 0){
+		go_motor(-2000, -2000);
+		delay_ms(20);
+		go_motor(2000, 2000);
+		delay_ms(20);
+	}
     while (1) {
 		KeySystem();
 		Flag.start_go = go_flag;
@@ -216,13 +222,13 @@ void Gui_TEST_Init(void){
 	guis[2][4].type = GUI_TYPE_SHOW_INT32_VALUE;
 	guis[2][5].type = GUI_TYPE_SHOW_INT32_VALUE;
 	strcpy(guis[2][0].names, "BK");
-	strcpy(guis[2][1].names, "TOR");
+	strcpy(guis[2][1].names, "RS");
 	strcpy(guis[2][2].names, "TPM");
 	strcpy(guis[2][3].names, "SPM");
 	strcpy(guis[2][4].names, "LPM");
 	strcpy(guis[2][5].names, "RPM");
 	guis[2][0].sceneGoTo = 0;
-	guis[2][1].intval = &adc_deviation;
+	guis[2][1].intval = &real_speed;
 	guis[2][2].intval = &Turn_PWM;
 	guis[2][3].intval = &Speed_PWM;
 	guis[2][4].intval = &All_PWM_left;
@@ -261,17 +267,25 @@ void Gui_TEST_Init(void){
 	guis[4][1].type = GUI_TYPE_EDIT_INT32_VALUE;
 	guis[4][2].type = GUI_TYPE_EDIT_INT32_VALUE;
 	guis[4][3].type = GUI_TYPE_EDIT_INT32_VALUE;
+	guis[4][4].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+	guis[4][5].type = GUI_TYPE_EDIT_FLOAT_VALUE;
 	strcpy(guis[4][0].names, "BK");
 	strcpy(guis[4][1].names, "Sid");
 	strcpy(guis[4][2].names, "Cor");
 	strcpy(guis[4][3].names, "Xie");
+	strcpy(guis[4][4].names, "RL");
+	strcpy(guis[4][5].names, "RH");
 	guis[4][0].sceneGoTo = 0;
 	guis[4][1].intval = &SideRate;
 	guis[4][2].intval = &CornerRate;
 	guis[4][3].intval = &XieRate;
+	guis[4][4].floatval = &RateLow;
+	guis[4][5].floatval = &RateUp;
 	guis[4][1].p1 = 50; guis[4][1].p2 = 1;
 	guis[4][2].p1 = 50; guis[4][2].p2 = 1;
 	guis[4][3].p1 = 50; guis[4][3].p2 = 1;
+	guis[4][4].p1 = 1; guis[4][4].p2 = 10;
+	guis[4][5].p1 = 1; guis[4][5].p2 = 10;
 	return;
 }
 
@@ -434,9 +448,11 @@ void KeySystem(void){
 		}
 	}
 	/*At24c02_Write_float(0x04, a++);
-	a = At24c02_Read_float(0x04);
-	sprintf(txt, "%.1f", a);
-	oled_p6x8str(1, 7, txt);*/
+	a = At24c02_Read_float(0x04);*/
+	if(guiScene == 0){
+		sprintf(txt, "%d, %d", (P60 == 1) ? 1 : 0, (P64 == 1) ? 1 : 0);
+		oled_p6x8str(1, 7, txt);
+	}
 	LastFlagEnter = FlagEnter;
 	LastFlagCancel = FlagCancel;
 	LastFlagUp = FlagUp;

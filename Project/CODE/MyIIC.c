@@ -1,6 +1,6 @@
 #include "MyIIC.h"
 
-int ver = 2;
+int ver = 12;
 int iictmp;
 
 void I2C_Delay1us(u8 DelayTime)	//@22.1184MHz
@@ -550,10 +550,12 @@ void saveConfig(void){
 			if(guis[i][j].type == GUI_TYPE_EDIT_FLOAT_VALUE){
 				At24c02_Write_float((u8)iictmp, *(guis[i][j].floatval));
 				iictmp += 4;
+				delay_ms(2);
 			}else
 			if(guis[i][j].type == GUI_TYPE_EDIT_INT32_VALUE){
 				At24c02_Write_int((u8)iictmp, *(guis[i][j].intval));
 				iictmp += 4;
+				delay_ms(2);
 			}
 		}
 	}
@@ -566,10 +568,12 @@ void loadConfig(void){
 			if(guis[i][j].type == GUI_TYPE_EDIT_FLOAT_VALUE){
 				*(guis[i][j].floatval) = At24c02_Read_float((u8)iictmp);
 				iictmp += 4;
+				delay_ms(2);
 			}else
 			if(guis[i][j].type == GUI_TYPE_EDIT_INT32_VALUE){
 				*(guis[i][j].intval) = At24c02_Read_int((u8)iictmp);
 				iictmp += 4;
+				delay_ms(2);
 			}
 		}
 	}

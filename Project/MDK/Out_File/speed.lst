@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  speed                                                              01/07/24  18:40:52  PAGE 1   
+C251 COMPILER V5.60.0,  speed                                                              02/07/24  23:17:14  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE speed
@@ -23,170 +23,171 @@ stmt  level    source
    12          int16 distance = 0;                                                                                                             // 走过的路程
    13          
    14          int16 Speed_PWM = 0;                                                                            // 速度环PWM
-   15          int16 All_PWM_left = 0;                                                                         // 左轮PWM
-   16          int16 All_PWM_right = 0;                                                                        // 右轮PWM
-   17          
-   18          /*****************编码器初始化*****************
-   19          函数：void encoder_init(void)
-   20          功能：编码器初始化
-   21          参数：  无
-   22          说明：ctimer_count_init(CTIM0_P34);
-   23                编码器使用TIM3和TIM4，如更改引脚只需修改宏定义即可
-   24                编码器使用带方向的编码器（好像不支持正交解码）
-   25          返回值：
-   26          **********************************************/
-   27          void Encoder_Init(void)
-   28          {
-   29   1          ctimer_count_init(Left_Ecoder_Pin1);                  //初始化左编码器外部定时器
-   30   1          Left_Ecoder_Pin2 = 1;                                                       //初始化左编码器的方向引脚
-   31   1          ctimer_count_init(Right_Ecoder_Pin1);               //初始化右编码器外部定时器
-   32   1          Right_Ecoder_Pin2 = 1;                                                      //初始化右编码器的方向引脚
-   33   1      }
-   34          
-   35          /*****************速度测量*****************
-   36          函数：void speed_measure(void)
-   37          功能：测量实时速度，两个轮的平均速度 编码器采集值，
-   38          参数：无
-   39          说明：该函数可以测出速度，获取速度后无需再次复位清零，已包括了
-   40          返回值：
-   41          ******************************************/
-   42          void speed_measure(void)
-   43          {
-   44   1      ////////////////////////右轮测速//////////Right//////
-   45   1          right_speed = ctimer_count_read(Right_Ecoder_Pin1);
-   46   1          ctimer_count_clean(Right_Ecoder_Pin1);
-   47   1      
-   48   1      //////////////////// 左轮测速/////////Left///////////////
-   49   1          left_speed = ctimer_count_read(Left_Ecoder_Pin1);
-   50   1          ctimer_count_clean(Left_Ecoder_Pin1);
-   51   1      
-   52   1      /////////////带方向编码器使用下面读取方向////////////////
-   53   1          if (0 == Left_Ecoder_Pin2)
-   54   1              left_speed = -left_speed;
-   55   1      
-   56   1          if (1 == Right_Ecoder_Pin2)
-   57   1              right_speed = -right_speed;
-C251 COMPILER V5.60.0,  speed                                                              01/07/24  18:40:52  PAGE 2   
+   15          int16 Speed_PWM_tmp = 0;
+   16          int16 All_PWM_left = 0;                                                                         // 左轮PWM
+   17          int16 All_PWM_right = 0;                                                                        // 右轮PWM
+   18          
+   19          /*****************编码器初始化*****************
+   20          函数：void encoder_init(void)
+   21          功能：编码器初始化
+   22          参数：  无
+   23          说明：ctimer_count_init(CTIM0_P34);
+   24                编码器使用TIM3和TIM4，如更改引脚只需修改宏定义即可
+   25                编码器使用带方向的编码器（好像不支持正交解码）
+   26          返回值：
+   27          **********************************************/
+   28          void Encoder_Init(void)
+   29          {
+   30   1          ctimer_count_init(Left_Ecoder_Pin1);                  //初始化左编码器外部定时器
+   31   1          Left_Ecoder_Pin2 = 1;                                                       //初始化左编码器的方向引脚
+   32   1          ctimer_count_init(Right_Ecoder_Pin1);               //初始化右编码器外部定时器
+   33   1          Right_Ecoder_Pin2 = 1;                                                      //初始化右编码器的方向引脚
+   34   1      }
+   35          
+   36          /*****************速度测量*****************
+   37          函数：void speed_measure(void)
+   38          功能：测量实时速度，两个轮的平均速度 编码器采集值，
+   39          参数：无
+   40          说明：该函数可以测出速度，获取速度后无需再次复位清零，已包括了
+   41          返回值：
+   42          ******************************************/
+   43          void speed_measure(void)
+   44          {
+   45   1      ////////////////////////右轮测速//////////Right//////
+   46   1          right_speed = ctimer_count_read(Right_Ecoder_Pin1);
+   47   1          ctimer_count_clean(Right_Ecoder_Pin1);
+   48   1      
+   49   1      //////////////////// 左轮测速/////////Left///////////////
+   50   1          left_speed = ctimer_count_read(Left_Ecoder_Pin1);
+   51   1          ctimer_count_clean(Left_Ecoder_Pin1);
+   52   1      
+   53   1      /////////////带方向编码器使用下面读取方向////////////////
+   54   1          if (1 == Left_Ecoder_Pin2)
+   55   1              left_speed = -left_speed;
+   56   1      
+   57   1          if (0 == Right_Ecoder_Pin2)
+C251 COMPILER V5.60.0,  speed                                                              02/07/24  23:17:14  PAGE 2   
 
-   58   1      
-   59   1          real_speed = (right_speed + left_speed) / 2;      // 速度平均值
-   60   1          //  Speed_Min = last_speed;
-   61   1          ///  Speed_Min = range_protect(Speed_Min, -500, 500);
-   62   1          // real_speed = limit(real_speed,2000); //限幅保护
-   63   1          last_speed = real_speed;
-   64   1      
-   65   1          distance += (right_speed + left_speed) * 0.01; //测距离  化为厘米为单位
-   66   1      }
-   67          
+   58   1              right_speed = -right_speed;
+   59   1      
+   60   1          real_speed = (right_speed + left_speed) / 2;      // 速度平均值
+   61   1          //  Speed_Min = last_speed;
+   62   1          ///  Speed_Min = range_protect(Speed_Min, -500, 500);
+   63   1          // real_speed = limit(real_speed,2000); //限幅保护
+   64   1          last_speed = real_speed;
+   65   1      
+   66   1          distance += (right_speed + left_speed) * 0.01; //测距离  化为厘米为单位
+   67   1      }
    68          
-   69          /****************************电机初始化**********************
-   70          函数：void Motor_Init(void)
-   71          参数：无
-   72          说明：无
-   73          返回：无
-   74          **********************************************************/
-   75          void Motor_Init(void)
-   76          {
-   77   1          // ------DRV驱动-------------
-   78   1          // 左轮
-   79   1          pwm_init(Left_PWM_Pin, 17000, 0);    // 初始化PWM  使用P62引脚  初始化频率为10Khz
-   80   1              //pwm_init(Left_DIR_Pin, 17000, 0);      // 初始化PWM  使用P62引脚  初始化频率为10Khz
-   81   1          gpio_mode(Left_DIR_Pin, GPO_PP);      // 设置DRV方向引脚为为推挽输出  P60
-   82   1          // 右轮
-   83   1          pwm_init(Right_PWM_Pin, 17000, 0);   // 初始化PWM  使用P66引脚  初始化频率为10Khz
-   84   1              //pwm_init(Right_DIR_Pin, 17000, 0);     // 初始化PWM  使用P62引脚  初始化频率为10Khz
-   85   1          gpio_mode(Right_DIR_Pin, GPO_PP);     // 设置DRV方向引脚为为推挽输出  P64
-   86   1      }
-   87          
-   88          /****************************电机输出**********************
-   89          函数：void go_motor (int16 left_PWM,int16 right_PWM)
-   90          参数：int16 left_PWM,int16 right_PWM
-   91          说明：pwm_duty(PWMA_CH1P_P60, duty);
-   92                务必将车子的电机逻辑调像这个一样，第一个参数控制左电机，第二个参数控制右电机
-   93                传入的参数如果为正数，电机正转，负值反转！！！！！
-   94          返回：无
-   95          时间：2023.06.19调试完毕
-   96          **********************************************************/
-   97          #define Duty_Max  7000   // 限幅最大值7000
-   98          void go_motor(int16 left_PWM, int16 right_PWM)
-   99          {
-  100   1      //-------DRV驱动-----------
-  101   1      //    if(left_PWM > 0)           //左轮
-  102   1      //    {
-  103   1      //        left_PWM = left_PWM <= Duty_Max ? left_PWM : Duty_Max;
-  104   1      //        pwm_duty(Left_DIR_Pin, left_PWM); //正转
-  105   1      //        pwm_duty(Left_PWM_Pin, 0); //正转
-  106   1      //    }
-  107   1      //    else
-  108   1      //    {
-  109   1      //        left_PWM = left_PWM >= -Duty_Max ? (-left_PWM) : Duty_Max;
-  110   1      //        pwm_duty(Left_DIR_Pin, 0); //反转
-  111   1      //        pwm_duty(Left_PWM_Pin, left_PWM); //反转
-  112   1      //    }
-  113   1      
-  114   1      //    if(right_PWM > 0)           //右轮
-  115   1      //    {
-  116   1      //        right_PWM = right_PWM <= Duty_Max ? right_PWM : Duty_Max;
-  117   1      //        pwm_duty(Right_DIR_Pin, right_PWM); //正转
-  118   1      //        pwm_duty(Right_PWM_Pin, 0);   // 正转
-  119   1      //    }
-  120   1      //    else
-  121   1      //    {
-  122   1      //        right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
-  123   1      //        pwm_duty(Right_DIR_Pin, 0); //反转
-C251 COMPILER V5.60.0,  speed                                                              01/07/24  18:40:52  PAGE 3   
+   69          
+   70          /****************************电机初始化**********************
+   71          函数：void Motor_Init(void)
+   72          参数：无
+   73          说明：无
+   74          返回：无
+   75          **********************************************************/
+   76          void Motor_Init(void)
+   77          {
+   78   1          // ------DRV驱动-------------
+   79   1          // 左轮
+   80   1          pwm_init(Left_PWM_Pin, 17000, 0);    // 初始化PWM  使用P62引脚  初始化频率为10Khz
+   81   1              //pwm_init(Left_DIR_Pin, 17000, 0);      // 初始化PWM  使用P62引脚  初始化频率为10Khz
+   82   1          gpio_mode(P60, GPO_PP);      // 设置DRV方向引脚为为推挽输出  P60
+   83   1          // 右轮
+   84   1          pwm_init(Right_PWM_Pin, 17000, 0);   // 初始化PWM  使用P66引脚  初始化频率为10Khz
+   85   1              //pwm_init(Right_DIR_Pin, 17000, 0);     // 初始化PWM  使用P62引脚  初始化频率为10Khz
+   86   1          gpio_mode(P64, GPO_PP);     // 设置DRV方向引脚为为推挽输出  P64
+   87   1      }
+   88          
+   89          /****************************电机输出**********************
+   90          函数：void go_motor (int16 left_PWM,int16 right_PWM)
+   91          参数：int16 left_PWM,int16 right_PWM
+   92          说明：pwm_duty(PWMA_CH1P_P60, duty);
+   93                务必将车子的电机逻辑调像这个一样，第一个参数控制左电机，第二个参数控制右电机
+   94                传入的参数如果为正数，电机正转，负值反转！！！！！
+   95          返回：无
+   96          时间：2023.06.19调试完毕
+   97          **********************************************************/
+   98          #define Duty_Max  7000   // 限幅最大值7000
+   99          void go_motor(int16 left_PWM, int16 right_PWM)
+  100          {
+  101   1      //-------DRV驱动-----------
+  102   1      //    if(left_PWM > 0)           //左轮
+  103   1      //    {
+  104   1      //        left_PWM = left_PWM <= Duty_Max ? left_PWM : Duty_Max;
+  105   1      //        pwm_duty(Left_DIR_Pin, left_PWM); //正转
+  106   1      //        pwm_duty(Left_PWM_Pin, 0); //正转
+  107   1      //    }
+  108   1      //    else
+  109   1      //    {
+  110   1      //        left_PWM = left_PWM >= -Duty_Max ? (-left_PWM) : Duty_Max;
+  111   1      //        pwm_duty(Left_DIR_Pin, 0); //反转
+  112   1      //        pwm_duty(Left_PWM_Pin, left_PWM); //反转
+  113   1      //    }
+  114   1      
+  115   1      //    if(right_PWM > 0)           //右轮
+  116   1      //    {
+  117   1      //        right_PWM = right_PWM <= Duty_Max ? right_PWM : Duty_Max;
+  118   1      //        pwm_duty(Right_DIR_Pin, right_PWM); //正转
+  119   1      //        pwm_duty(Right_PWM_Pin, 0);   // 正转
+  120   1      //    }
+  121   1      //    else
+  122   1      //    {
+  123   1      //        right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
+C251 COMPILER V5.60.0,  speed                                                              02/07/24  23:17:14  PAGE 3   
 
-  124   1      //        pwm_duty(Right_PWM_Pin, right_PWM); // 反转
-  125   1      //    }
-  126   1              if(left_PWM > 0)           //左轮
-  127   1              {
-  128   2                      left_PWM = left_PWM <= Duty_Max ? left_PWM : Duty_Max;
-  129   2                      P60 = 1;
-  130   2                      pwm_duty(Left_PWM_Pin, left_PWM); //正转
-  131   2              }
-  132   1              else
-  133   1              {
-  134   2                      left_PWM = left_PWM >= -Duty_Max ? (-left_PWM) : Duty_Max;
-  135   2                      P60 = 0;
-  136   2                      pwm_duty(Left_PWM_Pin, left_PWM); //反转
-  137   2              }
-  138   1      
-  139   1              if(right_PWM > 0)           //右轮
-  140   1              {
-  141   2                      right_PWM = right_PWM <= Duty_Max ? right_PWM : Duty_Max;
-  142   2                      P64 = 1;
-  143   2                      pwm_duty(Right_PWM_Pin, right_PWM);     // 正转
-  144   2              }
-  145   1              else
-  146   1              {
-  147   2                      right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
-  148   2                      P64 = 0;
-  149   2                      pwm_duty(Right_PWM_Pin, right_PWM); // 反转
-  150   2              }
-  151   1      }
-  152          
-  153          /****************************电机输出**********************
-  154          函数：void go_motor (int16 left_PWM,int16 right_PWM)
-  155          参数：1：正转  0 反转
-  156          说明：无
-  157          返回：无
-  158          **********************************************************/
-  159          #define  Zhengzhuan 1
-  160          #define  Fanzhuan   0
-  161          void Test_Motor(int16 direction)
-  162          {
-  163   1          while(1)
-  164   1          {
-  165   2              if(direction == Zhengzhuan)
-  166   2                  go_motor(2000, 2000);                  // 两轮均正转
-  167   2      
-  168   2              if(direction == Fanzhuan)
-  169   2                  go_motor(-2000, -2000);                     // 两轮反转
-  170   2          }
-  171   1      }
-  172          
+  124   1      //        pwm_duty(Right_DIR_Pin, 0); //反转
+  125   1      //        pwm_duty(Right_PWM_Pin, right_PWM); // 反转
+  126   1      //    }
+  127   1              if(left_PWM >= 0)           //左轮
+  128   1              {
+  129   2                      left_PWM = left_PWM <= Duty_Max ? left_PWM : Duty_Max;
+  130   2                      P60 = 1;
+  131   2                      pwm_duty(Left_PWM_Pin, left_PWM); //正转
+  132   2              }
+  133   1              else
+  134   1              {
+  135   2                      left_PWM = left_PWM >= -Duty_Max ? (-left_PWM) : Duty_Max;
+  136   2                      P60 = 0;
+  137   2                      pwm_duty(Left_PWM_Pin, left_PWM); //反转
+  138   2              }
+  139   1      
+  140   1              if(right_PWM >= 0)           //右轮
+  141   1              {
+  142   2                      right_PWM = right_PWM <= Duty_Max ? right_PWM : Duty_Max;
+  143   2                      P64 = 1;
+  144   2                      pwm_duty(Right_PWM_Pin, right_PWM);     // 正转
+  145   2              }
+  146   1              else
+  147   1              {
+  148   2                      right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
+  149   2                      P64 = 0;
+  150   2                      pwm_duty(Right_PWM_Pin, right_PWM); // 反转
+  151   2              }
+  152   1      }
+  153          
+  154          /****************************电机输出**********************
+  155          函数：void go_motor (int16 left_PWM,int16 right_PWM)
+  156          参数：1：正转  0 反转
+  157          说明：无
+  158          返回：无
+  159          **********************************************************/
+  160          #define  Zhengzhuan 1
+  161          #define  Fanzhuan   0
+  162          void Test_Motor(int16 direction)
+  163          {
+  164   1          while(1)
+  165   1          {
+  166   2              if(direction == Zhengzhuan)
+  167   2                  go_motor(2000, 2000);                  // 两轮均正转
+  168   2      
+  169   2              if(direction == Fanzhuan)
+  170   2                  go_motor(-2000, -2000);                     // 两轮反转
+  171   2          }
+  172   1      }
   173          
   174          
+  175          
 
 
 Module Information          Static   Overlayable
@@ -198,17 +199,17 @@ Module Information          Static   Overlayable
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =        30     ------
+  edata size           =        32     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
-  ebitaddressable size =    ------     ------
-C251 COMPILER V5.60.0,  speed                                                              01/07/24  18:40:52  PAGE 4   
+C251 COMPILER V5.60.0,  speed                                                              02/07/24  23:17:14  PAGE 4   
 
+  ebitaddressable size =    ------     ------
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        36     ------
+  hconst size          =        42     ------
 End of Module Information.
 
 

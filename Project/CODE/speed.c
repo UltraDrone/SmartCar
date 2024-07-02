@@ -12,6 +12,7 @@ int16 last_speed;										 					// 上一轮速度
 int16 distance = 0;									 					// 走过的路程
 
 int16 Speed_PWM = 0;        				 					// 速度环PWM
+int16 Speed_PWM_tmp = 0;
 int16 All_PWM_left = 0;     				 					// 左轮PWM
 int16 All_PWM_right = 0;    				 					// 右轮PWM
 
@@ -50,10 +51,10 @@ void speed_measure(void)
     ctimer_count_clean(Left_Ecoder_Pin1);
 
 /////////////带方向编码器使用下面读取方向////////////////
-    if (0 == Left_Ecoder_Pin2)
+    if (1 == Left_Ecoder_Pin2)
         left_speed = -left_speed;
 
-    if (1 == Right_Ecoder_Pin2)
+    if (0 == Right_Ecoder_Pin2)
         right_speed = -right_speed;
 
     real_speed = (right_speed + left_speed) / 2;      // 速度平均值
@@ -78,11 +79,11 @@ void Motor_Init(void)
     // 左轮
     pwm_init(Left_PWM_Pin, 17000, 0);	 // 初始化PWM  使用P62引脚  初始化频率为10Khz
 	//pwm_init(Left_DIR_Pin, 17000, 0);	 // 初始化PWM  使用P62引脚  初始化频率为10Khz
-    gpio_mode(Left_DIR_Pin, GPO_PP);      // 设置DRV方向引脚为为推挽输出  P60
+    gpio_mode(P60, GPO_PP);      // 设置DRV方向引脚为为推挽输出  P60
     // 右轮
     pwm_init(Right_PWM_Pin, 17000, 0);	 // 初始化PWM  使用P66引脚  初始化频率为10Khz
 	//pwm_init(Right_DIR_Pin, 17000, 0);	 // 初始化PWM  使用P62引脚  初始化频率为10Khz
-    gpio_mode(Right_DIR_Pin, GPO_PP);     // 设置DRV方向引脚为为推挽输出  P64
+    gpio_mode(P64, GPO_PP);     // 设置DRV方向引脚为为推挽输出  P64
 }
 
 /****************************电机输出**********************
@@ -123,7 +124,7 @@ void go_motor(int16 left_PWM, int16 right_PWM)
 //        pwm_duty(Right_DIR_Pin, 0); //反转
 //        pwm_duty(Right_PWM_Pin, right_PWM); // 反转
 //    }
-	if(left_PWM > 0)           //左轮
+	if(left_PWM >= 0)           //左轮
 	{
 		left_PWM = left_PWM <= Duty_Max ? left_PWM : Duty_Max;
 		P60 = 1;
@@ -136,7 +137,7 @@ void go_motor(int16 left_PWM, int16 right_PWM)
 		pwm_duty(Left_PWM_Pin, left_PWM); //反转
 	}
 
-	if(right_PWM > 0)           //右轮
+	if(right_PWM >= 0)           //右轮
 	{
 		right_PWM = right_PWM <= Duty_Max ? right_PWM : Duty_Max;
 		P64 = 1;

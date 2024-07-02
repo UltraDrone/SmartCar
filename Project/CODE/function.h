@@ -13,7 +13,26 @@
 #define KD 2
 #define KT 3   //积分限幅项
 
+//typedef struct // PID賦凳极隅砱
+//{
+//    int SetValue; // ?咡硉 統蕉硉
+//    int ActualValue; // 妗暱硉
+//    float KPS; // 掀瞰秪赽
+//	float KP2S;
+//    float KIS; // 儅煦秪赽
+//    float KDS; // 峚煦秪赽
+//    int ek; // 掛撰昫船
+//    int ek_1; // 奻珨棒
+//    int ek_2; // 奻奻棒
+//    int ek_sum; // 昫船濛儅
 
+//    int Sum_max; // 昫船濛睿奻癹
+//    int Sum_min; // 昫船濛睿狟癹
+//    int PIDmax; // max limit
+//    int PIDmin; // min limit
+//	
+//    int PIDout; // output
+//}PIDT;
 typedef struct PID   	// 用来PID参数计算变量
 {
     float SumError;			// 误差累计

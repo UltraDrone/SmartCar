@@ -14,6 +14,7 @@ extern int16 last_speed;														 // 上一轮速度
 extern int16 distance;									    				 // 走过的路程
 
 extern int16 Speed_PWM;        				 							 // 速度环PWM
+extern int16 Speed_PWM_tmp;
 extern int16 All_PWM_left;     				   						 // 左轮PWM
 extern int16 All_PWM_right;    				 							 // 右轮PWM
 
