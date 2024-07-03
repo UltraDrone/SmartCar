@@ -121,11 +121,11 @@ void AD_Date_Fitier(void)
 
 void Protect_Anticollision(void)
 {
-    if(Left_Adc < 10 && Right_Adc < 10){
+    if(Left_Adc < 100 && Right_Adc < 100){
         //Flag.start_go = 0;
 		go_flag = 0;
 	}else
-	if(Left_Adc > 20 || Right_Adc > 20){
+	if(Left_Adc > 150 || Right_Adc > 150){
 		//Flag.start_go = 1;
 		go_flag = 1;
 	}
@@ -181,7 +181,7 @@ void Right_Annulus(void)
         // LightOn;
         PreFlag_Right_annulus = 0;
 		Flag_Right_annulus = 1;
-		Turn_PWM = 1000;
+		//Turn_PWM = 1000;
         //pwm_duty(Steer_Pin, 700);
         delay_ms(300);
         BUZZOff;

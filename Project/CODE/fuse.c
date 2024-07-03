@@ -78,19 +78,33 @@ void Fuse_result(void)
 //                // 否则则将速度环运算结果投入占空比
 //                All_PWM_left = Speed_PWM - (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 / 4) + 1)*/);
 //                All_PWM_right = Speed_PWM + (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 / 4) + 1)*/);
-				tmptest = (real_speed - 1500.0) / (ClsLoop_Speed - 1500.0) * (vtest - 0.6 * vtest) + 0.6 * vtest;
+				/*Electromagnetism_Control();						// 电磁采集所有
+                adc_deviation = 0
+					+ Cha_BI_He_Sqrt(Left_Adc + Left_Corner_Adc * 1.5, Right_Adc + Right_Corner_Adc * 1.5, SideRate) 
+					//+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
+					+ Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9： 1
+                Turn_PWM = PlacePID_Control(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //转向动态PID
+                Turn_PWM = abs(Turn_PWM);
+				if(adc_deviation < 0)Turn_PWM *= -1;
+				Turn_PWM = range_protect(Turn_PWM, -750, 750);
+				Annulus_Analysis();								// 圆环识别处理*/
+				//right_speed + left_speed
+				tmptest = (real_speed * 2 - 1500.0) / (ClsLoop_Speed - 1500.0 * 0.5) * (vtest - 0.6 * vtest) + 0.6 * vtest;
 				All_PWM_left = PID_Realize(
-					&SpeedPID, Speed_Pid, real_speed, 
+					&SpeedPID, Speed_Pid, left_speed, 
 					((ClsLoop_Speed - (Turn_PWM) * (tmptest)) 
-					- abs(Turn_PWM) * (tmptest) * RateLow) * 3.0 / 4
+					- abs(Turn_PWM) * (tmptest) * RateLow)
 				);
                 All_PWM_right = PID_Realize(
-					&SpeedPID, Speed_Pid, real_speed, 
+					&SpeedPID, Speed_Pid, right_speed, 
 					((ClsLoop_Speed + (Turn_PWM) * (tmptest)) 
-					- abs(Turn_PWM) * (tmptest) * RateLow) * 3.0 / 4
+					- abs(Turn_PWM) * (tmptest) * RateLow)
 				);
-				All_PWM_left = range_protect(All_PWM_left, -ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
-				All_PWM_right = range_protect(All_PWM_right, -ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
+				Speed_PWM = (ClsLoop_Speed - abs(Turn_PWM) * (tmptest) * RateLow);
+				//All_PWM_left = ((ClsLoop_Speed - (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
+				//All_PWM_right = ((ClsLoop_Speed + (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
+				All_PWM_left = range_protect(All_PWM_left, - ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
+				All_PWM_right = range_protect(All_PWM_right, - ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
 				/*if(All_PWM_left < 0 && All_PWM_left > -1500){
 					All_PWM_left = -1500;
 				}else
@@ -137,8 +151,8 @@ void Fuse_result(void)
                 Flag.T_Turn = 0;
                 Electromagnetism_Control();						// 电磁采集所有
                 adc_deviation = 0
-					+ Cha_BI_He_Sqrt(Left_Adc + Left_Corner_Adc * 1.5, Right_Adc + Right_Corner_Adc * 1.5, SideRate) 
-					//+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
+					+ Cha_BI_He_Sqrt(Left_Adc/* + Left_Corner_Adc*/, Right_Adc/* + Right_Corner_Adc*/, SideRate) 
+					+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
 					+ Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9： 1
                 Turn_PWM = PlacePID_Control(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //转向动态PID
                 Turn_PWM = abs(Turn_PWM);

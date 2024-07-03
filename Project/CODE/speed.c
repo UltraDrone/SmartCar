@@ -43,18 +43,18 @@ void Encoder_Init(void)
 void speed_measure(void)
 {
 ////////////////////////右轮测速//////////Right//////
-    right_speed = ctimer_count_read(Right_Ecoder_Pin1);
-    ctimer_count_clean(Right_Ecoder_Pin1);
-
-//////////////////// 左轮测速/////////Left///////////////
-    left_speed = ctimer_count_read(Left_Ecoder_Pin1);
+    right_speed = ctimer_count_read(Left_Ecoder_Pin1);
     ctimer_count_clean(Left_Ecoder_Pin1);
 
+//////////////////// 左轮测速/////////Left///////////////
+    left_speed = ctimer_count_read(Right_Ecoder_Pin1);
+    ctimer_count_clean(Right_Ecoder_Pin1);
+
 /////////////带方向编码器使用下面读取方向////////////////
-    if (1 == Left_Ecoder_Pin2)
+    if (0 == Right_Ecoder_Pin2)
         left_speed = -left_speed;
 
-    if (0 == Right_Ecoder_Pin2)
+    if (1 == Left_Ecoder_Pin2)
         right_speed = -right_speed;
 
     real_speed = (right_speed + left_speed) / 2;      // 速度平均值

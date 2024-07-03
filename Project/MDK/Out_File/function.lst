@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  function                                                           03/07/24  17:01:41  PAGE 1   
+C251 COMPILER V5.60.0,  function                                                           03/07/24  22:13:08  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE function
@@ -13,7 +13,8 @@ stmt  level    source
     2          
     3          /***************速度PID参数************/
     4          PID SpeedPID;                                                                                                                                                   //速度PID储存（只是储存的中间量，无需关心）
-    5          float Speed_Pid[4]  = {3.0, 0.04, 0.5, 500};//{2.0, 0.001, 0, 500};                                     // 速度环PID
+    5          float Speed_Pid[4]  = {1, 0.5, 1.0, 1500};//{3.0, 0.04, 0.5, 500};//{2.0, 0.001, 0, 500};                                       // 速度环PI
+             -D
     6          
     7          
     8          /***************转向PID参数************/
@@ -65,9 +66,9 @@ stmt  level    source
    54          {
    55   1          int16 cha = 0;
    56   1          float he = 0;
-   57   1          float resault;
-C251 COMPILER V5.60.0,  function                                                           03/07/24  17:01:41  PAGE 2   
+C251 COMPILER V5.60.0,  function                                                           03/07/24  22:13:08  PAGE 2   
 
+   57   1          float resault;
    58   1          cha = date_1 - date_2;   //差
    59   1          he = (float) ((date_1 + date_2) * sqrt((date_1 + date_2))); //和的1.5次方
    60   1          resault = (cha / he) * x ; //差比和
@@ -133,9 +134,9 @@ stmt  level    source
   119          
   120          说明：  该函数参考其他程序。
   121          返回值： int32 Realize
-  122          eg：Tar_Ang_Vel.Y = PID_Realize(&Angle_PID, Angle, (int32)(Attitude_Angle.Y*100), (int32)Target_Angle.Y);
-C251 COMPILER V5.60.0,  function                                                           03/07/24  17:01:41  PAGE 3   
+C251 COMPILER V5.60.0,  function                                                           03/07/24  22:13:08  PAGE 3   
 
+  122          eg：Tar_Ang_Vel.Y = PID_Realize(&Angle_PID, Angle, (int32)(Attitude_Angle.Y*100), (int32)Target_Angle.Y);
              -        // 结果为放大10倍的目标角速度
   123          *******************************************************************************/
   124          ////////////
@@ -201,8 +202,8 @@ stmt  level    source
   184   1          sptr->PrevError = 0;        //Error[-2]
   185   1          sptr->LastData  = 0;
   186   1      }
+C251 COMPILER V5.60.0,  function                                                           03/07/24  22:13:08  PAGE 4   
 
-C251 COMPILER V5.60.0,  function                                                           03/07/24  17:01:41  PAGE 4   
 
 
 Module Information          Static   Overlayable

@@ -41,7 +41,7 @@ unsigned char FlagEnter = 0, FlagCancel = 0, FlagUp = 0, FlagDown = 0;
 unsigned char LastFlagEnter = 0, LastFlagCancel = 0, LastFlagUp = 0, LastFlagDown = 0;
 void KeySystem(void);
 GUIS guis[5][8];
-unsigned char guiNumber[5] = {5, 8, 6, 7, 6};
+unsigned char guiNumber[5] = {5, 8, 8, 8, 6};
 unsigned char guiSelect = 0, guiScene = 0, guiEdit = 0;
 unsigned char guiTop = 0;
 void Gui_TEST_Init(void);
@@ -79,9 +79,9 @@ void main()
     /*----测试函数(内部本身有死循环)----*/
     //	Test_Motor(1);			// 1:正转  0:反转
     // 速度参数
-    ClsLoop_Set_Speed  = 2300;						// 闭环速度（避障之后）
+    ClsLoop_Set_Speed  = 2700;						// 闭环速度（避障之后）
     ClsLoop_Speed = ClsLoop_Set_Speed;
-    OpenLoop_Set_Speed = 2300;						// 开环速度（避障之前）
+    OpenLoop_Set_Speed = 2700;						// 开环速度（避障之前）
     OpenLoop_Speed = OpenLoop_Set_Speed;
     // 转向环参数
     Turn_Suquence = 0;										// 转向PID下标
@@ -221,18 +221,24 @@ void Gui_TEST_Init(void){
 	guis[2][3].type = GUI_TYPE_SHOW_INT32_VALUE;
 	guis[2][4].type = GUI_TYPE_SHOW_INT32_VALUE;
 	guis[2][5].type = GUI_TYPE_SHOW_INT32_VALUE;
+	guis[2][6].type = GUI_TYPE_SHOW_INT32_VALUE;
+	guis[2][7].type = GUI_TYPE_SHOW_INT32_VALUE;
 	strcpy(guis[2][0].names, "BK");
 	strcpy(guis[2][1].names, "ADO");
 	strcpy(guis[2][2].names, "TPM");
 	strcpy(guis[2][3].names, "SPM");
 	strcpy(guis[2][4].names, "LPM");
 	strcpy(guis[2][5].names, "RPM");
+	strcpy(guis[2][6].names, "lre");
+	strcpy(guis[2][7].names, "rre");
 	guis[2][0].sceneGoTo = 0;
 	guis[2][1].intval = &adc_deviation;
 	guis[2][2].intval = &Turn_PWM;
 	guis[2][3].intval = &Speed_PWM;
 	guis[2][4].intval = &All_PWM_left;
 	guis[2][5].intval = &All_PWM_right;
+	guis[2][6].intval = &left_speed;
+	guis[2][7].intval = &right_speed;
 	
 	guis[3][0].type = GUI_TYPE_SCENE_CHANGE;
 	guis[3][1].type = GUI_TYPE_EDIT_FLOAT_VALUE;

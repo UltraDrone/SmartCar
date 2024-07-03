@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  speed                                                              03/07/24  17:01:41  PAGE 1   
+C251 COMPILER V5.60.0,  speed                                                              03/07/24  18:33:36  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE speed
@@ -54,19 +54,19 @@ stmt  level    source
    43          void speed_measure(void)
    44          {
    45   1      ////////////////////////右轮测速//////////Right//////
-   46   1          right_speed = ctimer_count_read(Right_Ecoder_Pin1);
-   47   1          ctimer_count_clean(Right_Ecoder_Pin1);
+   46   1          right_speed = ctimer_count_read(Left_Ecoder_Pin1);
+   47   1          ctimer_count_clean(Left_Ecoder_Pin1);
    48   1      
    49   1      //////////////////// 左轮测速/////////Left///////////////
-   50   1          left_speed = ctimer_count_read(Left_Ecoder_Pin1);
-   51   1          ctimer_count_clean(Left_Ecoder_Pin1);
+   50   1          left_speed = ctimer_count_read(Right_Ecoder_Pin1);
+   51   1          ctimer_count_clean(Right_Ecoder_Pin1);
    52   1      
    53   1      /////////////带方向编码器使用下面读取方向////////////////
-   54   1          if (1 == Left_Ecoder_Pin2)
+   54   1          if (0 == Right_Ecoder_Pin2)
    55   1              left_speed = -left_speed;
    56   1      
-   57   1          if (0 == Right_Ecoder_Pin2)
-C251 COMPILER V5.60.0,  speed                                                              03/07/24  17:01:41  PAGE 2   
+   57   1          if (1 == Left_Ecoder_Pin2)
+C251 COMPILER V5.60.0,  speed                                                              03/07/24  18:33:36  PAGE 2   
 
    58   1              right_speed = -right_speed;
    59   1      
@@ -134,7 +134,7 @@ stmt  level    source
   121   1      //    else
   122   1      //    {
   123   1      //        right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
-C251 COMPILER V5.60.0,  speed                                                              03/07/24  17:01:41  PAGE 3   
+C251 COMPILER V5.60.0,  speed                                                              03/07/24  18:33:36  PAGE 3   
 
   124   1      //        pwm_duty(Right_DIR_Pin, 0); //反转
   125   1      //        pwm_duty(Right_PWM_Pin, right_PWM); // 反转
@@ -203,7 +203,7 @@ Module Information          Static   Overlayable
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
-C251 COMPILER V5.60.0,  speed                                                              03/07/24  17:01:41  PAGE 4   
+C251 COMPILER V5.60.0,  speed                                                              03/07/24  18:33:36  PAGE 4   
 
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
