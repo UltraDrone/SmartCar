@@ -121,11 +121,11 @@ void AD_Date_Fitier(void)
 
 void Protect_Anticollision(void)
 {
-    if(Left_Adc < 100 && Right_Adc < 100){
+    if(Left_Adc < 10 && Right_Adc < 10){
         //Flag.start_go = 0;
 		go_flag = 0;
 	}else
-	if(Left_Adc > 1000 || Right_Adc > 1000){
+	if(Left_Adc > 20 || Right_Adc > 20){
 		//Flag.start_go = 1;
 		go_flag = 1;
 	}

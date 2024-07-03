@@ -16,8 +16,9 @@ float Turn_Pid[][5] = { 	/*{1.2, 0.2, 0, 200},    // 最后一项为积分限幅
     {1.0, 0.1, 0, 100},										// 2023.7.5 12:08
     {0.9, 0.3, 150},             // 2023-07-11 xing sai dao
 	{1.8, 1.8, 150, 0},			//20240627  2700*/
-	{1.0, 4.5, 250, 0},//{50, 2.5, 200, 50},
+	{1.0, 4.5, 250, 100},//{50, 2.5, 200, 50},
 };
+float ki_test = 0.5;
 uint8 Turn_Suquence = 0;				//转向PID选择
 
 ////////去除极值求平均
@@ -100,7 +101,7 @@ int32 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint)
              + PID[KD] * ((0.8 * iError + 0.2 * sprt->LastError) - sprt->LastError); //只用PD
     sprt->LastError = iError;		//更新上次误差
 
-    //Actual += sprt->SumError*0.1;
+    Actual += sprt->SumError * ki_test;
     //Actual = limit(Actual, 300); //限幅
     return Actual;
 }

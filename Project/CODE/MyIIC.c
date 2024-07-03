@@ -1,6 +1,6 @@
 #include "MyIIC.h"
 
-int ver = 12;
+int ver = 13;
 int iictmp;
 
 void I2C_Delay1us(u8 DelayTime)	//@22.1184MHz

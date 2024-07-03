@@ -7,6 +7,7 @@ float vtest = 0;
 //float vtest_t = 0;
 float RateLow = 0.7;
 float RateUp = 0.5;
+float tmptest = 0;
 int SideRate = 900, CornerRate = 1000, XieRate = 100;
 //PIDT testpid = {0}; 
 /*******************PIT定时中断******************
@@ -64,21 +65,44 @@ void Fuse_result(void)
                     Speed_PWM = OpenLoop_Speed;						// 则不需要添加速度闭环，直接将低速值赋给占空比
 				}
 				
-				Speed_PWM_tmp = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ((ClsLoop_Speed) - abs(Turn_PWM) * (vtest) * RateLow) * 3.0 / 4) - Speed_PWM;		// 速度位置式PID
-				if(Speed_PWM_tmp < 0){
-					//Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp, 500, ClsLoop_Speed + 500);
-					Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp, 1500, ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) > 1500 ? ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) : 1500);// 注意正负号
-				}else{
-					//Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp * RateUp, 500, ClsLoop_Speed + 500);
-					Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp * RateUp, 1500, ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) > 1500 ? ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) : 1500);// 注意正负号
+//				Speed_PWM_tmp = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ((ClsLoop_Speed) - abs(Turn_PWM) * (vtest) * RateLow) * 3.0 / 4) - Speed_PWM;		// 速度位置式PID
+//				if(Speed_PWM_tmp < 0){
+//					//Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp, 500, ClsLoop_Speed + 500);
+//					Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp, 1500, ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) > 1500 ? ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) : 1500);// 注意正负号
+//				}else{
+//					//Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp * RateUp, 500, ClsLoop_Speed + 500);
+//					Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp * RateUp, 1500, ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) > 1500 ? ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) : 1500);// 注意正负号
+//				}
+//				/*Speed_PWM = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ClsLoop_Speed * 3.0 / 4);
+//				Speed_PWM = range_protect(Speed_PWM, -ClsLoop_Speed - 500, ClsLoop_Speed + 500);*/
+//                // 否则则将速度环运算结果投入占空比
+//                All_PWM_left = Speed_PWM - (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 / 4) + 1)*/);
+//                All_PWM_right = Speed_PWM + (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 / 4) + 1)*/);
+				tmptest = (real_speed - 1500.0) / (ClsLoop_Speed - 1500.0) * (vtest - 0.6 * vtest) + 0.6 * vtest;
+				All_PWM_left = PID_Realize(
+					&SpeedPID, Speed_Pid, real_speed, 
+					((ClsLoop_Speed - (Turn_PWM) * (tmptest)) 
+					- abs(Turn_PWM) * (tmptest) * RateLow) * 3.0 / 4
+				);
+                All_PWM_right = PID_Realize(
+					&SpeedPID, Speed_Pid, real_speed, 
+					((ClsLoop_Speed + (Turn_PWM) * (tmptest)) 
+					- abs(Turn_PWM) * (tmptest) * RateLow) * 3.0 / 4
+				);
+				All_PWM_left = range_protect(All_PWM_left, -ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
+				All_PWM_right = range_protect(All_PWM_right, -ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
+				/*if(All_PWM_left < 0 && All_PWM_left > -1500){
+					All_PWM_left = -1500;
+				}else
+				if(All_PWM_left > 0 && All_PWM_left < 1500){
+					All_PWM_left = 1500;
 				}
-				/*Speed_PWM = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ClsLoop_Speed * 3.0 / 4);
-				Speed_PWM = range_protect(Speed_PWM, -ClsLoop_Speed - 500, ClsLoop_Speed + 500);*/
-                // 否则则将速度环运算结果投入占空比
-                All_PWM_left = Speed_PWM - (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 / 4) + 1)*/);
-                All_PWM_right = Speed_PWM + (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 / 4) + 1)*/);
-				All_PWM_left = range_protect(All_PWM_left, -ClsLoop_Speed - 2000, ClsLoop_Speed + 2000);
-				All_PWM_right = range_protect(All_PWM_right, -ClsLoop_Speed - 2000, ClsLoop_Speed + 2000);
+				if(All_PWM_right < 0 && All_PWM_right > -1500){
+					All_PWM_right = -1500;
+				}else
+				if(All_PWM_right > 0 && All_PWM_right < 1500){
+					All_PWM_right = 1500;
+				}*/
 				/*testpid.KPS = 10;
 				testpid.KIS = 0.1;
 				testpid.KDS = 0.1;
@@ -113,8 +137,8 @@ void Fuse_result(void)
                 Flag.T_Turn = 0;
                 Electromagnetism_Control();						// 电磁采集所有
                 adc_deviation = 0
-					+ Cha_BI_He_Sqrt(Left_Adc, Right_Adc, SideRate) 
-					+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
+					+ Cha_BI_He_Sqrt(Left_Adc + Left_Corner_Adc * 1.5, Right_Adc + Right_Corner_Adc * 1.5, SideRate) 
+					//+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
 					+ Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9： 1
                 Turn_PWM = PlacePID_Control(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //转向动态PID
                 Turn_PWM = abs(Turn_PWM);

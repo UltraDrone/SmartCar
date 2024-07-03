@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  00:31:41  PAGE 1   
+C251 COMPILER V5.60.0,  Direction                                                          03/07/24  17:01:41  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Direction
@@ -66,7 +66,7 @@ stmt  level    source
    54   2                      adc_date[4] = adc_mean_filter(LeftCorner_ADC_Pin, ADC_12BIT, 2);
    55   2              adc_date[5] = adc_mean_filter(RightCorner_ADC_Pin, ADC_12BIT, 2);
    56   2              adc_date[6] = adc_mean_filter(Mid_ADC_Pin, ADC_12BIT, 2);
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  00:31:41  PAGE 2   
+C251 COMPILER V5.60.0,  Direction                                                          03/07/24  17:01:41  PAGE 2   
 
    57   2      
    58   2              for(j = 0; j < 7; j++)                                                                  // 三个横电感作限幅
@@ -134,14 +134,14 @@ stmt  level    source
   120   1      }
   121          
   122          void Protect_Anticollision(void)
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  00:31:41  PAGE 3   
+C251 COMPILER V5.60.0,  Direction                                                          03/07/24  17:01:41  PAGE 3   
 
   123          {
-  124   1          if(Left_Adc < 100 && Right_Adc < 100){
+  124   1          if(Left_Adc < 10 && Right_Adc < 10){
   125   2              //Flag.start_go = 0;
   126   2                      go_flag = 0;
   127   2              }else
-  128   1              if(Left_Adc > 1000 || Right_Adc > 1000){
+  128   1              if(Left_Adc > 20 || Right_Adc > 20){
   129   2                      //Flag.start_go = 1;
   130   2                      go_flag = 1;
   131   2              }
@@ -202,7 +202,7 @@ stmt  level    source
   184   2                      Turn_PWM = 1000;
   185   2              //pwm_duty(Steer_Pin, 700);
   186   2              delay_ms(300);
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  00:31:41  PAGE 4   
+C251 COMPILER V5.60.0,  Direction                                                          03/07/24  17:01:41  PAGE 4   
 
   187   2              BUZZOff;
   188   2          }
@@ -270,7 +270,7 @@ stmt  level    source
   248   2              duty = Steer_Duty_Min;
   249   2              ClsLoop_Speed  -=  100;                                                                                                                         // 无论是开闭环状态都减速
   250   2              OpenLoop_Speed -=  100;
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  00:31:41  PAGE 5   
+C251 COMPILER V5.60.0,  Direction                                                          03/07/24  17:01:41  PAGE 5   
 
   251   2          }
   252   1          else        // 否则按照原来的速度行驶

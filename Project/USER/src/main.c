@@ -222,13 +222,13 @@ void Gui_TEST_Init(void){
 	guis[2][4].type = GUI_TYPE_SHOW_INT32_VALUE;
 	guis[2][5].type = GUI_TYPE_SHOW_INT32_VALUE;
 	strcpy(guis[2][0].names, "BK");
-	strcpy(guis[2][1].names, "RS");
+	strcpy(guis[2][1].names, "ADO");
 	strcpy(guis[2][2].names, "TPM");
 	strcpy(guis[2][3].names, "SPM");
 	strcpy(guis[2][4].names, "LPM");
 	strcpy(guis[2][5].names, "RPM");
 	guis[2][0].sceneGoTo = 0;
-	guis[2][1].intval = &real_speed;
+	guis[2][1].intval = &adc_deviation;
 	guis[2][2].intval = &Turn_PWM;
 	guis[2][3].intval = &Speed_PWM;
 	guis[2][4].intval = &All_PWM_left;
@@ -240,14 +240,16 @@ void Gui_TEST_Init(void){
 	guis[3][3].type = GUI_TYPE_EDIT_FLOAT_VALUE;
 	guis[3][4].type = GUI_TYPE_EDIT_FLOAT_VALUE;
 	guis[3][5].type = GUI_TYPE_EDIT_FLOAT_VALUE;
-	guis[3][6].type = GUI_TYPE_EDIT_INT32_VALUE;
+	guis[3][6].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+	guis[3][7].type = GUI_TYPE_EDIT_INT32_VALUE;
 	strcpy(guis[3][0].names, "BK");
 	strcpy(guis[3][1].names, "KP");	//实际上不完全是kp
 	strcpy(guis[3][2].names, "KP2");	//???
 	strcpy(guis[3][3].names, "KI");
 	strcpy(guis[3][4].names, "KD");
 	strcpy(guis[3][5].names, "KT");
-	strcpy(guis[3][6].names, "SP");
+	strcpy(guis[3][6].names, "KIS");
+	strcpy(guis[3][7].names, "SP");
 	guis[3][0].sceneGoTo = 0;
 	guis[3][1].floatval = &vtest;
 	PID = Turn_Pid[Turn_Suquence];
@@ -255,13 +257,15 @@ void Gui_TEST_Init(void){
 	guis[3][3].floatval = &(PID[KI]);
 	guis[3][4].floatval = &(PID[KD]);
 	guis[3][5].floatval = &(PID[KT]);
-	guis[3][6].intval = &(ClsLoop_Speed);
+	guis[3][6].floatval = &ki_test;
+	guis[3][7].intval = &(ClsLoop_Speed);
 	guis[3][1].p1 = 1; guis[3][1].p2 = 1;
 	guis[3][2].p1 = 1; guis[3][2].p2 = 10;
 	guis[3][3].p1 = 1; guis[3][3].p2 = 10;
 	guis[3][4].p1 = 10; guis[3][4].p2 = 1;
 	guis[3][5].p1 = 10; guis[3][5].p2 = 1;
-	guis[3][6].p1 = 100; guis[3][6].p2 = 1;
+	guis[3][6].p1 = 1; guis[3][6].p2 = 10;
+	guis[3][7].p1 = 100; guis[3][7].p2 = 1;
 	
 	guis[4][0].type = GUI_TYPE_SCENE_CHANGE;
 	guis[4][1].type = GUI_TYPE_EDIT_INT32_VALUE;

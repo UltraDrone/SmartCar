@@ -47,7 +47,7 @@ extern PID SpeedPID;								// 速度PID储存（只是储存的中间量，无需关心）
 extern float Speed_Pid[4];					// 速度环参数
 extern float Turn_Pid[][5];					// 转向环参数数组
 extern uint8 Turn_Suquence;					// 转向环参数选择
-
+extern float ki_test;
 
 int16 I_Median_Average_Filter(int16 *DATE);							// 去极值求平均
 float Cha_BI_He_Sqrt(int16 date_1, int16 date_2, int16 x);

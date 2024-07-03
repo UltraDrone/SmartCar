@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               02/07/24  23:17:14  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               03/07/24  17:01:40  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -66,7 +66,7 @@ stmt  level    source
    53   1          board_init();                                                                                                               // 初始化寄存器,勿删除此句代码。
    54   1          Encoder_Init();                                                                                                     // 编码器初始化
    55   1          Motor_Init();                                                                                                               // 电机初始化
-C251 COMPILER V5.60.0,  main                                                               02/07/24  23:17:14  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               03/07/24  17:01:40  PAGE 2   
 
    56   1          init_Steer_PWM();                                                                                           // 舵机初始化
    57   1          BUZZ_Init();                                                                                                                // 蜂鸣器高电平点亮
@@ -134,7 +134,7 @@ stmt  level    source
   119   2      //                      oled_p6x8str(1, 2, txt);   // 显示
   120   2      //                      sprintf(txt, "Right_Corner= %05d", adc_date[5]);
   121   2      //                      oled_p6x8str(1, 3, txt);   // 显示
-C251 COMPILER V5.60.0,  main                                                               02/07/24  23:17:14  PAGE 3   
+C251 COMPILER V5.60.0,  main                                                               03/07/24  17:01:40  PAGE 3   
 
   122   2      //              }else{
   123   2      //                      sprintf(txt, "adc_deviation = %05d", adc_deviation);
@@ -202,7 +202,7 @@ stmt  level    source
   185   1              strcpy(guis[0][4].names, "GO");
   186   1              guis[0][0].sceneGoTo = 1;
   187   1              guis[0][1].sceneGoTo = 2;
-C251 COMPILER V5.60.0,  main                                                               02/07/24  23:17:14  PAGE 4   
+C251 COMPILER V5.60.0,  main                                                               03/07/24  17:01:40  PAGE 4   
 
   188   1              guis[0][2].sceneGoTo = 3;
   189   1              guis[0][3].sceneGoTo = 4;
@@ -241,13 +241,13 @@ stmt  level    source
   222   1              guis[2][4].type = GUI_TYPE_SHOW_INT32_VALUE;
   223   1              guis[2][5].type = GUI_TYPE_SHOW_INT32_VALUE;
   224   1              strcpy(guis[2][0].names, "BK");
-  225   1              strcpy(guis[2][1].names, "RS");
+  225   1              strcpy(guis[2][1].names, "ADO");
   226   1              strcpy(guis[2][2].names, "TPM");
   227   1              strcpy(guis[2][3].names, "SPM");
   228   1              strcpy(guis[2][4].names, "LPM");
   229   1              strcpy(guis[2][5].names, "RPM");
   230   1              guis[2][0].sceneGoTo = 0;
-  231   1              guis[2][1].intval = &real_speed;
+  231   1              guis[2][1].intval = &adc_deviation;
   232   1              guis[2][2].intval = &Turn_PWM;
   233   1              guis[2][3].intval = &Speed_PWM;
   234   1              guis[2][4].intval = &All_PWM_left;
@@ -259,240 +259,244 @@ stmt  level    source
   240   1              guis[3][3].type = GUI_TYPE_EDIT_FLOAT_VALUE;
   241   1              guis[3][4].type = GUI_TYPE_EDIT_FLOAT_VALUE;
   242   1              guis[3][5].type = GUI_TYPE_EDIT_FLOAT_VALUE;
-  243   1              guis[3][6].type = GUI_TYPE_EDIT_INT32_VALUE;
-  244   1              strcpy(guis[3][0].names, "BK");
-  245   1              strcpy(guis[3][1].names, "KP"); //实际上不完全是kp
-  246   1              strcpy(guis[3][2].names, "KP2");        //???
-  247   1              strcpy(guis[3][3].names, "KI");
-  248   1              strcpy(guis[3][4].names, "KD");
-  249   1              strcpy(guis[3][5].names, "KT");
-  250   1              strcpy(guis[3][6].names, "SP");
-  251   1              guis[3][0].sceneGoTo = 0;
-  252   1              guis[3][1].floatval = &vtest;
-  253   1              PID = Turn_Pid[Turn_Suquence];
-C251 COMPILER V5.60.0,  main                                                               02/07/24  23:17:14  PAGE 5   
+  243   1              guis[3][6].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+  244   1              guis[3][7].type = GUI_TYPE_EDIT_INT32_VALUE;
+  245   1              strcpy(guis[3][0].names, "BK");
+  246   1              strcpy(guis[3][1].names, "KP"); //实际上不完全是kp
+  247   1              strcpy(guis[3][2].names, "KP2");        //???
+  248   1              strcpy(guis[3][3].names, "KI");
+  249   1              strcpy(guis[3][4].names, "KD");
+  250   1              strcpy(guis[3][5].names, "KT");
+  251   1              strcpy(guis[3][6].names, "KIS");
+  252   1              strcpy(guis[3][7].names, "SP");
+  253   1              guis[3][0].sceneGoTo = 0;
+C251 COMPILER V5.60.0,  main                                                               03/07/24  17:01:40  PAGE 5   
 
-  254   1              guis[3][2].floatval = &(PID[KP]);
-  255   1              guis[3][3].floatval = &(PID[KI]);
-  256   1              guis[3][4].floatval = &(PID[KD]);
-  257   1              guis[3][5].floatval = &(PID[KT]);
-  258   1              guis[3][6].intval = &(ClsLoop_Speed);
-  259   1              guis[3][1].p1 = 1; guis[3][1].p2 = 1;
-  260   1              guis[3][2].p1 = 1; guis[3][2].p2 = 10;
-  261   1              guis[3][3].p1 = 1; guis[3][3].p2 = 10;
-  262   1              guis[3][4].p1 = 10; guis[3][4].p2 = 1;
-  263   1              guis[3][5].p1 = 10; guis[3][5].p2 = 1;
-  264   1              guis[3][6].p1 = 100; guis[3][6].p2 = 1;
-  265   1              
-  266   1              guis[4][0].type = GUI_TYPE_SCENE_CHANGE;
-  267   1              guis[4][1].type = GUI_TYPE_EDIT_INT32_VALUE;
-  268   1              guis[4][2].type = GUI_TYPE_EDIT_INT32_VALUE;
-  269   1              guis[4][3].type = GUI_TYPE_EDIT_INT32_VALUE;
-  270   1              guis[4][4].type = GUI_TYPE_EDIT_FLOAT_VALUE;
-  271   1              guis[4][5].type = GUI_TYPE_EDIT_FLOAT_VALUE;
-  272   1              strcpy(guis[4][0].names, "BK");
-  273   1              strcpy(guis[4][1].names, "Sid");
-  274   1              strcpy(guis[4][2].names, "Cor");
-  275   1              strcpy(guis[4][3].names, "Xie");
-  276   1              strcpy(guis[4][4].names, "RL");
-  277   1              strcpy(guis[4][5].names, "RH");
-  278   1              guis[4][0].sceneGoTo = 0;
-  279   1              guis[4][1].intval = &SideRate;
-  280   1              guis[4][2].intval = &CornerRate;
-  281   1              guis[4][3].intval = &XieRate;
-  282   1              guis[4][4].floatval = &RateLow;
-  283   1              guis[4][5].floatval = &RateUp;
-  284   1              guis[4][1].p1 = 50; guis[4][1].p2 = 1;
-  285   1              guis[4][2].p1 = 50; guis[4][2].p2 = 1;
-  286   1              guis[4][3].p1 = 50; guis[4][3].p2 = 1;
-  287   1              guis[4][4].p1 = 1; guis[4][4].p2 = 10;
-  288   1              guis[4][5].p1 = 1; guis[4][5].p2 = 10;
-  289   1              return;
-  290   1      }
-  291          
-  292          void keyStateChange(unsigned char* FlagButtom, unsigned char ButtomPin){
-  293   1              if(*FlagButtom == 0){
-  294   2                      if(ButtomPin == 0){
-  295   3                              delay_ms(10);
-  296   3                              if(ButtomPin == 0){
-  297   4                                      *FlagButtom = 1;
-  298   4                              }
-  299   3                      }
-  300   2              }else{
-  301   2                      if(ButtomPin == 1){
-  302   3                              delay_ms(10);
-  303   3                              if(ButtomPin == 1){
-  304   4                                      *FlagButtom = 0;
-  305   4                              }
-  306   3                      }
-  307   2              }
-  308   1              return;
-  309   1      }
-  310          
-  311          char keyPressed(unsigned char FlagButtom, unsigned char LastFlagButtom){
-  312   1              return (FlagButtom == 1 && FlagButtom != LastFlagButtom);
+  254   1              guis[3][1].floatval = &vtest;
+  255   1              PID = Turn_Pid[Turn_Suquence];
+  256   1              guis[3][2].floatval = &(PID[KP]);
+  257   1              guis[3][3].floatval = &(PID[KI]);
+  258   1              guis[3][4].floatval = &(PID[KD]);
+  259   1              guis[3][5].floatval = &(PID[KT]);
+  260   1              guis[3][6].floatval = &ki_test;
+  261   1              guis[3][7].intval = &(ClsLoop_Speed);
+  262   1              guis[3][1].p1 = 1; guis[3][1].p2 = 1;
+  263   1              guis[3][2].p1 = 1; guis[3][2].p2 = 10;
+  264   1              guis[3][3].p1 = 1; guis[3][3].p2 = 10;
+  265   1              guis[3][4].p1 = 10; guis[3][4].p2 = 1;
+  266   1              guis[3][5].p1 = 10; guis[3][5].p2 = 1;
+  267   1              guis[3][6].p1 = 1; guis[3][6].p2 = 10;
+  268   1              guis[3][7].p1 = 100; guis[3][7].p2 = 1;
+  269   1              
+  270   1              guis[4][0].type = GUI_TYPE_SCENE_CHANGE;
+  271   1              guis[4][1].type = GUI_TYPE_EDIT_INT32_VALUE;
+  272   1              guis[4][2].type = GUI_TYPE_EDIT_INT32_VALUE;
+  273   1              guis[4][3].type = GUI_TYPE_EDIT_INT32_VALUE;
+  274   1              guis[4][4].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+  275   1              guis[4][5].type = GUI_TYPE_EDIT_FLOAT_VALUE;
+  276   1              strcpy(guis[4][0].names, "BK");
+  277   1              strcpy(guis[4][1].names, "Sid");
+  278   1              strcpy(guis[4][2].names, "Cor");
+  279   1              strcpy(guis[4][3].names, "Xie");
+  280   1              strcpy(guis[4][4].names, "RL");
+  281   1              strcpy(guis[4][5].names, "RH");
+  282   1              guis[4][0].sceneGoTo = 0;
+  283   1              guis[4][1].intval = &SideRate;
+  284   1              guis[4][2].intval = &CornerRate;
+  285   1              guis[4][3].intval = &XieRate;
+  286   1              guis[4][4].floatval = &RateLow;
+  287   1              guis[4][5].floatval = &RateUp;
+  288   1              guis[4][1].p1 = 50; guis[4][1].p2 = 1;
+  289   1              guis[4][2].p1 = 50; guis[4][2].p2 = 1;
+  290   1              guis[4][3].p1 = 50; guis[4][3].p2 = 1;
+  291   1              guis[4][4].p1 = 1; guis[4][4].p2 = 10;
+  292   1              guis[4][5].p1 = 1; guis[4][5].p2 = 10;
+  293   1              return;
+  294   1      }
+  295          
+  296          void keyStateChange(unsigned char* FlagButtom, unsigned char ButtomPin){
+  297   1              if(*FlagButtom == 0){
+  298   2                      if(ButtomPin == 0){
+  299   3                              delay_ms(10);
+  300   3                              if(ButtomPin == 0){
+  301   4                                      *FlagButtom = 1;
+  302   4                              }
+  303   3                      }
+  304   2              }else{
+  305   2                      if(ButtomPin == 1){
+  306   3                              delay_ms(10);
+  307   3                              if(ButtomPin == 1){
+  308   4                                      *FlagButtom = 0;
+  309   4                              }
+  310   3                      }
+  311   2              }
+  312   1              return;
   313   1      }
   314          
-  315          void moveGuiSelection(char dir){
-  316   1              if(!dir){
-  317   2                      if(guiSelect == 0){
-  318   3                              return;
-  319   3                      }
-C251 COMPILER V5.60.0,  main                                                               02/07/24  23:17:14  PAGE 6   
+  315          char keyPressed(unsigned char FlagButtom, unsigned char LastFlagButtom){
+  316   1              return (FlagButtom == 1 && FlagButtom != LastFlagButtom);
+  317   1      }
+  318          
+  319          void moveGuiSelection(char dir){
+C251 COMPILER V5.60.0,  main                                                               03/07/24  17:01:40  PAGE 6   
 
-  320   2                      guiSelect--;
-  321   2                      if(guiSelect < guiTop){
-  322   3                              guiTop = guiSelect;
+  320   1              if(!dir){
+  321   2                      if(guiSelect == 0){
+  322   3                              return;
   323   3                      }
-  324   2              }else{
-  325   2                      if(guiSelect == guiNumber[guiScene] - 1){
-  326   3                              return;
+  324   2                      guiSelect--;
+  325   2                      if(guiSelect < guiTop){
+  326   3                              guiTop = guiSelect;
   327   3                      }
-  328   2                      guiSelect++;
-  329   2                      if(guiSelect > guiTop + 6){
-  330   3                              guiTop = guiSelect - 6;
+  328   2              }else{
+  329   2                      if(guiSelect == guiNumber[guiScene] - 1){
+  330   3                              return;
   331   3                      }
-  332   2              }
-  333   1              return;
-  334   1      }
-  335          
-  336          void KeySystem(void){
-  337   1              int i = 0;
-  338   1              char txt[20];
-  339   1              keyStateChange(&FlagEnter, (BUTTOM_ENTER == 0) ? 0 : 1);
-  340   1              keyStateChange(&FlagCancel, (BUTTOM_CANCEL == 0) ? 0 : 1);
-  341   1              keyStateChange(&FlagUp, (BUTTOM_UP == 0) ? 0 : 1);
-  342   1              keyStateChange(&FlagDown, (BUTTOM_DOWN == 0) ? 0 : 1);
-  343   1              /*if(FlagEnter == 1 && FlagEnter != LastFlagEnter){
-  344   1                      oled_fill(0x00);
-  345   1                      showing = !showing;
-  346   1              }*/
-  347   1              if(!guiEdit){
-  348   2                      if(keyPressed(FlagUp, LastFlagUp)){
-  349   3                              oled_fill(0x00);
-  350   3                              moveGuiSelection(0);
-  351   3                      }else
-  352   2                      if(keyPressed(FlagDown, LastFlagDown)){
+  332   2                      guiSelect++;
+  333   2                      if(guiSelect > guiTop + 6){
+  334   3                              guiTop = guiSelect - 6;
+  335   3                      }
+  336   2              }
+  337   1              return;
+  338   1      }
+  339          
+  340          void KeySystem(void){
+  341   1              int i = 0;
+  342   1              char txt[20];
+  343   1              keyStateChange(&FlagEnter, (BUTTOM_ENTER == 0) ? 0 : 1);
+  344   1              keyStateChange(&FlagCancel, (BUTTOM_CANCEL == 0) ? 0 : 1);
+  345   1              keyStateChange(&FlagUp, (BUTTOM_UP == 0) ? 0 : 1);
+  346   1              keyStateChange(&FlagDown, (BUTTOM_DOWN == 0) ? 0 : 1);
+  347   1              /*if(FlagEnter == 1 && FlagEnter != LastFlagEnter){
+  348   1                      oled_fill(0x00);
+  349   1                      showing = !showing;
+  350   1              }*/
+  351   1              if(!guiEdit){
+  352   2                      if(keyPressed(FlagUp, LastFlagUp)){
   353   3                              oled_fill(0x00);
-  354   3                              moveGuiSelection(1);
-  355   3                      }
-  356   2              }
-  357   1              for(i = guiTop; i < guiNumber[guiScene], i < guiTop + 7; i++){
-  358   2                      if(guiSelect == i){
-  359   3                              if(guis[guiScene][i].type == GUI_TYPE_SCENE_CHANGE){
-  360   4                                      if(keyPressed(FlagEnter, LastFlagEnter)){
-  361   5                                              oled_fill(0x00);
-  362   5                                              guiScene = guis[guiScene][i].sceneGoTo;
-  363   5                                              guiTop = 0;
-  364   5                                              guiSelect = 0;
-  365   5                                      }
-  366   4                                      sprintf(txt, "*%s", guis[guiScene][i].names);
-  367   4                              }else
-  368   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_FLOAT_VALUE){
-  369   4                                      sprintf(txt, "*%-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
-  370   4                              }else
-  371   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_INT32_VALUE){
-  372   4                                      sprintf(txt, "*%-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
-  373   4                              }else
-  374   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_FLOAT_VALUE){
-  375   4                                      if(guiEdit == 0){
-  376   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
-  377   6                                                      oled_fill(0x00);
-  378   6                                                      guiEdit = 1;
-  379   6                                              }
-  380   5                                              sprintf(txt, "*%-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
-  381   5                                      }else{
-  382   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
-  383   6                                                      oled_fill(0x00);
-  384   6                                                      guiEdit = 0;
-  385   6                                                      saveConfig();
-C251 COMPILER V5.60.0,  main                                                               02/07/24  23:17:14  PAGE 7   
+  354   3                              moveGuiSelection(0);
+  355   3                      }else
+  356   2                      if(keyPressed(FlagDown, LastFlagDown)){
+  357   3                              oled_fill(0x00);
+  358   3                              moveGuiSelection(1);
+  359   3                      }
+  360   2              }
+  361   1              for(i = guiTop; i < guiNumber[guiScene], i < guiTop + 7; i++){
+  362   2                      if(guiSelect == i){
+  363   3                              if(guis[guiScene][i].type == GUI_TYPE_SCENE_CHANGE){
+  364   4                                      if(keyPressed(FlagEnter, LastFlagEnter)){
+  365   5                                              oled_fill(0x00);
+  366   5                                              guiScene = guis[guiScene][i].sceneGoTo;
+  367   5                                              guiTop = 0;
+  368   5                                              guiSelect = 0;
+  369   5                                      }
+  370   4                                      sprintf(txt, "*%s", guis[guiScene][i].names);
+  371   4                              }else
+  372   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_FLOAT_VALUE){
+  373   4                                      sprintf(txt, "*%-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  374   4                              }else
+  375   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_INT32_VALUE){
+  376   4                                      sprintf(txt, "*%-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  377   4                              }else
+  378   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_FLOAT_VALUE){
+  379   4                                      if(guiEdit == 0){
+  380   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
+  381   6                                                      oled_fill(0x00);
+  382   6                                                      guiEdit = 1;
+  383   6                                              }
+  384   5                                              sprintf(txt, "*%-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  385   5                                      }else{
+C251 COMPILER V5.60.0,  main                                                               03/07/24  17:01:40  PAGE 7   
 
-  386   6                                              }else
-  387   5                                              if(keyPressed(FlagUp, LastFlagUp)){
-  388   6                                                      oled_fill(0x00);
-  389   6                                                      *(guis[guiScene][i].floatval) -= (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  386   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
+  387   6                                                      oled_fill(0x00);
+  388   6                                                      guiEdit = 0;
+  389   6                                                      saveConfig();
   390   6                                              }else
-  391   5                                              if(keyPressed(FlagDown, LastFlagDown)){
+  391   5                                              if(keyPressed(FlagUp, LastFlagUp)){
   392   6                                                      oled_fill(0x00);
-  393   6                                                      *(guis[guiScene][i].floatval) += (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
-  394   6                                              }
-  395   5                                              sprintf(txt, "*%-8s<%.2f>", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
-  396   5                                      }
-  397   4                              }else
-  398   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_INT32_VALUE){
-  399   4                                      if(guiEdit == 0){
-  400   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
-  401   6                                                      oled_fill(0x00);
-  402   6                                                      guiEdit = 1;
-  403   6                                              }
-  404   5                                              sprintf(txt, "*%-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
-  405   5                                      }else{
-  406   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
-  407   6                                                      oled_fill(0x00);
-  408   6                                                      guiEdit = 0;
-  409   6                                                      saveConfig();
-  410   6                                              }else
-  411   5                                              if(keyPressed(FlagUp, LastFlagUp)){
-  412   6                                                      oled_fill(0x00);
-  413   6                                                      *(guis[guiScene][i].intval) -= (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  393   6                                                      *(guis[guiScene][i].floatval) -= (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  394   6                                              }else
+  395   5                                              if(keyPressed(FlagDown, LastFlagDown)){
+  396   6                                                      oled_fill(0x00);
+  397   6                                                      *(guis[guiScene][i].floatval) += (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  398   6                                              }
+  399   5                                              sprintf(txt, "*%-8s<%.2f>", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  400   5                                      }
+  401   4                              }else
+  402   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_INT32_VALUE){
+  403   4                                      if(guiEdit == 0){
+  404   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
+  405   6                                                      oled_fill(0x00);
+  406   6                                                      guiEdit = 1;
+  407   6                                              }
+  408   5                                              sprintf(txt, "*%-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  409   5                                      }else{
+  410   5                                              if(keyPressed(FlagEnter, LastFlagEnter)){
+  411   6                                                      oled_fill(0x00);
+  412   6                                                      guiEdit = 0;
+  413   6                                                      saveConfig();
   414   6                                              }else
-  415   5                                              if(keyPressed(FlagDown, LastFlagDown)){
+  415   5                                              if(keyPressed(FlagUp, LastFlagUp)){
   416   6                                                      oled_fill(0x00);
-  417   6                                                      *(guis[guiScene][i].intval) += (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
-  418   6                                              }
-  419   5                                              sprintf(txt, "*%-8s<%05d>", guis[guiScene][i].names, *(guis[guiScene][i].intval));
-  420   5                                      }
-  421   4                              }
-  422   3                              oled_p6x8str(1, (uint8)(i - guiTop + 1), txt);
-  423   3                      }else{
-  424   3                              if(guis[guiScene][i].type == GUI_TYPE_SCENE_CHANGE){
-  425   4                                      sprintf(txt, " %-s", guis[guiScene][i].names);
-  426   4                              }else
-  427   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_FLOAT_VALUE){
-  428   4                                      sprintf(txt, " %-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
-  429   4                              }else
-  430   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_INT32_VALUE){
-  431   4                                      sprintf(txt, " %-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
-  432   4                              }else
-  433   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_FLOAT_VALUE){
-  434   4                                      if(guiEdit == 0){
-  435   5                                              sprintf(txt, " %-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
-  436   5                                      }else{
-  437   5                                              sprintf(txt, " %-8s<%.2f>", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
-  438   5                                      }
-  439   4                              }else
-  440   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_INT32_VALUE){
-  441   4                                      if(guiEdit == 0){
-  442   5                                              sprintf(txt, " %-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
-  443   5                                      }else{
-  444   5                                              sprintf(txt, " %-8s<%05d>", guis[guiScene][i].names, *(guis[guiScene][i].intval));
-  445   5                                      }
-  446   4                              }
-  447   3                              oled_p6x8str(1, (uint8)(i - guiTop + 1), txt);
-  448   3                      }
-  449   2              }
-  450   1              /*At24c02_Write_float(0x04, a++);
-  451   1              a = At24c02_Read_float(0x04);*/
-C251 COMPILER V5.60.0,  main                                                               02/07/24  23:17:14  PAGE 8   
+  417   6                                                      *(guis[guiScene][i].intval) -= (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  418   6                                              }else
+  419   5                                              if(keyPressed(FlagDown, LastFlagDown)){
+  420   6                                                      oled_fill(0x00);
+  421   6                                                      *(guis[guiScene][i].intval) += (float)guis[guiScene][i].p1 / (float)guis[guiScene][i].p2;
+  422   6                                              }
+  423   5                                              sprintf(txt, "*%-8s<%05d>", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  424   5                                      }
+  425   4                              }
+  426   3                              oled_p6x8str(1, (uint8)(i - guiTop + 1), txt);
+  427   3                      }else{
+  428   3                              if(guis[guiScene][i].type == GUI_TYPE_SCENE_CHANGE){
+  429   4                                      sprintf(txt, " %-s", guis[guiScene][i].names);
+  430   4                              }else
+  431   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_FLOAT_VALUE){
+  432   4                                      sprintf(txt, " %-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  433   4                              }else
+  434   3                              if(guis[guiScene][i].type == GUI_TYPE_SHOW_INT32_VALUE){
+  435   4                                      sprintf(txt, " %-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  436   4                              }else
+  437   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_FLOAT_VALUE){
+  438   4                                      if(guiEdit == 0){
+  439   5                                              sprintf(txt, " %-8s %.2f ", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  440   5                                      }else{
+  441   5                                              sprintf(txt, " %-8s<%.2f>", guis[guiScene][i].names, *(guis[guiScene][i].floatval));
+  442   5                                      }
+  443   4                              }else
+  444   3                              if(guis[guiScene][i].type == GUI_TYPE_EDIT_INT32_VALUE){
+  445   4                                      if(guiEdit == 0){
+  446   5                                              sprintf(txt, " %-8s %05d ", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  447   5                                      }else{
+  448   5                                              sprintf(txt, " %-8s<%05d>", guis[guiScene][i].names, *(guis[guiScene][i].intval));
+  449   5                                      }
+  450   4                              }
+  451   3                              oled_p6x8str(1, (uint8)(i - guiTop + 1), txt);
+C251 COMPILER V5.60.0,  main                                                               03/07/24  17:01:40  PAGE 8   
 
-  452   1              if(guiScene == 0){
-  453   2                      sprintf(txt, "%d, %d", (P60 == 1) ? 1 : 0, (P64 == 1) ? 1 : 0);
-  454   2                      oled_p6x8str(1, 7, txt);
-  455   2              }
-  456   1              LastFlagEnter = FlagEnter;
-  457   1              LastFlagCancel = FlagCancel;
-  458   1              LastFlagUp = FlagUp;
-  459   1              LastFlagDown = FlagDown;
-  460   1      }
-  461          
-  462          
-  463          
+  452   3                      }
+  453   2              }
+  454   1              /*At24c02_Write_float(0x04, a++);
+  455   1              a = At24c02_Read_float(0x04);*/
+  456   1              if(guiScene == 0){
+  457   2                      sprintf(txt, "%d, %d", (P60 == 1) ? 1 : 0, (P64 == 1) ? 1 : 0);
+  458   2                      oled_p6x8str(1, 7, txt);
+  459   2              }
+  460   1              LastFlagEnter = FlagEnter;
+  461   1              LastFlagCancel = FlagCancel;
+  462   1              LastFlagUp = FlagUp;
+  463   1              LastFlagDown = FlagDown;
+  464   1      }
+  465          
+  466          
+  467          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      4448     ------
+  code size            =      4489     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
@@ -507,7 +511,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =       291     ------
+  hconst size          =       296     ------
 End of Module Information.
 
 
