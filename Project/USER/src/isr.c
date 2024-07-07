@@ -161,7 +161,7 @@ void TM1_Isr() interrupt 3
     t_1s++;
 
 //5ms控制周期：内环控制(给轮子PWM跑起来)
-    if(t_5ms == 1)
+    if(t_5ms >= 1)
     {
         // 复位标志位
         t_5ms = 0;
@@ -169,34 +169,34 @@ void TM1_Isr() interrupt 3
     }
 
 // 10ms控制
-    if (t_10ms == 2)
+    if (t_10ms >= 2)
     {
         t_10ms = 0;
         Flag.T_Turn = 1;
     }
 
 // 30ms控制
-    if(t_30ms == 6)
+    if(t_30ms >= 6)
     {
         t_30ms = 0;
         Flag.T_Distance = 1;
     }
 
 // 40ms控制
-    if(t_40ms == 8)
+    if(t_40ms >= 8)
     {
         t_40ms = 0;
         Flag.T_IMU = 1;
     }
 
 //50ms控制
-    if(t_50ms == 10)
+    if(t_50ms >= 10)
     {
         t_50ms = 0;
         Flag.T_Speed = 1;
         					// 采集编码器速度
 
-		speed_measure();
+		//speed_measure();
         if(T_ALready < 600000)		// 上限是10分钟运行时间，不会溢出
             T_ALready++;
     }

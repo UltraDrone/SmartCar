@@ -20,6 +20,7 @@ extern int16 adc_deviation;				// 电感偏差
 extern int go_flag;
 extern uint8 Flag_Right_annulus;
 extern uint8 PreFlag_Right_annulus;
+extern uint8 Flag_circleLand;
 /*----------电磁相关函数-------*/
 void Analog_Digital_Converter_Init(void);
 void ADC_MAX_Collect(void);

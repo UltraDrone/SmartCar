@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   30/06/24  20:23:40  PAGE 1   
+C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   06/07/24  23:05:06  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE SEEKFREE_MPU6050
@@ -66,7 +66,7 @@ stmt  level    source
    51          //-------------------------------------------------------------------------------------------------------
              -------------
    52          static void mpu6050_simiic_delay(void)
-C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   30/06/24  20:23:40  PAGE 2   
+C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   06/07/24  23:05:06  PAGE 2   
 
    53          {
    54   1          uint16 j = MPU6050_IIC_DELAY;
@@ -134,7 +134,7 @@ stmt  level    source
   116   1          mpu6050_simiic_delay();
   117   1          return 1;
   118   1      }
-C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   30/06/24  20:23:40  PAGE 3   
+C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   06/07/24  23:05:06  PAGE 3   
 
   119          
   120          //字节发送程序
@@ -202,7 +202,7 @@ stmt  level    source
   181          //  @param      dev_add                 设备地址(低七位地址)
   182          //  @param      reg                             寄存器地址
   183          //  @param      dat                             写入的数据
-C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   30/06/24  20:23:40  PAGE 4   
+C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   06/07/24  23:05:06  PAGE 4   
 
   184          //  @return     void
   185          //  @since      v1.0
@@ -270,7 +270,7 @@ stmt  level    source
   242   1      
   243   1          while(--num)
   244   1          {
-C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   30/06/24  20:23:40  PAGE 5   
+C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   06/07/24  23:05:06  PAGE 5   
 
   245   2              *dat_add = mpu6050_read_ch(ack); //读取数据
   246   2              dat_add++;
@@ -338,7 +338,7 @@ stmt  level    source
   304   1          return 0;
   305   1      }
   306          
-C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   30/06/24  20:23:40  PAGE 6   
+C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   06/07/24  23:05:06  PAGE 6   
 
   307          
   308          
@@ -407,7 +407,7 @@ Module Information          Static   Overlayable
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
   huge data size       =    ------     ------
-C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   30/06/24  20:23:40  PAGE 7   
+C251 COMPILER V5.60.0,  SEEKFREE_MPU6050                                                   06/07/24  23:05:06  PAGE 7   
 
   const size           =    ------     ------
   hconst size          =        22     ------

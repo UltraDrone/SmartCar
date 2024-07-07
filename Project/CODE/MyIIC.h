@@ -49,7 +49,7 @@ sbit    SCL = P4^0; //∂®“ÂSCL
 
 u8   GY_WriteStartMeasure(void);
 u8   GY_GetMeasureResultTemp(u8 *distance);
-int  GY_GetMeasureResult(u8 *distance);
+int  GY_GetMeasureResult(void);
 
 u8 	  At24c02_Write_u8(u8 addr,u8 dat);
 u8 	  At24c02_Write_int(u8 addr,int dat);

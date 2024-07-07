@@ -43,7 +43,8 @@ typedef struct PID   	// 用来PID参数计算变量
 
 /* 外部声明 */
 extern PID TurnPID;									// 转向PID储存（只是储存的中间量，无需关心）
-extern PID SpeedPID;								// 速度PID储存（只是储存的中间量，无需关心）
+extern PID SpeedPIDL;								// 速度PID储存（只是储存的中间量，无需关心）
+extern PID SpeedPIDR;								// 速度PID储存（只是储存的中间量，无需关心）
 extern float Speed_Pid[4];					// 速度环参数
 extern float Turn_Pid[][5];					// 转向环参数数组
 extern uint8 Turn_Suquence;					// 转向环参数选择
@@ -51,11 +52,11 @@ extern float ki_test;
 
 int16 I_Median_Average_Filter(int16 *DATE);							// 去极值求平均
 float Cha_BI_He_Sqrt(int16 date_1, int16 date_2, int16 x);
-int32 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint);
+int16 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint);
 void PID_Parameter_Init(PID *sptr);
-int32 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point);
+int16 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point);
 int16 limit(int16 x, int y);
-int32 range_protect(int32 duty, int32 min, int32 max);					// 电机限幅保护
+int16 range_protect(int32 duty, int32 min, int32 max);					// 电机限幅保护
 
 
 #endif

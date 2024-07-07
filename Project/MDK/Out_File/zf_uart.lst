@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_uart                                                            30/06/24  20:23:39  PAGE 1   
+C251 COMPILER V5.60.0,  zf_uart                                                            06/07/24  23:05:04  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_uart
@@ -66,7 +66,7 @@ stmt  level    source
    48          {
    49   1          uint16 brt;
    50   1      
-C251 COMPILER V5.60.0,  zf_uart                                                            30/06/24  20:23:39  PAGE 2   
+C251 COMPILER V5.60.0,  zf_uart                                                            06/07/24  23:05:04  PAGE 2   
 
    51   1          brt = (uint16)(65536 - (sys_clk / baud / 4));
    52   1      
@@ -134,7 +134,7 @@ stmt  level    source
   114   4                      P_SW2 |= 0x00;
   115   4                  }
   116   3                  else if((UART2_RX_P46 == uart_rx_pin) && (UART2_TX_P47 == uart_tx_pin))
-C251 COMPILER V5.60.0,  zf_uart                                                            30/06/24  20:23:39  PAGE 3   
+C251 COMPILER V5.60.0,  zf_uart                                                            06/07/24  23:05:04  PAGE 3   
 
   117   3                  {
   118   4                      P_SW2 |= 0x01;
@@ -202,7 +202,7 @@ stmt  level    source
   180   4                      P_SW2 |= 0x00;
   181   4                  }
   182   3                  else if((UART4_RX_P52 == uart_rx_pin) && (UART4_TX_P53 == uart_tx_pin))
-C251 COMPILER V5.60.0,  zf_uart                                                            30/06/24  20:23:39  PAGE 4   
+C251 COMPILER V5.60.0,  zf_uart                                                            06/07/24  23:05:04  PAGE 4   
 
   183   3                  {
   184   4                      P5M0 = 0x00;
@@ -270,7 +270,7 @@ stmt  level    source
   243          //  @param      *buff           要发送的数组地址
   244          //  @param      len             发送长度
   245          //  @return     void
-C251 COMPILER V5.60.0,  zf_uart                                                            30/06/24  20:23:39  PAGE 5   
+C251 COMPILER V5.60.0,  zf_uart                                                            06/07/24  23:05:04  PAGE 5   
 
   246          //  Sample usage:               uart_putbuff(UART_1,&a[0],5);
   247          //-------------------------------------------------------------------------------------------------------

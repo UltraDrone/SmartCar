@@ -95,7 +95,7 @@ void AD_Date_Fitier(void)
 		filter_buf_LC[i] = adc_mean_filter(LeftCorner_ADC_Pin, ADC_12BIT, 5); //左斜
         filter_buf_M[i]  = adc_mean_filter(Mid_ADC_Pin, ADC_12BIT, 5); //中间
         filter_buf_RC[i] = adc_mean_filter(RightCorner_ADC_Pin, ADC_12BIT, 5);  //右斜
-		filter_buf_RX[i] = adc_mean_filter(RightXie_ADC_Pin, ADC_12BIT, 5); //左斜
+		filter_buf_RX[i] = adc_mean_filter(RightXie_ADC_Pin, ADC_12BIT, 5);//左斜
         filter_buf_R[i]  = adc_mean_filter(Right_ADC_Pin, ADC_12BIT, 10); //右横
     }
 	//13 14 16 05 01 00
@@ -116,6 +116,7 @@ void AD_Date_Fitier(void)
     Right_Xie_Adc = adc_date[3];					      //右斜电感最终值
 	Left_Corner_Adc = adc_date[4];
 	Right_Corner_Adc = adc_date[5];
+	Right_Corner_Adc = Right_Corner_Adc / 2;
     Mid_Adc = adc_date[6];							      //中间电感最终值
 }
 
@@ -175,16 +176,20 @@ void Right_Annulus(void)
 
 //				LightOn;
 
-    if(PreFlag_Right_annulus == 1 /*&& Right_Xie_Adc > 1900 && Right_Adc > 2500*/ && Flag_Right_annulus == 0)
+    if(PreFlag_Right_annulus >= 1 && PreFlag_Right_annulus < 30 /*&& Right_Xie_Adc > 1900 && Right_Adc > 2500*/ && Flag_Right_annulus == 0)
     {
         BUZZOn;
         // LightOn;
-        PreFlag_Right_annulus = 0;
-		Flag_Right_annulus = 1;
-		//Turn_PWM = 1000;
+        PreFlag_Right_annulus++;
+		if(PreFlag_Right_annulus >= 30){
+			BUZZOff;
+			Flag_Right_annulus = 1;
+		}
+		Turn_PWM = 1000;
+		//go_motor(0, 4000);
         //pwm_duty(Steer_Pin, 700);
-        delay_ms(300);
-        BUZZOff;
+        //delay_ms(300);
+        
     }
 }
 
@@ -193,11 +198,29 @@ void Left_Annulus(void)
 {
 
 }
+uint8 Flag_circleLand = 0;
+void circleLand(void){
+	if(Left_Xie_Adc > 3200 && Left_Adc > 3200 && Left_Corner_Adc > 3200
+		&& Mid_Adc > 3200 
+		&& Right_Xie_Adc > 3200 && Right_Adc > 3200 && Right_Corner_Adc > 3200 && Flag_circleLand == 0){
+		Flag_circleLand = 1;
+	}
+	if(Flag_circleLand > 1 && Flag_circleLand < 15){
+		BUZZOn;
+        Flag_circleLand++;
+		if(Flag_circleLand >= 15){
+			Flag_circleLand = 0;
+			BUZZOff;
+		}
+		Turn_PWM = 0;
+	}
+}
 
 void Annulus_Analysis(void)
 {
     Right_Annulus();
     Left_Annulus();
+	circleLand();
 }
 
 

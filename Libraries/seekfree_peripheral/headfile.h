@@ -51,7 +51,7 @@
 #include "Others.h"
 #include "tof.h"
 #include "MyIIC.h"
-
+//#include "seekfree_assistant.h"
 /* 引脚定义 */
 // P52 LED 核心板载LED
 #define LightOn	 		P52 = 0
@@ -75,10 +75,10 @@
 #define Steer_Pin   PWMB_CH1_P74      	 // PWMB_CH1_P74
 
 // 蜂鸣器引脚
-#define BUZZ_Pin    P6_7
-#define BUZZPin     P67
-#define BUZZOn			P67 = 1
-#define BUZZOff 		P67 = 0
+#define BUZZ_Pin    P2_6
+#define BUZZPin     P26
+#define BUZZOn			P26 = 0
+#define BUZZOff 		P26 = 1
 
 //// ADC电磁信号引脚5个电感（实际上都可以，电感，根据需求修改即可）
 //#define Left_ADC_Pin      ADC_P00

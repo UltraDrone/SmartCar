@@ -45,7 +45,7 @@ unsigned char guiNumber[5] = {5, 8, 8, 8, 6};
 unsigned char guiSelect = 0, guiScene = 0, guiEdit = 0;
 unsigned char guiTop = 0;
 void Gui_TEST_Init(void);
-
+void ObstacleAvoid(void);
 
 void All_Init(void)
 {
@@ -64,12 +64,15 @@ void All_Init(void)
     //////////////////////////////////////////////////////////////////
     Flag_Init();														// Fuse标志位初始化（置0）
     PID_Parameter_Init(&TurnPID);						// 转向PID结构体初始化
-    PID_Parameter_Init(&SpeedPID);					// 速度PID结构体初始化
+    PID_Parameter_Init(&SpeedPIDL);					// 速度PID结构体初始化
+	PID_Parameter_Init(&SpeedPIDR);					// 速度PID结构体初始化
     EnableGlobalIRQ();											// 开启总中断
     wireless_uart_send_buff("Init OK!\n", 9); // 无线串口发送初始化完成信息
-	//Tof_Init();
+	Tof_Init();
 	Gui_TEST_Init();
 	slinit();
+	//GY_WriteStartMeasure();
+	BUZZOff;
 }
 
 void main()
@@ -81,7 +84,7 @@ void main()
     // 速度参数
     ClsLoop_Set_Speed  = 2700;						// 闭环速度（避障之后）
     ClsLoop_Speed = ClsLoop_Set_Speed;
-    OpenLoop_Set_Speed = 2700;						// 开环速度（避障之前）
+    OpenLoop_Set_Speed = 2000;						// 开环速度（避障之前）
     OpenLoop_Speed = OpenLoop_Set_Speed;
     // 转向环参数
     Turn_Suquence = 0;										// 转向PID下标
@@ -94,15 +97,27 @@ void main()
 		KeySystem();
 		delay_ms(500);
 	}*/
-	while(P60 == 0 || P64 == 0){
-		go_motor(-2000, -2000);
-		delay_ms(20);
-		go_motor(2000, 2000);
-		delay_ms(20);
-	}
+//	while(P60 == 0 || P64 == 0){
+//		go_motor(-2000, -2000);
+//		delay_ms(20);
+//		go_motor(2000, 2000);
+//		delay_ms(20);
+//	}
+	
     while (1) {
 		KeySystem();
 		Flag.start_go = go_flag;
+		printf("%d,%d,%d,%d,%d,%d,%f,%d,%d,%d\n", 
+			All_PWM_left, All_PWM_right, 
+			left_speed * 20, right_speed * 20, 
+			Turn_PWM, Speed_PWM,
+			vtest,
+			(int)(Speed_PWM - (Turn_PWM)), 
+			(int)(Speed_PWM + (Turn_PWM)),
+			adc_deviation
+		);
+		//printf()
+		//BUZZOn;
         /**********显示5个电感值************/
 //        if(!showing){
 //			sprintf(txt, "Mid_Adc= %05d", adc_date[6]);
@@ -159,7 +174,9 @@ void main()
             Flag_Slope = 1  ;
             go_flag = 1;							// 执行Fuse全局控制
         }
-
+		if(int_OK && Flag.start_go){
+			
+		}
         // 先不编译方便调试，需要编译时将0 -> 1
         #if 0
         /* 停车 */
@@ -216,7 +233,7 @@ void Gui_TEST_Init(void){
 	guis[1][7].intval = (int*)(&adc_date[5]);
 	
 	guis[2][0].type = GUI_TYPE_SCENE_CHANGE;
-	guis[2][1].type = GUI_TYPE_SHOW_INT32_VALUE;
+	guis[2][1].type = GUI_TYPE_SHOW_FLOAT_VALUE;
 	guis[2][2].type = GUI_TYPE_SHOW_INT32_VALUE;
 	guis[2][3].type = GUI_TYPE_SHOW_INT32_VALUE;
 	guis[2][4].type = GUI_TYPE_SHOW_INT32_VALUE;
@@ -224,7 +241,7 @@ void Gui_TEST_Init(void){
 	guis[2][6].type = GUI_TYPE_SHOW_INT32_VALUE;
 	guis[2][7].type = GUI_TYPE_SHOW_INT32_VALUE;
 	strcpy(guis[2][0].names, "BK");
-	strcpy(guis[2][1].names, "ADO");
+	strcpy(guis[2][1].names, "TVT");
 	strcpy(guis[2][2].names, "TPM");
 	strcpy(guis[2][3].names, "SPM");
 	strcpy(guis[2][4].names, "LPM");
@@ -232,7 +249,7 @@ void Gui_TEST_Init(void){
 	strcpy(guis[2][6].names, "lre");
 	strcpy(guis[2][7].names, "rre");
 	guis[2][0].sceneGoTo = 0;
-	guis[2][1].intval = &adc_deviation;
+	guis[2][1].floatval = &tmptest;
 	guis[2][2].intval = &Turn_PWM;
 	guis[2][3].intval = &Speed_PWM;
 	guis[2][4].intval = &All_PWM_left;
@@ -354,6 +371,9 @@ void KeySystem(void){
 		oled_fill(0x00);
 		showing = !showing;
 	}*/
+	if(guiScene == 0){
+		//oled_fill(0x00);
+	}
 	if(!guiEdit){
 		if(keyPressed(FlagUp, LastFlagUp)){
 			oled_fill(0x00);
@@ -460,9 +480,10 @@ void KeySystem(void){
 	/*At24c02_Write_float(0x04, a++);
 	a = At24c02_Read_float(0x04);*/
 	if(guiScene == 0){
-		sprintf(txt, "%d, %d", (P60 == 1) ? 1 : 0, (P64 == 1) ? 1 : 0);
+		sprintf(txt, "%d,%d,%d,%d,%d  ", (P60 == 1) ? 1 : 0, (P64 == 1) ? 1 : 0, dis_test, dl1b_distance_mm, Flag_circleLand);
 		oled_p6x8str(1, 7, txt);
 	}
+	//ObstacleAvoid();
 	LastFlagEnter = FlagEnter;
 	LastFlagCancel = FlagCancel;
 	LastFlagUp = FlagUp;
@@ -470,4 +491,19 @@ void KeySystem(void){
 }
 
 
-
+void ObstacleAvoid(void){
+	dl1b_get_distance();
+	if(dl1b_distance_mm < 6000 && Flag_OpenLoop == 0){
+		BUZZOn;
+		Flag_OpenLoop = 1;
+		Turn_PWM = -1200;
+		delay_ms(250);
+		Turn_PWM = 0;
+		delay_ms(150);
+		Turn_PWM = +1200;
+		delay_ms(300);
+		Flag_OpenLoop = 2;
+	}else{
+		BUZZOff;
+	}
+}

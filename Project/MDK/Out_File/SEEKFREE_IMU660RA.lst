@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 1   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE SEEKFREE_IMU660RA
@@ -66,7 +66,7 @@ stmt  level    source
    52          int16 imu660ra_gyro_x = 0, imu660ra_gyro_y = 0, imu660ra_gyro_z = 0;            // 三轴陀螺仪数据 
              -  gyro (陀螺仪)
    53          int16 imu660ra_acc_x = 0, imu660ra_acc_y = 0, imu660ra_acc_z = 0;               // 三轴加速度计数�
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 2   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 2   
 
              -�� acc  (accelerometer 加速度计)
    54          
@@ -134,7 +134,7 @@ stmt  level    source
                    imu660ra_simiic_delay();
                    IMU660RA_SCL_LOW();
                    imu660ra_simiic_delay();
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 3   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 3   
 
                }
                
@@ -202,7 +202,7 @@ stmt  level    source
                        IMU660RA_SCL_LOW();         //置时钟线为低，准备接收数据位
                        imu660ra_simiic_delay();
                        IMU660RA_SCL_HIGH();         //置时钟线为高，使数据线上数据有效
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 4   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 4   
 
                        imu660ra_simiic_delay();
                        c <<= 1;
@@ -270,7 +270,7 @@ stmt  level    source
                //-------------------------------------------------------------------------------------------------------
              -------------
                //  @brief      模拟IIC从设备寄存器读取数据
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 5   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 5   
 
                //  @param      dev_add                 设备地址(低七位地址)
                //  @param      reg                             寄存器地址
@@ -338,7 +338,7 @@ stmt  level    source
                #else
   302          
   303          
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 6   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 6   
 
   304          #define IMU660RA_SCK(x)                         IMU660RA_SPC_PIN  = x
   305          #define IMU660RA_MOSI(x)                        IMU660RA_SDI_PIN = x
@@ -406,7 +406,7 @@ stmt  level    source
   361   1      
   362   1          while(len--)
   363   1          {
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 7   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 7   
 
   364   2              imu660ra_simspi_wr_byte(*dat_addr++);
   365   2          }
@@ -474,7 +474,7 @@ stmt  level    source
              -------------
   420          // 函数简介     IMU660RA 写数据
   421          // 参数说明     reg             寄存器地址
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 8   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 8   
 
   422          // 参数说明     dat            数据
   423          // 返回参数     void
@@ -542,7 +542,7 @@ stmt  level    source
   477   1          uint8 dat = 0, return_state = 0;
   478   1          uint16 timeout_count = 0;
   479   1      
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 9   
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 9   
 
   480   1          do
   481   1          {
@@ -610,7 +610,7 @@ stmt  level    source
                    imu660ra_gyro_z = (int16)(((uint16)dat[5] << 8 | dat[4]));
                    #else
   537   1          // SPI读取第一个地址为空
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 10  
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 10  
 
   538   1          uint8 dat[7];
   539   1          imu660ra_read_registers(IMU660RA_GYRO_ADDRESS, dat, 7);
@@ -678,7 +678,7 @@ stmt  level    source
   593   1          switch(IMU660RA_GYR_SAMPLE)
   594   1          {
   595   2              case 0x00:
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 11  
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 11  
 
   596   2                  gyro_dat = (float)gyro_value / 16.4f;
   597   2                  break;               //  0x00 陀螺仪量程为:±2000dps    获取到的陀螺仪数据除�
@@ -746,7 +746,7 @@ stmt  level    source
   651   4                  };
   652   3      
   653   3                  return_state = 1;
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 12  
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 12  
 
   654   3      
   655   3                  //break;
@@ -814,7 +814,7 @@ stmt  level    source
   699   1      
   700   1          return return_state;
   701   1      }
-C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  30/06/24  20:23:40  PAGE 13  
+C251 COMPILER V5.60.0,  SEEKFREE_IMU660RA                                                  06/07/24  23:05:05  PAGE 13  
 
   702          
 

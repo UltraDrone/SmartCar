@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  fuse                                                               03/07/24  22:17:25  PAGE 1   
+C251 COMPILER V5.60.0,  fuse                                                               07/07/24  00:23:40  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE fuse
@@ -20,227 +20,264 @@ stmt  level    source
     9          float RateUp = 0.5;
    10          float tmptest = 0;
    11          int SideRate = 900, CornerRate = 1000, XieRate = 100;
-   12          //PIDT testpid = {0}; 
-   13          /*******************PIT¶¨Ê±ÖÐ¶Ï******************
-   14          º¯Êý£ºvoid Fuse_result(void)
-   15          ¹¦ÄÜ£ºËÙ¶È»·¡¢×ªÏò»·¿ØÖÆ
-   16          ²ÎÊý£ºÎÞ
-   17          ËµÃ÷£º
-   18          ·µ»ØÖµ£ºÎÞ
-   19           **********************************************/
-   20          unsigned char int_OK = 0;                                                               // ³õÊ¼»¯³É¹¦±êÖ¾Î»
-   21          unsigned char Flag_OpenLoop = 0;                                // Ä¬ÈÏ½øÐÐ±Õ»·¿ØÖÆ
-   22          //int PID_Control_test(PIDT* pid, int flag)
-   23          //{
-   24          //    int inc;
-   25          
-   26          //    pid->ek = pid->SetValue - pid->ActualValue;
+   12          int dis_test = 0;
+   13          int test_speed = 0;
+   14          //PIDT testpid = {0}; 
+   15          /*******************PIT¶¨Ê±ÖÐ¶Ï******************
+   16          º¯Êý£ºvoid Fuse_result(void)
+   17          ¹¦ÄÜ£ºËÙ¶È»·¡¢×ªÏò»·¿ØÖÆ
+   18          ²ÎÊý£ºÎÞ
+   19          ËµÃ÷£º
+   20          ·µ»ØÖµ£ºÎÞ
+   21           **********************************************/
+   22          unsigned char int_OK = 0;                                                               // ³õÊ¼»¯³É¹¦±êÖ¾Î»
+   23          unsigned char Flag_OpenLoop = 0;                                // Ä¬ÈÏ½øÐÐ±Õ»·¿ØÖÆ
+   24          //int PID_Control_test(PIDT* pid, int flag)
+   25          //{
+   26          //    int inc;
    27          
-   28          //    inc = pid->KPS * (pid->ek - pid->ek_1) + pid->KIS * pid->ek
-   29          //          + pid->KDS * (pid->ek - 2 * pid->ek_1 + pid->ek_2);
-   30          
-   31          //    pid->ek_2 = pid->ek_1; //äÕ´§•d´¬
-   32          //    pid->ek_1 = pid->ek; //äÕ´§•d´¬
-   33          //      
-   34          //    pid->PIDout += inc;
-   35          //         if(flag == 1)
-   36          //    {
-   37          //        if(pid->PIDout > pid->PIDmax)
-   38          //            pid->PIDout = pid->PIDmax;
-   39          //        if(pid->PIDout < pid->PIDmin)
-   40          //            pid->PIDout = pid->PIDmin;
-   41          //    }
-   42          //    return pid->PIDout;
-   43          //}
-   44          void Fuse_result(void)
-   45          {
-   46   1          if(int_OK)
-   47   1          {
-   48   2              if(!Flag.start_go){
-   49   3                  go_motor(-2000, -1000);     // ³ö½ç±£»¤
-   50   3                              Flag.T_Inmost = 0;
-   51   3                              Flag.T_Turn = 0;
-   52   3                              Flag.T_Distance = 0;
-   53   3                              Flag.T_IMU = 0;
-   54   3                              Flag.T_Speed = 0;
-   55   3                              Electromagnetism_Control();                  // µç¸Ð²É¼¯´¦Àí Ã°ÅÝÅÅÐò»¬¶¯ÂË²¨
-   56   3                      }
-   57   2              else
-C251 COMPILER V5.60.0,  fuse                                                               03/07/24  22:17:25  PAGE 2   
+   28          //    pid->ek = pid->SetValue - pid->ActualValue;
+   29          
+   30          //    inc = pid->KPS * (pid->ek - pid->ek_1) + pid->KIS * pid->ek
+   31          //          + pid->KDS * (pid->ek - 2 * pid->ek_1 + pid->ek_2);
+   32          
+   33          //    pid->ek_2 = pid->ek_1; //äÕ´§•d´¬
+   34          //    pid->ek_1 = pid->ek; //äÕ´§•d´¬
+   35          //      
+   36          //    pid->PIDout += inc;
+   37          //         if(flag == 1)
+   38          //    {
+   39          //        if(pid->PIDout > pid->PIDmax)
+   40          //            pid->PIDout = pid->PIDmax;
+   41          //        if(pid->PIDout < pid->PIDmin)
+   42          //            pid->PIDout = pid->PIDmin;
+   43          //    }
+   44          //    return pid->PIDout;
+   45          //}
+   46          void Fuse_result(void)
+   47          {
+   48   1          if(int_OK)
+   49   1          {
+   50   2              if(!Flag.start_go){
+   51   3                  go_motor(-2000, -1000);     // ³ö½ç±£»¤
+   52   3                              Flag.T_Inmost = 0;
+   53   3                              Flag.T_Turn = 0;
+   54   3                              Flag.T_Distance = 0;
+   55   3                              Flag.T_IMU = 0;
+   56   3                              Flag.T_Speed = 0;
+   57   3                              Electromagnetism_Control();                  // µç¸Ð²É¼¯´¦Àí Ã°ÅÝÅÅÐò»¬¶¯ÂË²¨
+C251 COMPILER V5.60.0,  fuse                                                               07/07/24  00:23:40  PAGE 2   
 
-   58   2              {
-   59   3                  // 5ms¿ØÖÆ×îÄÚ»·:Çý¶¯ÂÖ×ÓÍùÇ°×ß
-   60   3                  if(1 == Flag.T_Inmost)
-   61   3                  {
-   62   4                      Flag.T_Inmost = 0;
-   63   4                      if(!Flag_Slope)                                                                                                         // Ö»Òª²»ÊÇÆÂµÀ
-   64   4                                      {
-   65   5                          Speed_PWM = OpenLoop_Speed;                                         // Ôò²»ÐèÒªÌí¼ÓËÙ¶È±Õ»·£¬Ö±½Ó½«µÍËÙÖµ¸³¸øÕ¼¿Õ±È
-   66   5                                      }
-   67   4                                      
-   68   4      //                              Speed_PWM_tmp = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ((ClsLoop_Speed) - abs(Turn_PWM) * (v
+   58   3                      }
+   59   2              else
+   60   2              {
+   61   3                  // 5ms¿ØÖÆ×îÄÚ»·:Çý¶¯ÂÖ×ÓÍùÇ°×ß
+   62   3                  if(1 == Flag.T_Inmost)
+   63   3                  {
+   64   4                      Flag.T_Inmost = 0;
+   65   4                      if(!Flag_Slope)                                                                                                         // Ö»Òª²»ÊÇÆÂµÀ
+   66   4                                      {
+   67   5                          Speed_PWM = OpenLoop_Speed;                                         // Ôò²»ÐèÒªÌí¼ÓËÙ¶È±Õ»·£¬Ö±½Ó½«µÍËÙÖµ¸³¸øÕ¼¿Õ±È
+   68   5                                      }
+   69   4                                      
+   70   4      //                              Speed_PWM_tmp = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ((ClsLoop_Speed) - abs(Turn_PWM) * (v
              -test) * RateLow) * 3.0 / 4) - Speed_PWM;               // ËÙ¶ÈÎ»ÖÃÊ½PID
-   69   4      //                              if(Speed_PWM_tmp < 0){
-   70   4      //                                      //Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp, 500, ClsLoop_Speed + 500);
-   71   4      //                                      Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp, 1500, ((ClsLoop_Speed) - abs(Turn_PWM) * vtes
+   71   4      //                              if(Speed_PWM_tmp < 0){
+   72   4      //                                      //Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp, 500, ClsLoop_Speed + 500);
+   73   4      //                                      Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp, 1500, ((ClsLoop_Speed) - abs(Turn_PWM) * vtes
              -t * RateLow + 500) > 1500 ? ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) : 1500);// ×¢ÒâÕý¸ººÅ
-   72   4      //                              }else{
-   73   4      //                                      //Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp * RateUp, 500, ClsLoop_Speed + 500);
-   74   4      //                                      Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp * RateUp, 1500, ((ClsLoop_Speed) - abs(Turn_PW
+   74   4      //                              }else{
+   75   4      //                                      //Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp * RateUp, 500, ClsLoop_Speed + 500);
+   76   4      //                                      Speed_PWM = range_protect(Speed_PWM + Speed_PWM_tmp * RateUp, 1500, ((ClsLoop_Speed) - abs(Turn_PW
              -M) * vtest * RateLow + 500) > 1500 ? ((ClsLoop_Speed) - abs(Turn_PWM) * vtest * RateLow + 500) : 1500);// ×¢ÒâÕý¸ººÅ
-   75   4      //                              }
-   76   4      //                              /*Speed_PWM = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ClsLoop_Speed * 3.0 / 4);
-   77   4      //                              Speed_PWM = range_protect(Speed_PWM, -ClsLoop_Speed - 500, ClsLoop_Speed + 500);*/
-   78   4      //                // ·ñÔòÔò½«ËÙ¶È»·ÔËËã½á¹ûÍ¶ÈëÕ¼¿Õ±È
-   79   4      //                All_PWM_left = Speed_PWM - (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 /
+   77   4      //                              }
+   78   4      //                              /*Speed_PWM = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ClsLoop_Speed * 3.0 / 4);
+   79   4      //                              Speed_PWM = range_protect(Speed_PWM, -ClsLoop_Speed - 500, ClsLoop_Speed + 500);*/
+   80   4      //                // ·ñÔòÔò½«ËÙ¶È»·ÔËËã½á¹ûÍ¶ÈëÕ¼¿Õ±È
+   81   4      //                All_PWM_left = Speed_PWM - (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 /
              - 4) + 1)*/);
-   80   4      //                All_PWM_right = Speed_PWM + (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 
+   82   4      //                All_PWM_right = Speed_PWM + (Turn_PWM) * (vtest/* * (real_speed / (ClsLoop_Speed * 3.0 
              -/ 4) + 1)*/);
-   81   4                                      /*Electromagnetism_Control();                                           // µç´Å²É¼¯ËùÓÐ
-   82   4                      adc_deviation = 0
-   83   4                                              + Cha_BI_He_Sqrt(Left_Adc + Left_Corner_Adc * 1.5, Right_Adc + Right_Corner_Adc * 1.5, SideRate) 
-   84   4                                              //+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
-   85   4                                              + Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9£º 1
-   86   4                      Turn_PWM = PlacePID_Control(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //×ªÏò¶
+   83   4                                      /*Electromagnetism_Control();                                           // µç´Å²É¼¯ËùÓÐ
+   84   4                      adc_deviation = 0
+   85   4                                              + Cha_BI_He_Sqrt(Left_Adc + Left_Corner_Adc * 1.5, Right_Adc + Right_Corner_Adc * 1.5, SideRate) 
+   86   4                                              //+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
+   87   4                                              + Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9£º 1
+   88   4                      Turn_PWM = PlacePID_Control(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //×ªÏò¶
              -¯Ì¬PID
-   87   4                      Turn_PWM = abs(Turn_PWM);
-   88   4                                      if(adc_deviation < 0)Turn_PWM *= -1;
-   89   4                                      Turn_PWM = range_protect(Turn_PWM, -750, 750);
-   90   4                                      Annulus_Analysis();                                                             // Ô²»·Ê¶±ð´¦Àí*/
-   91   4                                      //right_speed + left_speed
-   92   4                                      tmptest = (real_speed * 2 - 1500.0) / (ClsLoop_Speed - 1500.0 * 0.5) * (vtest - 0.6 * vtest) + 0.6 * 
-             -vtest;
-   93   4                                      All_PWM_left = PID_Realize(
-   94   4                                              &SpeedPID, Speed_Pid, left_speed, 
-   95   4                                              ((ClsLoop_Speed - (Turn_PWM) * (tmptest)) 
-   96   4                                              - abs(Turn_PWM) * (tmptest) * RateLow)
-   97   4                                      );
-   98   4                      All_PWM_right = PID_Realize(
-   99   4                                              &SpeedPID, Speed_Pid, right_speed, 
-  100   4                                              ((ClsLoop_Speed + (Turn_PWM) * (tmptest)) 
-  101   4                                              - abs(Turn_PWM) * (tmptest) * RateLow)
-  102   4                                      );
-  103   4                                      Speed_PWM = (ClsLoop_Speed - abs(Turn_PWM) * (tmptest) * RateLow);
-  104   4                                      //All_PWM_left = ((ClsLoop_Speed - (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
-  105   4                                      //All_PWM_right = ((ClsLoop_Speed + (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
-  106   4                                      All_PWM_left = range_protect(All_PWM_left, - ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
-  107   4                                      All_PWM_right = range_protect(All_PWM_right, - ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
-  108   4                                      /*if(All_PWM_left < 0 && All_PWM_left > -1500){
-  109   4                                              All_PWM_left = -1500;
-  110   4                                      }else
-  111   4                                      if(All_PWM_left > 0 && All_PWM_left < 1500){
-  112   4                                              All_PWM_left = 1500;
-  113   4                                      }
-  114   4                                      if(All_PWM_right < 0 && All_PWM_right > -1500){
-  115   4                                              All_PWM_right = -1500;
-  116   4                                      }else
-C251 COMPILER V5.60.0,  fuse                                                               03/07/24  22:17:25  PAGE 3   
+   89   4                      Turn_PWM = abs(Turn_PWM);
+   90   4                                      if(adc_deviation < 0)Turn_PWM *= -1;
+   91   4                                      Turn_PWM = range_protect(Turn_PWM, -750, 750);
+   92   4                                      Annulus_Analysis();                                                             // Ô²»·Ê¶±ð´¦Àí*/
+   93   4                                      //right_speed + left_speed
+   94   4                                      speed_measure();
+   95   4                                      if(Flag_OpenLoop != 1){
+   96   5                                              //Turn_PWM = 0;
+   97   5                                              
+   98   5                                              tmptest = (real_speed * 20 - 1500.0) / (ClsLoop_Speed - 1500.0) * (vtest - 0.4 * vtest) + 0.4 * vtes
+             -t;
+   99   5                                              if(tmptest < 1){
+  100   6                                                      tmptest = 1;
+  101   6                                              }
+  102   5                                              //tmptest = vtest;
+  103   5                                              //tmptest = 0;
+  104   5                                              Speed_PWM = (ClsLoop_Speed - abs(Turn_PWM)/* * (tmptest)*/ * RateLow);
+  105   5                                              /*if(test_speed < 1000){
+  106   5                                                      test_speed++;
+  107   5                                              }else{
+  108   5                                                      test_speed++;
+  109   5                                                      if(test_speed > 2000){
+  110   5                                                              test_speed = 0;
+  111   5                                                      }
+  112   5                                                      Speed_PWM *= -1;
+  113   5                                              }*/
+  114   5                                              All_PWM_left = All_PWM_left + PID_Realize(
+  115   5                                                      &SpeedPIDL, Speed_Pid, left_speed * 20, 
+  116   5                                                      Speed_PWM - (Turn_PWM)/* * (tmptest)*/
+C251 COMPILER V5.60.0,  fuse                                                               07/07/24  00:23:40  PAGE 3   
 
-  117   4                                      if(All_PWM_right > 0 && All_PWM_right < 1500){
-  118   4                                              All_PWM_right = 1500;
-  119   4                                      }*/
-  120   4                                      /*testpid.KPS = 10;
-  121   4                                      testpid.KIS = 0.1;
-  122   4                                      testpid.KDS = 0.1;
-  123   4                                      testpid.PIDmax = 3000;
-  124   4                                      testpid.PIDmin = -3000;
-  125   4                                      testpid.SetValue = 1500 - adc_deviation * 50; // ´¬…‚
-  126   4                                      testpid.ActualValue = left_speed;
-  127   4                                      All_PWM_left = PID_Control_test(&testpid, 1);
-  128   4                                      if(All_PWM_left == -3000 && adc_deviation < 0){
-  129   4                                              All_PWM_left = 3000;
-  130   4                                      }else
-  131   4                                      if(All_PWM_left == 3000 && adc_deviation > 0){
-  132   4                                              All_PWM_left = -3000;
-  133   4                                      }
-  134   4                                      testpid.SetValue = 1500 + adc_deviation * 50;
-  135   4                                      testpid.ActualValue = right_speed;
-  136   4                                      All_PWM_right = PID_Control_test(&testpid, 1);
-  137   4                                      if(All_PWM_right == -3000 && adc_deviation > 0){
-  138   4                                              All_PWM_right = 3000;
-  139   4                                      }else
-  140   4                                      if(All_PWM_right == 3000 && adc_deviation < 0){
-  141   4                                              All_PWM_right = -3000;
-  142   4                                      }
-  143   4                                      All_PWM_left = range_protect(All_PWM_left, -3000, 3000);
-  144   4                                      All_PWM_right = range_protect(All_PWM_right, -3000, 3000);*/
-  145   4                                      go_motor(All_PWM_left/*  * maxPWM*/, All_PWM_right/* * maxPWM*/);
-  146   4                  }
-  147   3      
-  148   3                  // 10ms¿ØÖÆ£º¶æ»ú×ªÏò»·
-  149   3                  if(1 == Flag.T_Turn && 0 == Flag_OpenLoop)
-  150   3                  {
-  151   4                      Flag.T_Turn = 0;
-  152   4                      Electromagnetism_Control();                                             // µç´Å²É¼¯ËùÓÐ
-  153   4                      adc_deviation = 0
-  154   4                                              + Cha_BI_He_Sqrt(Left_Adc/* + Left_Corner_Adc*/, Right_Adc/* + Right_Corner_Adc*/, SideRate) 
-  155   4                                              + Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
-  156   4                                              + Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9£º 1
-  157   4                      Turn_PWM = PlacePID_Control(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //×ªÏò¶
-             -¯Ì¬PID
-  158   4                      Turn_PWM = abs(Turn_PWM);
-  159   4                                      if(adc_deviation < 0)Turn_PWM *= -1;
-  160   4                                      Turn_PWM = range_protect(Turn_PWM, -750, 750);
-  161   4                                      Annulus_Analysis();                                                             // Ô²»·Ê¶±ð´¦Àí
-  162   4                      //Steering_Control_Out(Turn_PWM);                               // ¶æ»ú×îÖÕÊä³ö£¨º¯ÊýÄÚ²¿ÒÑÏÞ·ù£©
-  163   4                  }
-  164   3      
-  165   3                  // 30ms¿ØÖÆ£ºTOF±ÜÕÏ
-  166   3                  if(1 == Flag.T_Distance)
-  167   3                  {
-  168   4                      Flag.T_Distance = 0;
-  169   4      
-  170   4                      if(!Flag_Tof_Finish)                                            // »¹Î´Íê³É¹ýÒ»´Î¼ì²â
-  171   4                          Tof_Control();                                                              // ÕÏ°­Îï¼ì²â¿ØÖÆ
+  117   5                                              );
+  118   5                                              All_PWM_right = All_PWM_right + PID_Realize(
+  119   5                                                      &SpeedPIDR, Speed_Pid, right_speed * 20, 
+  120   5                                                      Speed_PWM + (Turn_PWM)/* * (tmptest)*/
+  121   5                                              );
+  122   5                                              //Speed_PWM = (ClsLoop_Speed - abs(Turn_PWM) * (tmptest) * RateLow);
+  123   5                                              //All_PWM_left = ((ClsLoop_Speed - (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
+  124   5                                              //All_PWM_right = ((ClsLoop_Speed + (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
+  125   5                                              All_PWM_left = range_protect(All_PWM_left, ClsLoop_Speed - 4000, ClsLoop_Speed + 4000);
+  126   5                                              All_PWM_right = range_protect(All_PWM_right, ClsLoop_Speed - 4000, ClsLoop_Speed + 4000);
+  127   5                                      }else
+  128   4                                      if(Flag_OpenLoop){
+  129   5                                              All_PWM_left = OpenLoop_Speed - (Turn_PWM) * (tmptest);
+  130   5                                              All_PWM_right = OpenLoop_Speed + (Turn_PWM) * (tmptest);
+  131   5                                      }
+  132   4                                      
+  133   4                                      
+  134   4                                      /*if(All_PWM_left < 0 && All_PWM_left > -1500){
+  135   4                                              All_PWM_left = -1500;
+  136   4                                      }else
+  137   4                                      if(All_PWM_left > 0 && All_PWM_left < 1500){
+  138   4                                              All_PWM_left = 1500;
+  139   4                                      }
+  140   4                                      if(All_PWM_right < 0 && All_PWM_right > -1500){
+  141   4                                              All_PWM_right = -1500;
+  142   4                                      }else
+  143   4                                      if(All_PWM_right > 0 && All_PWM_right < 1500){
+  144   4                                              All_PWM_right = 1500;
+  145   4                                      }*/
+  146   4                                      /*testpid.KPS = 10;
+  147   4                                      testpid.KIS = 0.1;
+  148   4                                      testpid.KDS = 0.1;
+  149   4                                      testpid.PIDmax = 3000;
+  150   4                                      testpid.PIDmin = -3000;
+  151   4                                      testpid.SetValue = 1500 - adc_deviation * 50; // ´¬…‚
+  152   4                                      testpid.ActualValue = left_speed;
+  153   4                                      All_PWM_left = PID_Control_test(&testpid, 1);
+  154   4                                      if(All_PWM_left == -3000 && adc_deviation < 0){
+  155   4                                              All_PWM_left = 3000;
+  156   4                                      }else
+  157   4                                      if(All_PWM_left == 3000 && adc_deviation > 0){
+  158   4                                              All_PWM_left = -3000;
+  159   4                                      }
+  160   4                                      testpid.SetValue = 1500 + adc_deviation * 50;
+  161   4                                      testpid.ActualValue = right_speed;
+  162   4                                      All_PWM_right = PID_Control_test(&testpid, 1);
+  163   4                                      if(All_PWM_right == -3000 && adc_deviation > 0){
+  164   4                                              All_PWM_right = 3000;
+  165   4                                      }else
+  166   4                                      if(All_PWM_right == 3000 && adc_deviation < 0){
+  167   4                                              All_PWM_right = -3000;
+  168   4                                      }
+  169   4                                      All_PWM_left = range_protect(All_PWM_left, -3000, 3000);
+  170   4                                      All_PWM_right = range_protect(All_PWM_right, -3000, 3000);*/
+  171   4                                      go_motor(All_PWM_left/*  * maxPWM*/, All_PWM_right/* * maxPWM*/);
   172   4                  }
   173   3      
-  174   3                  // 40ms¿ØÖÆ£ºÆÂµÀ¼ì²â(IMU660)
-  175   3                  if(1 == Flag.T_IMU)
+  174   3                  // 10ms¿ØÖÆ£º¶æ»ú×ªÏò»·
+  175   3                  if(1 == Flag.T_Turn && Flag_OpenLoop != 1)
   176   3                  {
-  177   4                      Flag.T_IMU = 0;
-  178   4      //                                                              if(!Flag_Slope_Finish)
-  179   4      //                                                                      IMU_Control();
-  180   4                  }
-  181   3      
-C251 COMPILER V5.60.0,  fuse                                                               03/07/24  22:17:25  PAGE 4   
+  177   4                      Flag.T_Turn = 0;
+  178   4                      Electromagnetism_Control();                                             // µç´Å²É¼¯ËùÓÐ
+  179   4                                      //Left_Corner_Adc = Left_Corner_Adc > 300 ? Left_Corner_Adc - 300 : 0;
+  180   4                                      adc_deviation = 0
+  181   4                                                      + Cha_BI_He_Sqrt(Left_Adc + Left_Corner_Adc, Right_Adc + Right_Corner_Adc, SideRate) 
+  182   4                                                      //+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
+C251 COMPILER V5.60.0,  fuse                                                               07/07/24  00:23:40  PAGE 4   
 
-  182   3                  // 50ms¿ØÖÆ£ºËÙ¶È±Õ»·¿ØÖÆ
-  183   3                  if(1 == Flag.T_Speed)
-  184   3                  {
-  185   4                      Flag.T_Speed = 0;
-  186   4                      //Speed_PWM = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ClsLoop_Speed);             // ËÙ¶ÈÎ»ÖÃÊ
+  183   4                                                      + Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9£º 1
+  184   4                                      Turn_PWM = PID_Realize(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //×ªÏò¶¯Ì¬PID
+  185   4                                      Turn_PWM = -Turn_PWM;
+  186   4                                      Turn_PWM = range_protect(Turn_PWM, -1250, 1250);
+  187   4                                      Annulus_Analysis();                                                             // Ô²»·Ê¶±ð´¦Àí
+  188   4                                      
+  189   4                      //Steering_Control_Out(Turn_PWM);                               // ¶æ»ú×îÖÕÊä³ö£¨º¯ÊýÄÚ²¿ÒÑÏÞ·ù£©
+  190   4                  }
+  191   3      
+  192   3                  // 30ms¿ØÖÆ£ºTOF±ÜÕÏ
+  193   3                  if(1 == Flag.T_Distance)
+  194   3                  {
+  195   4                      Flag.T_Distance = 0;
+  196   4      
+  197   4                      if(!Flag_Tof_Finish){
+  198   5                                              //dis_test = GY_GetMeasureResult();
+  199   5                                              //GY_GetMeasureResultTemp(dis_tmp_tmp);
+  200   5                                              //GY_WriteStartMeasure();
+  201   5                                              //Tof_Control();
+  202   5                                              //dl1b_get_distance();
+  203   5                                      }
+  204   4      
+  205   4                                      // »¹Î´Íê³É¹ýÒ»´Î¼ì²â
+  206   4                          //Tof_Control();                                                            // ÕÏ°­Îï¼ì²â¿ØÖÆ
+  207   4                                      
+  208   4                  }
+  209   3      
+  210   3                  // 40ms¿ØÖÆ£ºÆÂµÀ¼ì²â(IMU660)
+  211   3                  if(1 == Flag.T_IMU)
+  212   3                  {
+  213   4                      Flag.T_IMU = 0;
+  214   4      //                                                              if(!Flag_Slope_Finish)
+  215   4      //                                                                      IMU_Control();
+  216   4                  }
+  217   3      
+  218   3                  // 50ms¿ØÖÆ£ºËÙ¶È±Õ»·¿ØÖÆ
+  219   3                  if(1 == Flag.T_Speed)
+  220   3                  {
+  221   4                      Flag.T_Speed = 0;
+  222   4                      //Speed_PWM = PID_Realize(&SpeedPID, Speed_Pid, real_speed, ClsLoop_Speed);             // ËÙ¶ÈÎ»ÖÃÊ
              -½PID
-  187   4                      //Speed_PWM = range_protect(Speed_PWM, -0, 4000);                                                                                                       // ×¢ÒâÕý¸ººÅ
-  188   4                  }
-  189   3              }
-  190   2          }
-  191   1      }
-  192          
-  193          //ºËÐÄ¹Ø¼üµÄ±êÖ¾Î»½á¹¹Ìå³õÊ¼»¯
-  194          void Flag_Init(void)
-  195          {
-  196   1          Flag.start_go = 0;
-  197   1          Flag.T_Inmost = 0;
-  198   1          Flag.T_Turn = 0;
-  199   1          Flag.T_Distance = 0;
-  200   1          Flag.T_Speed = 0;
-  201   1          Flag.T_IMU = 0;
-  202   1          Flag.STOP = 0;                                                              // Í£³µ½áÊø
-  203   1          Flag.OUT_Garage = 0;                                  // ³ö¿â±êÖ¾Î»
-  204   1          Flag.Game = 0;
-  205   1      }
+  223   4                      //Speed_PWM = range_protect(Speed_PWM, -0, 4000);                                                                                                       // ×¢ÒâÕý¸ººÅ
+  224   4                  }
+  225   3              }
+  226   2          }
+  227   1      }
+  228          
+  229          //ºËÐÄ¹Ø¼üµÄ±êÖ¾Î»½á¹¹Ìå³õÊ¼»¯
+  230          void Flag_Init(void)
+  231          {
+  232   1          Flag.start_go = 0;
+  233   1          Flag.T_Inmost = 0;
+  234   1          Flag.T_Turn = 0;
+  235   1          Flag.T_Distance = 0;
+  236   1          Flag.T_Speed = 0;
+  237   1          Flag.T_IMU = 0;
+  238   1          Flag.STOP = 0;                                                              // Í£³µ½áÊø
+  239   1          Flag.OUT_Garage = 0;                                  // ³ö¿â±êÖ¾Î»
+  240   1          Flag.Game = 0;
+  241   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       885     ------
+  code size            =       880     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
+C251 COMPILER V5.60.0,  fuse                                                               07/07/24  00:23:40  PAGE 5   
+
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =        35     ------
+  edata size           =        39     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
@@ -248,7 +285,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        66     ------
+  hconst size          =        78     ------
 End of Module Information.
 
 

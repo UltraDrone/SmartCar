@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_gpio                                                            30/06/24  20:23:38  PAGE 1   
+C251 COMPILER V5.60.0,  zf_gpio                                                            06/07/24  23:05:04  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_gpio
@@ -66,7 +66,7 @@ stmt  level    source
    49          //  @param      pin         Ñ¡ÔñÒý½Å£¨P0_0-P5_4£©
    50          //  @param      mode        Òý½ÅÄ£Ê½ GPIO:×¼Ë«Ïò¿Ú, GPO_PP:ÍÆÍìÊä³ö, GPI_IMPEDANCE:¸ß×èÊäÈë, GPI_OD:¿ªÂ©Ê
              -ä³ö
-C251 COMPILER V5.60.0,  zf_gpio                                                            30/06/24  20:23:38  PAGE 2   
+C251 COMPILER V5.60.0,  zf_gpio                                                            06/07/24  23:05:04  PAGE 2   
 
    51          //  @return     void
    52          //  Sample usage:           gpio_mode(P0_0,GPIO);       // ÉèÖÃP0.0ÉèÖÃÎªË«ÏòIO
@@ -134,7 +134,7 @@ stmt  level    source
   113   2      
   114   2              if(0x10 == (pin & 0xF0))        //P1
   115   2              {
-C251 COMPILER V5.60.0,  zf_gpio                                                            30/06/24  20:23:38  PAGE 3   
+C251 COMPILER V5.60.0,  zf_gpio                                                            06/07/24  23:05:04  PAGE 3   
 
   116   3                  P1M1 &= ~(1 << (pin & 0xF));
   117   3                  P1M0 |=  (1 << (pin & 0xF));
@@ -202,7 +202,7 @@ stmt  level    source
   179   3                  P3M1 |=  (1 << (pin & 0xF));
   180   3                  P3M0 &= ~(1 << (pin & 0xF));
   181   3              }
-C251 COMPILER V5.60.0,  zf_gpio                                                            30/06/24  20:23:38  PAGE 4   
+C251 COMPILER V5.60.0,  zf_gpio                                                            06/07/24  23:05:04  PAGE 4   
 
   182   2      
   183   2              if(0x40 == (pin & 0xF0))        //P4
@@ -270,7 +270,7 @@ stmt  level    source
   245   2              if(0x60 == (pin & 0xF0))        //P5
   246   2              {
   247   3                  P6M1 |= (1 << (pin & 0xF));
-C251 COMPILER V5.60.0,  zf_gpio                                                            30/06/24  20:23:38  PAGE 5   
+C251 COMPILER V5.60.0,  zf_gpio                                                            06/07/24  23:05:04  PAGE 5   
 
   248   3                  P6M0 |= (1 << (pin & 0xF));
   249   3              }

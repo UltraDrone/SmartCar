@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  tof                                                                03/07/24  17:01:42  PAGE 1   
+C251 COMPILER V5.60.0,  tof                                                                06/07/24  23:05:08  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE tof
@@ -12,7 +12,7 @@ stmt  level    source
     1          #include "tof.h"
     2          
     3          // ÈüµÀÔªËØTOF´¥·¢
-    4          uint8 Tof_Trig[Tof_Trig_Num] = {2, 1,};                 // µÚi´Î´¥·¢µÄÔªËØÊÇÊ²Ã´, 1:ÕÏ°­Îï      2:ÆÂµÀ
+    4          uint8 Tof_Trig[Tof_Trig_Num] = {1, 2, 0};                       // µÚi´Î´¥·¢µÄÔªËØÊÇÊ²Ã´, 1:ÕÏ°­Îï      2:ÆÂµÀ
     5          uint8 Tof_Index = 0;                                                                                            // ´¥·¢Êý×éË÷Òý
     6          
     7          // ´ò½ÇÑÓÊ±Êý×é
@@ -55,200 +55,201 @@ stmt  level    source
    43          
    44          void Tof_Detect(void)
    45          {
-   46   1          if(Tof_Index < Tof_Trig_Num && dl1b_distance_mm < Dectect_Threshold_mm)                     // »¹Î´¼ì²â¹ýÕÏ°­Îï²¢ÇÒ¼ì²â
-             -½á¹ûÐ¡ÓÚãÐÖµ ÇÒÐèÎªÆðÊ¼¶¯×÷
+   46   1          if(Tof_Index < Tof_Trig_Num && /*dis_test < 50*/dl1b_distance_mm < Dectect_Threshold_mm)                    // »¹Î´¼ì²
+             -â¹ýÕÏ°­Îï²¢ÇÒ¼ì²â½á¹ûÐ¡ÓÚãÐÖµ ÇÒÐèÎªÆðÊ¼¶¯×÷
    47   1          {
    48   2              // Í¨¹ý²é¿´Êý×é[index]µÃÖª¶ÔÓ¦´¦Àítf¼ì²âµÄ½á¹û
    49   2              // Èç¹û arr[index]==1 ÊÇÕÏ°­Îï
    50   2              if(Tof_Trig[Tof_Index] == 1 && Obstacle_Step == 0)
    51   2              {
    52   3                  LightOn;                                                                            // ¼ì²âµ½µÄÊ±ºòÏÈÁÁµÆ
-   53   3                  Flag_OpenLoop = 1;                                  // Ö´ÐÐ¿ª»·±ÜÕÏ¿ØÖÆ
-   54   3                  Obstacle_Step = 1;                                  // ±ÜÕÏ²½Öè±êÖ¾Î»
-   55   3              }
-C251 COMPILER V5.60.0,  tof                                                                03/07/24  17:01:42  PAGE 2   
+   53   3                              BUZZOn;
+   54   3                  Flag_OpenLoop = 1;                                  // Ö´ÐÐ¿ª»·±ÜÕÏ¿ØÖÆ
+   55   3                  Obstacle_Step = 1;                                  // ±ÜÕÏ²½Öè±êÖ¾Î»
+C251 COMPILER V5.60.0,  tof                                                                06/07/24  23:05:08  PAGE 2   
 
-   56   2      
-   57   2              // Èç¹û arr[index]==2 ¾ÍÊÇÆÂµÀ
-   58   2              else if(Tof_Trig[Tof_Index] == 2)
-   59   2              {
-   60   3                  LightOn;
-   61   3                  Flag_Slope = 1;                                                     // ÆÂµÀ±êÖ¾Î»
-   62   3              }
-   63   2      
-   64   2              // Èç¹û arr[index]==3 ¾Í²»×ö´¦Àí£¬·ÀÖ¹×²Ç½£¬ Èç¹ûÏÖ³¡µ÷ÊÔ³öÏÖ×²Ç½¼ì²âÔòÍ¨¹ýÊÖ¶¯Ìø¹ý±¾´Î¼ì²âµÄËã·¨
-   65   2              else if(Tof_Trig[Tof_Index] == 3)
-   66   2              {
-   67   3                  LightOn;
-   68   3                  Flag_Irrelevant = 1;
-   69   3              }
-   70   2          }
-   71   1      
-   72   1      }
-   73          
-   74          /*******************±ÜÕÏ´¦Àíº¯Êý***********************
-   75          //  @brief      ±ÜÕÏ´¦Àí
-   76          //  @param      lr£º 0£º×óµ½ÓÒ  1£ºÓÒµ½×ó
-   77          //  @return     void
-   78          //  @attention  ±ÜÕÏ´¦Àí·Ö³ÉËÄ¸ö²½ÖèÖ´ÐÐ£¬ÏÈ´ò½Ç¹Õ³öÈ¥
-   79                                                                          ºóÖ±ÐÐÒ»Ð¡¶ÎÊ±¼äÔÙÍù»Ø´ò¡£Obstacle_Step
-   80                                                                          ¶ÔÓ¦µÄÎª²»Í¬µÄÖ´ÐÐ½×¶Î¡£
-   81          ******************************************************/
-   82          void Block_handler(uint8 lr, int16 *pt)
-   83          {
-   84   1          if(!lr)                                                                                                                                                                                     // ×ó -> ÓÒ
-   85   1          {
-   86   2              if(Obstacle_Step == 1)                                                                                                          // ×ó´ò½Ç
-   87   2              {
-   88   3                  T_Tof++;
-   89   3                  OpenLoop_Speed = Speed_Tof;                                                                         // ½µµÍËÙ¶È
-   90   3                  pwm_duty(Steer_Pin, pt[0]);                                                                         // ¶æ»ú×ó´ò½Ç
-   91   3      
-   92   3                  if(T_Tof == pt[1])                                                                                                          // 30ms*20 = 0.6s
-   93   3                  {
-   94   4                      Obstacle_Step = 2;
-   95   4                      T_Tof = 0;
-   96   4                  }
-   97   3              }
-   98   2      
-   99   2              // Ö±×ß
-  100   2              if(Obstacle_Step == 2)
-  101   2              {
-  102   3                  T_Tof++;
-  103   3                  pwm_duty(Steer_Pin, Steer_Duty_Midle);                      // ¶æ»ú´òÖ±
-  104   3      
-  105   3                  if(T_Tof == T_Move_Straight)                                                                // 30ms*10 = 0.3s
-  106   3                  {
-  107   4                      Obstacle_Step = 3;
-  108   4                      T_Tof = 0;
-  109   4                  }
-  110   3              }
-  111   2      
-  112   2              // ÓÒ´ò½Ç
-  113   2              if(Obstacle_Step == 3)
-  114   2              {
-  115   3                  T_Tof++;
-  116   3                  pwm_duty(Steer_Pin, pt[2]);                 // ¶æ»ú´òÓÒ
-  117   3      
-  118   3                  if(T_Tof == pt[3])                                                  // 30ms*20 = 0.6s
-  119   3                  {
-  120   4                      Obstacle_Step = 4;
-  121   4                      T_Tof = 0;
-C251 COMPILER V5.60.0,  tof                                                                03/07/24  17:01:42  PAGE 3   
+   56   3              }
+   57   2      
+   58   2              // Èç¹û arr[index]==2 ¾ÍÊÇÆÂµÀ
+   59   2              else if(Tof_Trig[Tof_Index] == 2)
+   60   2              {
+   61   3                  LightOn;
+   62   3                  Flag_Slope = 1;                                                     // ÆÂµÀ±êÖ¾Î»
+   63   3              }
+   64   2      
+   65   2              // Èç¹û arr[index]==3 ¾Í²»×ö´¦Àí£¬·ÀÖ¹×²Ç½£¬ Èç¹ûÏÖ³¡µ÷ÊÔ³öÏÖ×²Ç½¼ì²âÔòÍ¨¹ýÊÖ¶¯Ìø¹ý±¾´Î¼ì²âµÄËã·¨
+   66   2              else if(Tof_Trig[Tof_Index] == 3)
+   67   2              {
+   68   3                  LightOn;
+   69   3                  Flag_Irrelevant = 1;
+   70   3              }
+   71   2          }
+   72   1      
+   73   1      }
+   74          
+   75          /*******************±ÜÕÏ´¦Àíº¯Êý***********************
+   76          //  @brief      ±ÜÕÏ´¦Àí
+   77          //  @param      lr£º 0£º×óµ½ÓÒ  1£ºÓÒµ½×ó
+   78          //  @return     void
+   79          //  @attention  ±ÜÕÏ´¦Àí·Ö³ÉËÄ¸ö²½ÖèÖ´ÐÐ£¬ÏÈ´ò½Ç¹Õ³öÈ¥
+   80                                                                          ºóÖ±ÐÐÒ»Ð¡¶ÎÊ±¼äÔÙÍù»Ø´ò¡£Obstacle_Step
+   81                                                                          ¶ÔÓ¦µÄÎª²»Í¬µÄÖ´ÐÐ½×¶Î¡£
+   82          ******************************************************/
+   83          void Block_handler(uint8 lr, int16 *pt)
+   84          {
+   85   1          if(!lr)                                                                                                                                                                                     // ×ó -> ÓÒ
+   86   1          {
+   87   2              if(Obstacle_Step == 1)                                                                                                          // ×ó´ò½Ç
+   88   2              {
+   89   3                  T_Tof = 0;
+   90   3                  OpenLoop_Speed = Speed_Tof;                                                                         // ½µµÍËÙ¶È
+   91   3                  //pwm_duty(Steer_Pin, pt[0]);                                                                               // ¶æ»ú×ó´ò½Ç
+   92   3                              Turn_PWM = -750;
+   93   3                  if(T_Tof >= pt[1])                                                                                                          // 30ms*20 = 0.6s
+   94   3                  {
+   95   4                      Obstacle_Step = 2;
+   96   4                      T_Tof = 0;
+   97   4                  }
+   98   3              }
+   99   2      
+  100   2              // Ö±×ß
+  101   2              else if(Obstacle_Step == 2)
+  102   2              {
+  103   3                  T_Tof++;
+  104   3                  //pwm_duty(Steer_Pin, Steer_Duty_Midle);                    // ¶æ»ú´òÖ±
+  105   3                              Turn_PWM = 0;
+  106   3                  if(T_Tof >= T_Move_Straight)                                                                // 30ms*10 = 0.3s
+  107   3                  {
+  108   4                      Obstacle_Step = 3;
+  109   4                      T_Tof = 0;
+  110   4                  }
+  111   3              }
+  112   2      
+  113   2              // ÓÒ´ò½Ç
+  114   2              else if(Obstacle_Step == 3)
+  115   2              {
+  116   3                  T_Tof++;
+  117   3                  //pwm_duty(Steer_Pin, pt[2]);                       // ¶æ»ú´òÓÒ
+  118   3                              Turn_PWM = +750;
+  119   3                  if(T_Tof >= pt[3])                                                  // 30ms*20 = 0.6s
+  120   3                  {
+  121   4                      Obstacle_Step = 4;
+C251 COMPILER V5.60.0,  tof                                                                06/07/24  23:05:08  PAGE 3   
 
-  122   4                  }
-  123   3              }
-  124   2      
-  125   2              // ¸´Î»±êÖ¾Î»
-  126   2              if(Obstacle_Step == 4)
-  127   2              {
-  128   3                  Obstacle_Step = 5;                  // ÈôÐèÒªÖØ¸´¼ì²âÕÏ°­Îï£¬¿É½«´Ë±êÖ¾Î»¸´Î»Îª0
-  129   3                  //                          Flag_Tof_Finish = 1;            // ·ÀÖ¹¶þ´Î±ÜÕÏ
-  130   3                  Flag_OpenLoop = 0;                  // ·µ»¹×ªÏò±Õ»·¿ØÖÆ
-  131   3                  LightOff;                                                           // ±ÜÕÏ½áÊø£¬¹ØµÆ
-  132   3                  Tof_Index++;                                                // Íê³ÉÒ»´Î¼ì²â
-  133   3      
-  134   3              }
-  135   2          }
-  136   1      
-  137   1          else                                                                                                                                                // ÓÒ -> ×ó
-  138   1          {
-  139   2              // ÓÒ´ò½Ç
-  140   2              if(Obstacle_Step == 1)
-  141   2              {
-  142   3                  T_Tof++;
-  143   3                  OpenLoop_Speed = Speed_Tof;                                                                         // ½µµÍËÙ¶È
-  144   3                  pwm_duty(Steer_Pin, pt[2]);                                                                         // ¶æ»úÓÒ´ò½Ç
-  145   3      
-  146   3                  if(T_Tof == pt[3])                                                                                                          // 30ms*20 = 0.6s
-  147   3                  {
-  148   4                      Obstacle_Step = 2;
-  149   4                      T_Tof = 0;
-  150   4                  }
-  151   3              }
-  152   2      
-  153   2              // Ö±×ß
-  154   2              if(Obstacle_Step == 2)
-  155   2              {
-  156   3                  T_Tof++;
-  157   3                  pwm_duty(Steer_Pin, Steer_Duty_Midle);                      // ¶æ»ú´òÖ±
-  158   3      
-  159   3                  if(T_Tof == T_Move_Straight)                                                                // 30ms*n
-  160   3                  {
-  161   4                      Obstacle_Step = 3;
-  162   4                      T_Tof = 0;
-  163   4                  }
-  164   3              }
-  165   2      
-  166   2              // ×ó´ò½Ç
-  167   2              if(Obstacle_Step == 3)
-  168   2              {
-  169   3                  T_Tof++;
-  170   3                  pwm_duty(Steer_Pin, pt[0]);                                                                 // ¶æ»ú´ò×ó
-  171   3      
-  172   3                  if(T_Tof == pt[1])                                                                                                  // 30ms*n
-  173   3                  {
-  174   4                      Obstacle_Step = 4;
-  175   4                      T_Tof = 0;
-  176   4                  }
-  177   3              }
-  178   2      
-  179   2              // ¸´Î»±êÖ¾Î»
-  180   2              if(Obstacle_Step == 4)
-  181   2              {
-  182   3                  Obstacle_Step = 5;                  // ÈôÐèÒªÖØ¸´¼ì²âÕÏ°­Îï£¬¿É½«´Ë±êÖ¾Î»¸´Î»Îª0
-  183   3                  //                          Flag_Tof_Finish = 1;            // ·ÀÖ¹¶þ´Î±ÜÕÏ
-  184   3                  Flag_OpenLoop = 0;                  // ·µ»¹×ªÏò±Õ»·¿ØÖÆ
-  185   3                  LightOff;                                                           // ±ÜÕÏ½áÊø£¬¹ØµÆ
-  186   3                  Tof_Index++;                                                // Íê³ÉÒ»´Î¼ì²â
-  187   3      
-C251 COMPILER V5.60.0,  tof                                                                03/07/24  17:01:42  PAGE 4   
+  122   4                      T_Tof = 0;
+  123   4                  }
+  124   3              }
+  125   2      
+  126   2              // ¸´Î»±êÖ¾Î»
+  127   2              else if(Obstacle_Step == 4)
+  128   2              {
+  129   3                  Obstacle_Step = 5;                  // ÈôÐèÒªÖØ¸´¼ì²âÕÏ°­Îï£¬¿É½«´Ë±êÖ¾Î»¸´Î»Îª0
+  130   3                  //                          Flag_Tof_Finish = 1;            // ·ÀÖ¹¶þ´Î±ÜÕÏ
+  131   3                  Flag_OpenLoop = 0;                  // ·µ»¹×ªÏò±Õ»·¿ØÖÆ
+  132   3                  LightOff;                                                           // ±ÜÕÏ½áÊø£¬¹ØµÆ
+  133   3                  Tof_Index++;                                                // Íê³ÉÒ»´Î¼ì²â
+  134   3      
+  135   3              }
+  136   2          }
+  137   1      
+  138   1          else                                                                                                                                                // ÓÒ -> ×ó
+  139   1          {
+  140   2              // ÓÒ´ò½Ç
+  141   2              if(Obstacle_Step == 1)
+  142   2              {
+  143   3                  T_Tof++;
+  144   3                  OpenLoop_Speed = Speed_Tof;                                                                         // ½µµÍËÙ¶È
+  145   3                  pwm_duty(Steer_Pin, pt[2]);                                                                         // ¶æ»úÓÒ´ò½Ç
+  146   3      
+  147   3                  if(T_Tof == pt[3])                                                                                                          // 30ms*20 = 0.6s
+  148   3                  {
+  149   4                      Obstacle_Step = 2;
+  150   4                      T_Tof = 0;
+  151   4                  }
+  152   3              }
+  153   2      
+  154   2              // Ö±×ß
+  155   2              if(Obstacle_Step == 2)
+  156   2              {
+  157   3                  T_Tof++;
+  158   3                  pwm_duty(Steer_Pin, Steer_Duty_Midle);                      // ¶æ»ú´òÖ±
+  159   3      
+  160   3                  if(T_Tof == T_Move_Straight)                                                                // 30ms*n
+  161   3                  {
+  162   4                      Obstacle_Step = 3;
+  163   4                      T_Tof = 0;
+  164   4                  }
+  165   3              }
+  166   2      
+  167   2              // ×ó´ò½Ç
+  168   2              if(Obstacle_Step == 3)
+  169   2              {
+  170   3                  T_Tof++;
+  171   3                  pwm_duty(Steer_Pin, pt[0]);                                                                 // ¶æ»ú´ò×ó
+  172   3      
+  173   3                  if(T_Tof == pt[1])                                                                                                  // 30ms*n
+  174   3                  {
+  175   4                      Obstacle_Step = 4;
+  176   4                      T_Tof = 0;
+  177   4                  }
+  178   3              }
+  179   2      
+  180   2              // ¸´Î»±êÖ¾Î»
+  181   2              if(Obstacle_Step == 4)
+  182   2              {
+  183   3                  Obstacle_Step = 5;                  // ÈôÐèÒªÖØ¸´¼ì²âÕÏ°­Îï£¬¿É½«´Ë±êÖ¾Î»¸´Î»Îª0
+  184   3                  //                          Flag_Tof_Finish = 1;            // ·ÀÖ¹¶þ´Î±ÜÕÏ
+  185   3                  Flag_OpenLoop = 0;                  // ·µ»¹×ªÏò±Õ»·¿ØÖÆ
+  186   3                  LightOff;                                                           // ±ÜÕÏ½áÊø£¬¹ØµÆ
+  187   3                  Tof_Index++;                                                // Íê³ÉÒ»´Î¼ì²â
+C251 COMPILER V5.60.0,  tof                                                                06/07/24  23:05:08  PAGE 4   
 
-  188   3                  //                          while(1)                                                        // µ÷ÊÔ±ÜÕÏÊ±Ê¹ÓÃ
-  189   3                  //                                  go_motor(0,0);
-  190   3              }
-  191   2          }
-  192   1      }
-  193          
+  188   3      
+  189   3                  //                          while(1)                                                        // µ÷ÊÔ±ÜÕÏÊ±Ê¹ÓÃ
+  190   3                  //                                  go_motor(0,0);
+  191   3              }
+  192   2          }
+  193   1      }
   194          
   195          
-  196          void Slope_handler(void)
-  197          {
-  198   1          if(Flag_Slope == 1)
-  199   1          {
-  200   2              T_Tof++;
-  201   2      
-  202   2              if(T_Tof == T_PassSlope)
-  203   2              {
-  204   3                  T_Tof = 0;
-  205   3                  Flag_Slope = 0;
-  206   3                  Tof_Index++;
-  207   3                  LightOff;
-  208   3              }
-  209   2          }
-  210   1      }
-  211          
+  196          
+  197          void Slope_handler(void)
+  198          {
+  199   1          if(Flag_Slope == 1)
+  200   1          {
+  201   2              T_Tof++;
+  202   2      
+  203   2              if(T_Tof == T_PassSlope)
+  204   2              {
+  205   3                  T_Tof = 0;
+  206   3                  Flag_Slope = 0;
+  207   3                  Tof_Index++;
+  208   3                  LightOff;
+  209   3              }
+  210   2          }
+  211   1      }
   212          
-  213          void Irrelevant_handler(void)
-  214          {
-  215   1          if(Flag_Irrelevant == 1)
-  216   1          {
-  217   2              T_Tof++;
-  218   2      
-  219   2              if(T_Tof == T_Passround_Irrl)
-  220   2              {
-  221   3                  T_Tof = 0;
-  222   3                  Tof_Index++;
-  223   3                  Flag_Irrelevant = 0;
-  224   3                  LightOff;
-  225   3              }
-  226   2          }
-  227   1      }
+  213          
+  214          void Irrelevant_handler(void)
+  215          {
+  216   1          if(Flag_Irrelevant == 1)
+  217   1          {
+  218   2              T_Tof++;
+  219   2      
+  220   2              if(T_Tof == T_Passround_Irrl)
+  221   2              {
+  222   3                  T_Tof = 0;
+  223   3                  Tof_Index++;
+  224   3                  Flag_Irrelevant = 0;
+  225   3                  LightOff;
+  226   3              }
+  227   2          }
+  228   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       836     ------
+  code size            =       822     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

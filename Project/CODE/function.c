@@ -1,8 +1,9 @@
 #include "function.h"
 
 /***************速度PID参数************/
-PID SpeedPID;																			//速度PID储存（只是储存的中间量，无需关心）
-float Speed_Pid[4]  = {1, 0.5, 1.0, 1500};//{3.0, 0.04, 0.5, 500};//{2.0, 0.001, 0, 500};					// 速度环PID
+PID SpeedPIDL;																			//速度PID储存（只是储存的中间量，无需关心）
+PID SpeedPIDR;																			//速度PID储存（只是储存的中间量，无需关心）
+float Speed_Pid[4]  = {0.04, 0.02, 0.01, 500};//{0.12, 0.08, 0.04, 500};//{0.04, 0.02, 0.01, 500};//{1, 0.5, 1.0, 1500};//{3.0, 0.04, 0.5, 500};//{2.0, 0.001, 0, 500};					// 速度环PID
 
 
 /***************转向PID参数************/
@@ -77,14 +78,14 @@ eg：Radius = PlacePID_Control(&Turn_PID, Turn[Fres], Difference, 0);// 动态PID控
 ***************************************************************************/
 // 位置式动态PID控制
 
-int32 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint)
+int16 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint)
 {
     //定义为寄存器变量，只能用于整型和字符型变量，提高运算速度
     int32 iError,	//当前误差
           Actual;	//最后得出的实际输出值
     float Kp;		//动态P
     iError = SetPoint - NowPiont;	//计算当前误差
-    sprt->SumError += iError * 0.01;
+    sprt->SumError += iError;
 
     if (sprt->SumError >= PID[KT])
     {
@@ -122,26 +123,43 @@ int32 Point    设定目标值  （可使用结构体定义变量）
 eg：Tar_Ang_Vel.Y = PID_Realize(&Angle_PID, Angle, (int32)(Attitude_Angle.Y*100), (int32)Target_Angle.Y);	// 结果为放大10倍的目标角速度
 *******************************************************************************/
 ////////////
-int32 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point)
+//int16 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point)
+//{
+//    //当前误差，定义为寄存器变量，只能用于整型和字符型变量，提高运算速度
+//    int32 iError;	// 当前误差
+//    float	 Realize;	// 最后得出的实际增量
+
+//    iError = Point - NowData;	// 计算当前误差      设定减当前
+//    sptr->SumError += PID[KI] * iError;	// 误差积分
+//    sptr->SumError = limit(sptr->SumError, PID[KT]);//积分限幅
+
+//    Realize = PID[KP] * iError
+//              + sptr->SumError
+//              + PID[KD] * (iError - sptr->LastError);     //P  I   D  相加
+//    sptr->PrevError = sptr->LastError;	// 更新前次误差
+//    sptr->LastError = iError;		  	// 更新上次误差
+//    sptr->LastData  = NowData;			// 更新上次数据    没用 */
+
+//    return Realize;	// 返回实际值
+//}
+//增量式
+int16 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point)
 {
     //当前误差，定义为寄存器变量，只能用于整型和字符型变量，提高运算速度
     int32 iError;	// 当前误差
-    float	 Realize;	// 最后得出的实际增量
+    float Realize;	// 最后得出的实际增量
 
     iError = Point - NowData;	// 计算当前误差      设定减当前
-    sptr->SumError += PID[KI] * iError;	// 误差积分
-    sptr->SumError = limit(sptr->SumError, PID[KT]);//积分限幅
 
     Realize = PID[KP] * iError
-              + sptr->SumError
-              + PID[KD] * (iError - sptr->LastError);     //P  I   D  相加
+              + PID[KI] * sptr->LastError
+              + PID[KD] * sptr->PrevError;     //P  I   D  相加
     sptr->PrevError = sptr->LastError;	// 更新前次误差
     sptr->LastError = iError;		  	// 更新上次误差
     sptr->LastData  = NowData;			// 更新上次数据    没用 */
 
     return Realize;	// 返回实际值
 }
-
 
 /****************限幅函数****************
 //x是限幅对象
@@ -157,7 +175,7 @@ int16 limit(int16 x, int y)
 
 // 电机限幅
 /******** 限幅保护 *********/
-int32 range_protect(int32 duty, int32 min, int32 max)//限幅保护
+int16 range_protect(int32 duty, int32 min, int32 max)//限幅保护
 {
     if (duty >= max)
     {

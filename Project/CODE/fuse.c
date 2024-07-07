@@ -9,6 +9,8 @@ float RateLow = 0.7;
 float RateUp = 0.5;
 float tmptest = 0;
 int SideRate = 900, CornerRate = 1000, XieRate = 100;
+int dis_test = 0;
+int test_speed = 0;
 //PIDT testpid = {0}; 
 /*******************PIT定时中断******************
 函数：void Fuse_result(void)
@@ -89,22 +91,46 @@ void Fuse_result(void)
 				Turn_PWM = range_protect(Turn_PWM, -750, 750);
 				Annulus_Analysis();								// 圆环识别处理*/
 				//right_speed + left_speed
-				tmptest = (real_speed * 2 - 1500.0) / (ClsLoop_Speed - 1500.0 * 0.5) * (vtest - 0.6 * vtest) + 0.6 * vtest;
-				All_PWM_left = PID_Realize(
-					&SpeedPID, Speed_Pid, left_speed, 
-					((ClsLoop_Speed - (Turn_PWM) * (tmptest)) 
-					- abs(Turn_PWM) * (tmptest) * RateLow)
-				);
-                All_PWM_right = PID_Realize(
-					&SpeedPID, Speed_Pid, right_speed, 
-					((ClsLoop_Speed + (Turn_PWM) * (tmptest)) 
-					- abs(Turn_PWM) * (tmptest) * RateLow)
-				);
-				Speed_PWM = (ClsLoop_Speed - abs(Turn_PWM) * (tmptest) * RateLow);
-				//All_PWM_left = ((ClsLoop_Speed - (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
-				//All_PWM_right = ((ClsLoop_Speed + (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
-				All_PWM_left = range_protect(All_PWM_left, - ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
-				All_PWM_right = range_protect(All_PWM_right, - ClsLoop_Speed - 3000, ClsLoop_Speed + 3000);
+				speed_measure();
+				if(Flag_OpenLoop != 1){
+					//Turn_PWM = 0;
+					
+					tmptest = (real_speed * 20 - 1500.0) / (ClsLoop_Speed - 1500.0) * (vtest - 0.4 * vtest) + 0.4 * vtest;
+					if(tmptest < 1){
+						tmptest = 1;
+					}
+					//tmptest = vtest;
+					//tmptest = 0;
+					Speed_PWM = (ClsLoop_Speed - abs(Turn_PWM)/* * (tmptest)*/ * RateLow);
+					/*if(test_speed < 1000){
+						test_speed++;
+					}else{
+						test_speed++;
+						if(test_speed > 2000){
+							test_speed = 0;
+						}
+						Speed_PWM *= -1;
+					}*/
+					All_PWM_left = All_PWM_left + PID_Realize(
+						&SpeedPIDL, Speed_Pid, left_speed * 20, 
+						Speed_PWM - (Turn_PWM)/* * (tmptest)*/
+					);
+					All_PWM_right = All_PWM_right + PID_Realize(
+						&SpeedPIDR, Speed_Pid, right_speed * 20, 
+						Speed_PWM + (Turn_PWM)/* * (tmptest)*/
+					);
+					//Speed_PWM = (ClsLoop_Speed - abs(Turn_PWM) * (tmptest) * RateLow);
+					//All_PWM_left = ((ClsLoop_Speed - (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
+					//All_PWM_right = ((ClsLoop_Speed + (Turn_PWM) * (tmptest)) - abs(Turn_PWM) * (tmptest) * RateLow);
+					All_PWM_left = range_protect(All_PWM_left, ClsLoop_Speed - 4000, ClsLoop_Speed + 4000);
+					All_PWM_right = range_protect(All_PWM_right, ClsLoop_Speed - 4000, ClsLoop_Speed + 4000);
+				}else
+				if(Flag_OpenLoop){
+					All_PWM_left = OpenLoop_Speed - (Turn_PWM) * (tmptest);
+					All_PWM_right = OpenLoop_Speed + (Turn_PWM) * (tmptest);
+				}
+				
+				
 				/*if(All_PWM_left < 0 && All_PWM_left > -1500){
 					All_PWM_left = -1500;
 				}else
@@ -146,19 +172,20 @@ void Fuse_result(void)
             }
 
             // 10ms控制：舵机转向环
-            if(1 == Flag.T_Turn && 0 == Flag_OpenLoop)
+            if(1 == Flag.T_Turn && Flag_OpenLoop != 1)
             {
                 Flag.T_Turn = 0;
                 Electromagnetism_Control();						// 电磁采集所有
-                adc_deviation = 0
-					+ Cha_BI_He_Sqrt(Left_Adc/* + Left_Corner_Adc*/, Right_Adc/* + Right_Corner_Adc*/, SideRate) 
-					+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
-					+ Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9： 1
-                Turn_PWM = PlacePID_Control(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //转向动态PID
-                Turn_PWM = abs(Turn_PWM);
-				if(adc_deviation < 0)Turn_PWM *= -1;
-				Turn_PWM = range_protect(Turn_PWM, -750, 750);
+				//Left_Corner_Adc = Left_Corner_Adc > 300 ? Left_Corner_Adc - 300 : 0;
+				adc_deviation = 0
+						+ Cha_BI_He_Sqrt(Left_Adc + Left_Corner_Adc, Right_Adc + Right_Corner_Adc, SideRate) 
+						//+ Cha_BI_He_Sqrt(Left_Corner_Adc, Right_Corner_Adc, CornerRate) 
+						+ Cha_BI_He_Sqrt(Left_Xie_Adc, Right_Xie_Adc, XieRate); //   9： 1
+				Turn_PWM = PID_Realize(&TurnPID, Turn_Pid[Turn_Suquence], adc_deviation, 0); //转向动态PID
+				Turn_PWM = -Turn_PWM;
+				Turn_PWM = range_protect(Turn_PWM, -1250, 1250);
 				Annulus_Analysis();								// 圆环识别处理
+				
                 //Steering_Control_Out(Turn_PWM);				// 舵机最终输出（函数内部已限幅）
             }
 
@@ -167,8 +194,17 @@ void Fuse_result(void)
             {
                 Flag.T_Distance = 0;
 
-                if(!Flag_Tof_Finish)						// 还未完成过一次检测
-                    Tof_Control();								// 障碍物检测控制
+                if(!Flag_Tof_Finish){
+					//dis_test = GY_GetMeasureResult();
+					//GY_GetMeasureResultTemp(dis_tmp_tmp);
+					//GY_WriteStartMeasure();
+					//Tof_Control();
+					//dl1b_get_distance();
+				}
+
+				// 还未完成过一次检测
+                    //Tof_Control();								// 障碍物检测控制
+				
             }
 
             // 40ms控制：坡道检测(IMU660)

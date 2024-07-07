@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  19:16:17  PAGE 1   
+C251 COMPILER V5.60.0,  Direction                                                          06/07/24  23:55:37  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Direction
@@ -66,7 +66,7 @@ stmt  level    source
    54   2                      adc_date[4] = adc_mean_filter(LeftCorner_ADC_Pin, ADC_12BIT, 2);
    55   2              adc_date[5] = adc_mean_filter(RightCorner_ADC_Pin, ADC_12BIT, 2);
    56   2              adc_date[6] = adc_mean_filter(Mid_ADC_Pin, ADC_12BIT, 2);
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  19:16:17  PAGE 2   
+C251 COMPILER V5.60.0,  Direction                                                          06/07/24  23:55:37  PAGE 2   
 
    57   2      
    58   2              for(j = 0; j < 7; j++)                                                                  // Èý¸öºáµç¸Ð×÷ÏÞ·ù
@@ -109,7 +109,7 @@ stmt  level    source
    95   2                      filter_buf_LC[i] = adc_mean_filter(LeftCorner_ADC_Pin, ADC_12BIT, 5); //×óÐ±
    96   2              filter_buf_M[i]  = adc_mean_filter(Mid_ADC_Pin, ADC_12BIT, 5); //ÖÐ¼ä
    97   2              filter_buf_RC[i] = adc_mean_filter(RightCorner_ADC_Pin, ADC_12BIT, 5);  //ÓÒÐ±
-   98   2                      filter_buf_RX[i] = adc_mean_filter(RightXie_ADC_Pin, ADC_12BIT, 5); //×óÐ±
+   98   2                      filter_buf_RX[i] = adc_mean_filter(RightXie_ADC_Pin, ADC_12BIT, 5);//×óÐ±
    99   2              filter_buf_R[i]  = adc_mean_filter(Right_ADC_Pin, ADC_12BIT, 10); //ÓÒºá
   100   2          }
   101   1              //13 14 16 05 01 00
@@ -130,169 +130,192 @@ stmt  level    source
   116   1          Right_Xie_Adc = adc_date[3];                                              //ÓÒÐ±µç¸Ð×îÖÕÖµ
   117   1              Left_Corner_Adc = adc_date[4];
   118   1              Right_Corner_Adc = adc_date[5];
-  119   1          Mid_Adc = adc_date[6];                                                            //ÖÐ¼äµç¸Ð×îÖÕÖµ
-  120   1      }
-  121          
-  122          void Protect_Anticollision(void)
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  19:16:17  PAGE 3   
+  119   1              Right_Corner_Adc = Right_Corner_Adc / 2;
+  120   1          Mid_Adc = adc_date[6];                                                            //ÖÐ¼äµç¸Ð×îÖÕÖµ
+  121   1      }
+  122          
+C251 COMPILER V5.60.0,  Direction                                                          06/07/24  23:55:37  PAGE 3   
 
-  123          {
-  124   1          if(Left_Adc < 100 && Right_Adc < 100){
-  125   2              //Flag.start_go = 0;
-  126   2                      go_flag = 0;
-  127   2              }else
-  128   1              if(Left_Adc > 150 || Right_Adc > 150){
-  129   2                      //Flag.start_go = 1;
-  130   2                      go_flag = 1;
-  131   2              }
-  132   1      }
-  133          
+  123          void Protect_Anticollision(void)
+  124          {
+  125   1          if(Left_Adc < 100 && Right_Adc < 100){
+  126   2              //Flag.start_go = 0;
+  127   2                      go_flag = 0;
+  128   2              }else
+  129   1              if(Left_Adc > 150 || Right_Adc > 150){
+  130   2                      //Flag.start_go = 1;
+  131   2                      go_flag = 1;
+  132   2              }
+  133   1      }
   134          
-  135          /*************************************
-  136          º¯Êý£ºvoid Electromagnetism_Control(void)
-  137          ¹¦ÄÜ£ºµç´Å¿ØÖÆ
-  138          ²ÎÊý£ºÎÞ
-  139          ËµÃ÷£º
-  140          **************************************/
-  141          void Electromagnetism_Control(void)
-  142          {
-  143   1          AD_Date_Fitier();                  // µç¸Ð²É¼¯´¦Àí Ã°ÅÝÅÅÐò»¬¶¯ÂË²¨
-  144   1          
-  145   1          /// normalize_date();               // ²É¼¯µç¸Ð¹éÒ»»¯  0--100 ²»ÄÜÓÃ£¬Î´ÕÒµ½Ô­Òò£¬²»Òª¹éÒ»»¯À²
-  146   1          Protect_Anticollision();                                            // ±£»¤
-  147   1      }
-  148          
-  149          /*****************»·µº´¦Àí´úÂë***********************
-  150          º¯Êý£ºvoid  annulus_analysis()
-  151          ¹¦ÄÜ£ºÅÐ±ð»·µº´¦Àí
-  152          ²ÎÊý£ºÎÞ
-  153          ËµÃ÷£º
-  154          ·µ»ØÖµ£º
-  155          ÈÕÆÚ£º
-  156          Ô­Àí£º·Ç³£¼òµ¥£¬µ½Ô²»·£¬ÅÐ¶Ïµ½µç¸ÐÖµÔö´ó£¬ÎÒÃÇÉè¶¨Ò»¸ö¹Ì¶¨µÄËÙ¶ÈµÍËÙ£¬
-  157                Í¨¹ý¼ÆÊýÑÓÊ±ÈÃ³µ×ÓÔÙÍùÇ°ÅÜÒ»µãµã¾àÀë£¨·ÀÖ¹²ÁÂ·¼ç£©£¬È»ºó¹Ì¶¨´ò½ÇÖ±½Ó¿ØÖÆ¶æ»ú´ò½Ç£¬
-  158                È»ºóÒ²ÊÇÍ¨¹ý¼ÆÊýÑÓÊ±£¬³µÖ»Òª°Ñ³µÉí¹Õ½øÈ¥ÁË£¬ÎÒÃÇ¾Í»Ö¸´Õý³£Ñ­¼££¬²»ÐèÒª´¦Àí³ö»·ÎÊÌâ£¬³ö»·ºóÎÒÃÇÍ¨¹ýÍ
+  135          
+  136          /*************************************
+  137          º¯Êý£ºvoid Electromagnetism_Control(void)
+  138          ¹¦ÄÜ£ºµç´Å¿ØÖÆ
+  139          ²ÎÊý£ºÎÞ
+  140          ËµÃ÷£º
+  141          **************************************/
+  142          void Electromagnetism_Control(void)
+  143          {
+  144   1          AD_Date_Fitier();                  // µç¸Ð²É¼¯´¦Àí Ã°ÅÝÅÅÐò»¬¶¯ÂË²¨
+  145   1          
+  146   1          /// normalize_date();               // ²É¼¯µç¸Ð¹éÒ»»¯  0--100 ²»ÄÜÓÃ£¬Î´ÕÒµ½Ô­Òò£¬²»Òª¹éÒ»»¯À²
+  147   1          Protect_Anticollision();                                            // ±£»¤
+  148   1      }
+  149          
+  150          /*****************»·µº´¦Àí´úÂë***********************
+  151          º¯Êý£ºvoid  annulus_analysis()
+  152          ¹¦ÄÜ£ºÅÐ±ð»·µº´¦Àí
+  153          ²ÎÊý£ºÎÞ
+  154          ËµÃ÷£º
+  155          ·µ»ØÖµ£º
+  156          ÈÕÆÚ£º
+  157          Ô­Àí£º·Ç³£¼òµ¥£¬µ½Ô²»·£¬ÅÐ¶Ïµ½µç¸ÐÖµÔö´ó£¬ÎÒÃÇÉè¶¨Ò»¸ö¹Ì¶¨µÄËÙ¶ÈµÍËÙ£¬
+  158                Í¨¹ý¼ÆÊýÑÓÊ±ÈÃ³µ×ÓÔÙÍùÇ°ÅÜÒ»µãµã¾àÀë£¨·ÀÖ¹²ÁÂ·¼ç£©£¬È»ºó¹Ì¶¨´ò½ÇÖ±½Ó¿ØÖÆ¶æ»ú´ò½Ç£¬
+  159                È»ºóÒ²ÊÇÍ¨¹ý¼ÆÊýÑÓÊ±£¬³µÖ»Òª°Ñ³µÉí¹Õ½øÈ¥ÁË£¬ÎÒÃÇ¾Í»Ö¸´Õý³£Ñ­¼££¬²»ÐèÒª´¦Àí³ö»·ÎÊÌâ£¬³ö»·ºóÎÒÃÇÍ¨¹ýÍ
              -ÓÂÝÒÇ»òÕß±àÂëÆ÷»òÕßÑÓÊ±°Ñ±êÖ¾Î»Çå³ý£¬
-  159                È»ºó·ÀÖ¹³µ×Ó¶¶¶¯£¬ÎÒÃÇ°Ñ×ªÏòpid²ÎÊýµ÷Ð¡ºÜ¶à£¬°ÑËÙ¶È»Ö¸´Õý³£¼´¿É¡£
-  160                ÔÚµ÷ÊÔÊ±ÎÒÃÇÖ»Ðèµ÷½ÚÄÇ¸ö´ò½ÇµÄÑÓÊ±ºÍ¼ÌÐøÐÐ×ßµÄÑÓÊ±£¬ÆäËû¶¼²»ÓÃ¹Ü
-  161          
-  162          ÏÂÃæ´úÂë£¬ÓÐµÄ±äÁ¿»òÕßÓï¾äÏàµ±ÓÚÃ»ÓÐ×÷ÓÃ£¬¿É²Î¿¼
-  163          ½ö¹©²Î¿¼£¡£¡£¡£¡£¡£¡£¡£¡£¡
-  164          ****************************************************/
-  165          //uint8 annulus_sucess = 0;                                                                             // Èë»·³É¹¦´ÎÊý
-  166          //uint8 Left_annulus = 0;                                                                                       // ×ó»·±êÖ¾Î»
-  167          uint8 Flag_Right_annulus = 0;                                                                   // ÓÒ»·±êÖ¾Î»
-  168          uint8 PreFlag_Right_annulus = 0;                // ÓÒ»·Ô¤ÅÐ±êÖ¾Î»
-  169          // ÓÒÈëÔ²»·
-  170          void Right_Annulus(void)
-  171          {
-  172   1          if(Flag_Right_annulus == 0 && PreFlag_Right_annulus == 0 && Left_Xie_Adc > 3500 &&
-  173   1                  Left_Adc > 3500 && Mid_Adc > 3500)
-  174   1              PreFlag_Right_annulus = 1;
-  175   1      
-  176   1      //                              LightOn;
-  177   1      
-  178   1          if(PreFlag_Right_annulus == 1 /*&& Right_Xie_Adc > 1900 && Right_Adc > 2500*/ && Flag_Right_annulus =
-             -= 0)
-  179   1          {
-  180   2              BUZZOn;
-  181   2              // LightOn;
-  182   2              PreFlag_Right_annulus = 0;
-  183   2                      Flag_Right_annulus = 1;
-  184   2                      //Turn_PWM = 1000;
-  185   2              //pwm_duty(Steer_Pin, 700);
-  186   2              delay_ms(300);
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  19:16:17  PAGE 4   
+  160                È»ºó·ÀÖ¹³µ×Ó¶¶¶¯£¬ÎÒÃÇ°Ñ×ªÏòpid²ÎÊýµ÷Ð¡ºÜ¶à£¬°ÑËÙ¶È»Ö¸´Õý³£¼´¿É¡£
+  161                ÔÚµ÷ÊÔÊ±ÎÒÃÇÖ»Ðèµ÷½ÚÄÇ¸ö´ò½ÇµÄÑÓÊ±ºÍ¼ÌÐøÐÐ×ßµÄÑÓÊ±£¬ÆäËû¶¼²»ÓÃ¹Ü
+  162          
+  163          ÏÂÃæ´úÂë£¬ÓÐµÄ±äÁ¿»òÕßÓï¾äÏàµ±ÓÚÃ»ÓÐ×÷ÓÃ£¬¿É²Î¿¼
+  164          ½ö¹©²Î¿¼£¡£¡£¡£¡£¡£¡£¡£¡£¡
+  165          ****************************************************/
+  166          //uint8 annulus_sucess = 0;                                                                             // Èë»·³É¹¦´ÎÊý
+  167          //uint8 Left_annulus = 0;                                                                                       // ×ó»·±êÖ¾Î»
+  168          uint8 Flag_Right_annulus = 0;                                                                   // ÓÒ»·±êÖ¾Î»
+  169          uint8 PreFlag_Right_annulus = 0;                // ÓÒ»·Ô¤ÅÐ±êÖ¾Î»
+  170          // ÓÒÈëÔ²»·
+  171          void Right_Annulus(void)
+  172          {
+  173   1          if(Flag_Right_annulus == 0 && PreFlag_Right_annulus == 0 && Left_Xie_Adc > 3500 &&
+  174   1                  Left_Adc > 3500 && Mid_Adc > 3500)
+  175   1              PreFlag_Right_annulus = 1;
+  176   1      
+  177   1      //                              LightOn;
+  178   1      
+  179   1          if(PreFlag_Right_annulus >= 1 && PreFlag_Right_annulus < 30 /*&& Right_Xie_Adc > 1900 && Right_Adc > 
+             -2500*/ && Flag_Right_annulus == 0)
+  180   1          {
+  181   2              BUZZOn;
+  182   2              // LightOn;
+  183   2              PreFlag_Right_annulus++;
+  184   2                      if(PreFlag_Right_annulus >= 30){
+  185   3                              BUZZOff;
+  186   3                              Flag_Right_annulus = 1;
+C251 COMPILER V5.60.0,  Direction                                                          06/07/24  23:55:37  PAGE 4   
 
-  187   2              BUZZOff;
-  188   2          }
-  189   1      }
-  190          
-  191          // ×óÈëÔ²»·
-  192          void Left_Annulus(void)
-  193          {
-  194   1      
-  195   1      }
-  196          
-  197          void Annulus_Analysis(void)
+  187   3                      }
+  188   2                      Turn_PWM = 1000;
+  189   2                      //go_motor(0, 4000);
+  190   2              //pwm_duty(Steer_Pin, 700);
+  191   2              //delay_ms(300);
+  192   2              
+  193   2          }
+  194   1      }
+  195          
+  196          // ×óÈëÔ²»·
+  197          void Left_Annulus(void)
   198          {
-  199   1          Right_Annulus();
-  200   1          Left_Annulus();
-  201   1      }
-  202          
-  203          
-  204          /***********************************¶æ»ú³õÊ¼»¯*****************************************
-  205          º¯Êý£ºvoid init_Steer_PWM(void)
-  206          ²ÎÊý£ºÎÞ
-  207          ËµÃ÷£º·ÖÄ¸10000£¬Ê¹ÓÃ£¬ÈçÐèÐÞ¸ÄÒý½ÅÐÞ¸Ä¶ÔÓ¦ºê¶¨Òå¼´¿É
-  208                 pwm_init(PWM0_P00, 100, 5000);     //³õÊ¼»¯PWM0  Ê¹ÓÃÒý½ÅP0.0  Êä³öPWMÆµÂÊ100HZ   Õ¼¿Õ±ÈÎª°Ù·ÖÖ® 5
+  199   1      
+  200   1      }
+  201          uint8 Flag_circleLand = 0;
+  202          void circleLand(void){
+  203   1              if(Left_Xie_Adc > 3200 && Left_Adc > 3200 && Left_Corner_Adc > 3200
+  204   1                      && Mid_Adc > 3200 
+  205   1                      && Right_Xie_Adc > 3200 && Right_Adc > 3200 && Right_Corner_Adc > 3200 && Flag_circleLand == 0){
+  206   2                      Flag_circleLand = 1;
+  207   2              }
+  208   1              if(Flag_circleLand > 1 && Flag_circleLand < 15){
+  209   2                      BUZZOn;
+  210   2              Flag_circleLand++;
+  211   2                      if(Flag_circleLand >= 15){
+  212   3                              Flag_circleLand = 0;
+  213   3                              BUZZOff;
+  214   3                      }
+  215   2                      Turn_PWM = 0;
+  216   2              }
+  217   1      }
+  218          
+  219          void Annulus_Analysis(void)
+  220          {
+  221   1          Right_Annulus();
+  222   1          Left_Annulus();
+  223   1              circleLand();
+  224   1      }
+  225          
+  226          
+  227          /***********************************¶æ»ú³õÊ¼»¯*****************************************
+  228          º¯Êý£ºvoid init_Steer_PWM(void)
+  229          ²ÎÊý£ºÎÞ
+  230          ËµÃ÷£º·ÖÄ¸10000£¬Ê¹ÓÃ£¬ÈçÐèÐÞ¸ÄÒý½ÅÐÞ¸Ä¶ÔÓ¦ºê¶¨Òå¼´¿É
+  231                 pwm_init(PWM0_P00, 100, 5000);     //³õÊ¼»¯PWM0  Ê¹ÓÃÒý½ÅP0.0  Êä³öPWMÆµÂÊ100HZ   Õ¼¿Õ±ÈÎª°Ù·ÖÖ® 5
              -000/PWM_DUTY_MAX*100
-  209          //               PWM_DUTY_MAXÔÚzf_pwm.hÎÄ¼þÖÐ                           Ä¬ÈÏÎª10000
-  210          *
-  211          *×¢Òâ£¬ÏÈµ÷½Ú¶æ»ú£¬Èç¹û¶æ»úÎªSD05£¬ÔòÆµÂÊÎª200hz ,Èç¹û¶æ»úÎªS3010,ÆµÂÊÔòÎª50hz
-  212          *ÆµÂÊÈ·¶¨ºó£¬ÏÈ°ÑÕ¼¿Õ±È·ÖÄ¸£¬¼´PWM_DUTY_MAXÈ·¶¨£¬Ò»°ãÎÞÐèÐÞ¸ÄÁË
-  213          *È»ºó¾Í¿ªÊ¼µ÷½Ú¶æ»úÁË£¬µ÷Õ¼¿Õ±ÈµÄ·Ö×Ó£¬¼´µ÷ÓÃµÄº¯ÊýµÄ×îºóÄÇ¸ö²ÎÊý£¬¸ù¾Ý¾­ÑéËãÒ»ÏÂ£¬´ó¸ÅÊÇ1/20µÄÕ¼¿Õ±È£¬È»
+  232          //               PWM_DUTY_MAXÔÚzf_pwm.hÎÄ¼þÖÐ                           Ä¬ÈÏÎª10000
+  233          *
+  234          *×¢Òâ£¬ÏÈµ÷½Ú¶æ»ú£¬Èç¹û¶æ»úÎªSD05£¬ÔòÆµÂÊÎª200hz ,Èç¹û¶æ»úÎªS3010,ÆµÂÊÔòÎª50hz
+  235          *ÆµÂÊÈ·¶¨ºó£¬ÏÈ°ÑÕ¼¿Õ±È·ÖÄ¸£¬¼´PWM_DUTY_MAXÈ·¶¨£¬Ò»°ãÎÞÐèÐÞ¸ÄÁË
+  236          *È»ºó¾Í¿ªÊ¼µ÷½Ú¶æ»úÁË£¬µ÷Õ¼¿Õ±ÈµÄ·Ö×Ó£¬¼´µ÷ÓÃµÄº¯ÊýµÄ×îºóÄÇ¸ö²ÎÊý£¬¸ù¾Ý¾­ÑéËãÒ»ÏÂ£¬´ó¸ÅÊÇ1/20µÄÕ¼¿Õ±È£¬È»
              -ºóÍù×óÍùÓÒÂýÂýÊÔ
-  214          *¼ÆËã¹«Ê½£ºÖÐÖµÕ¼¿Õ±È´ó¸ÅÊÇ7.5% £¨ºÍÆµÂÊ¾«¶È¶¼ÓÐ¹ØÏµ£© 20ms(1.5ms¸ßµçÆ½)
-  215          ·µ»ØÖµ£ºÎÞ
-  216          **************************************************************************************/
-  217          void init_Steer_PWM(void)
-  218          {
-  219   1          pwm_init(Steer_Pin, 50, Steer_Duty_Midle);   //³õÊ¼»¯¶æ»ú  Êä³öPWMÆµÂÊ50HZ£¬²¢ÉèÖÃÖÐÖµ
-  220   1      }
-  221          
-  222          
-  223          /*******************¶æ»ú×ªÏò¿ØÖÆÊä³ö*************************
-  224          º¯Êý£ºvoid Steering_Control_Out(int16 duty)
-  225          ¹¦ÄÜ£º
-  226          ²ÎÊý£ºÎÞ
-  227          ËµÃ÷£º¶æ»ú×ªÏò¿ØÖÆ    ×¢Òâµ÷ºÃ¶æ»úÖÐÖµºó£¬×óÓÒ¼«ÏÞÒ²µ÷³öÀ´£¬ÒªÐÞ¸ÄÉÏÃæµÄºê¶¨Òå
-  228          ·µ»ØÖµ£º
-  229          ************************************************************/
-  230          void Steering_Control_Out(int16 duty)
-  231          {
-  232   1          duty = Steer_Duty_Midle + duty;                                                                                                     // ÔÚ¶æ»úÖÐÖµµÄ»ù´¡ÉÏ½øÐÐÆ«ÒÆ
-  233   1      
-  234   1          if(duty >= Steer_Duty_Max)                                                                                                                  // ´ò½Ç¹ý´ó¾Í¼õËÙ
-  235   1          {
-  236   2              duty = Steer_Duty_Max;
-  237   2              ClsLoop_Speed  -=  100;                                                                                                                         // ÎÞÂÛÊÇ¿ª±Õ»·×´Ì¬¶¼¼õËÙ
-  238   2              OpenLoop_Speed -=  100;
-  239   2          }
-  240   1          else                // ·ñÔò°´ÕÕÔ­À´µÄËÙ¶ÈÐÐÊ»
-  241   1          {
-  242   2              OpenLoop_Speed = OpenLoop_Set_Speed;
-  243   2              ClsLoop_Speed = ClsLoop_Set_Speed;
-  244   2          }
-  245   1      
-  246   1          if(duty <= Steer_Duty_Min)                                                                                                                          // ´ò½Ç¹ý´ó¾Í¼õËÙ
-  247   1          {
-  248   2              duty = Steer_Duty_Min;
-  249   2              ClsLoop_Speed  -=  100;                                                                                                                         // ÎÞÂÛÊÇ¿ª±Õ»·×´Ì¬¶¼¼õËÙ
-  250   2              OpenLoop_Speed -=  100;
-C251 COMPILER V5.60.0,  Direction                                                          03/07/24  19:16:17  PAGE 5   
+  237          *¼ÆËã¹«Ê½£ºÖÐÖµÕ¼¿Õ±È´ó¸ÅÊÇ7.5% £¨ºÍÆµÂÊ¾«¶È¶¼ÓÐ¹ØÏµ£© 20ms(1.5ms¸ßµçÆ½)
+  238          ·µ»ØÖµ£ºÎÞ
+  239          **************************************************************************************/
+  240          void init_Steer_PWM(void)
+  241          {
+  242   1          pwm_init(Steer_Pin, 50, Steer_Duty_Midle);   //³õÊ¼»¯¶æ»ú  Êä³öPWMÆµÂÊ50HZ£¬²¢ÉèÖÃÖÐÖµ
+  243   1      }
+  244          
+  245          
+  246          /*******************¶æ»ú×ªÏò¿ØÖÆÊä³ö*************************
+  247          º¯Êý£ºvoid Steering_Control_Out(int16 duty)
+  248          ¹¦ÄÜ£º
+  249          ²ÎÊý£ºÎÞ
+  250          ËµÃ÷£º¶æ»ú×ªÏò¿ØÖÆ    ×¢Òâµ÷ºÃ¶æ»úÖÐÖµºó£¬×óÓÒ¼«ÏÞÒ²µ÷³öÀ´£¬ÒªÐÞ¸ÄÉÏÃæµÄºê¶¨Òå
+C251 COMPILER V5.60.0,  Direction                                                          06/07/24  23:55:37  PAGE 5   
 
-  251   2          }
-  252   1          else        // ·ñÔò°´ÕÕÔ­À´µÄËÙ¶ÈÐÐÊ»
-  253   1          {
-  254   2              OpenLoop_Speed = OpenLoop_Set_Speed;
-  255   2              ClsLoop_Speed = ClsLoop_Set_Speed;
-  256   2          }
-  257   1      
-  258   1          pwm_duty(Steer_Pin, duty);
-  259   1      }
+  251          ·µ»ØÖµ£º
+  252          ************************************************************/
+  253          void Steering_Control_Out(int16 duty)
+  254          {
+  255   1          duty = Steer_Duty_Midle + duty;                                                                                                     // ÔÚ¶æ»úÖÐÖµµÄ»ù´¡ÉÏ½øÐÐÆ«ÒÆ
+  256   1      
+  257   1          if(duty >= Steer_Duty_Max)                                                                                                                  // ´ò½Ç¹ý´ó¾Í¼õËÙ
+  258   1          {
+  259   2              duty = Steer_Duty_Max;
+  260   2              ClsLoop_Speed  -=  100;                                                                                                                         // ÎÞÂÛÊÇ¿ª±Õ»·×´Ì¬¶¼¼õËÙ
+  261   2              OpenLoop_Speed -=  100;
+  262   2          }
+  263   1          else                // ·ñÔò°´ÕÕÔ­À´µÄËÙ¶ÈÐÐÊ»
+  264   1          {
+  265   2              OpenLoop_Speed = OpenLoop_Set_Speed;
+  266   2              ClsLoop_Speed = ClsLoop_Set_Speed;
+  267   2          }
+  268   1      
+  269   1          if(duty <= Steer_Duty_Min)                                                                                                                          // ´ò½Ç¹ý´ó¾Í¼õËÙ
+  270   1          {
+  271   2              duty = Steer_Duty_Min;
+  272   2              ClsLoop_Speed  -=  100;                                                                                                                         // ÎÞÂÛÊÇ¿ª±Õ»·×´Ì¬¶¼¼õËÙ
+  273   2              OpenLoop_Speed -=  100;
+  274   2          }
+  275   1          else        // ·ñÔò°´ÕÕÔ­À´µÄËÙ¶ÈÐÐÊ»
+  276   1          {
+  277   2              OpenLoop_Speed = OpenLoop_Set_Speed;
+  278   2              ClsLoop_Speed = ClsLoop_Set_Speed;
+  279   2          }
+  280   1      
+  281   1          pwm_duty(Steer_Pin, duty);
+  282   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      1135     ------
+  code size            =      1343     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =       139     ------
+  edata size           =       140     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
@@ -300,7 +323,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        88     ------
+  hconst size          =        93     ------
 End of Module Information.
 
 

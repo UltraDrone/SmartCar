@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  speed                                                              03/07/24  18:33:36  PAGE 1   
+C251 COMPILER V5.60.0,  speed                                                              06/07/24  23:05:07  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE speed
@@ -66,7 +66,7 @@ stmt  level    source
    55   1              left_speed = -left_speed;
    56   1      
    57   1          if (1 == Left_Ecoder_Pin2)
-C251 COMPILER V5.60.0,  speed                                                              03/07/24  18:33:36  PAGE 2   
+C251 COMPILER V5.60.0,  speed                                                              06/07/24  23:05:07  PAGE 2   
 
    58   1              right_speed = -right_speed;
    59   1      
@@ -108,7 +108,7 @@ stmt  level    source
    95          返回：无
    96          时间：2023.06.19调试完毕
    97          **********************************************************/
-   98          #define Duty_Max  7000   // 限幅最大值7000
+   98          #define Duty_Max  10000   // 限幅最大值7000
    99          void go_motor(int16 left_PWM, int16 right_PWM)
   100          {
   101   1      //-------DRV驱动-----------
@@ -134,7 +134,7 @@ stmt  level    source
   121   1      //    else
   122   1      //    {
   123   1      //        right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
-C251 COMPILER V5.60.0,  speed                                                              03/07/24  18:33:36  PAGE 3   
+C251 COMPILER V5.60.0,  speed                                                              06/07/24  23:05:07  PAGE 3   
 
   124   1      //        pwm_duty(Right_DIR_Pin, 0); //反转
   125   1      //        pwm_duty(Right_PWM_Pin, right_PWM); // 反转
@@ -142,26 +142,26 @@ stmt  level    source
   127   1              if(left_PWM >= 0)           //左轮
   128   1              {
   129   2                      left_PWM = left_PWM <= Duty_Max ? left_PWM : Duty_Max;
-  130   2                      P60 = 1;
+  130   2                      P60 = 0;
   131   2                      pwm_duty(Left_PWM_Pin, left_PWM); //正转
   132   2              }
   133   1              else
   134   1              {
   135   2                      left_PWM = left_PWM >= -Duty_Max ? (-left_PWM) : Duty_Max;
-  136   2                      P60 = 0;
+  136   2                      P60 = 1;
   137   2                      pwm_duty(Left_PWM_Pin, left_PWM); //反转
   138   2              }
   139   1      
   140   1              if(right_PWM >= 0)           //右轮
   141   1              {
   142   2                      right_PWM = right_PWM <= Duty_Max ? right_PWM : Duty_Max;
-  143   2                      P64 = 1;
+  143   2                      P64 = 0;
   144   2                      pwm_duty(Right_PWM_Pin, right_PWM);     // 正转
   145   2              }
   146   1              else
   147   1              {
   148   2                      right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
-  149   2                      P64 = 0;
+  149   2                      P64 = 1;
   150   2                      pwm_duty(Right_PWM_Pin, right_PWM); // 反转
   151   2              }
   152   1      }
@@ -203,7 +203,7 @@ Module Information          Static   Overlayable
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
-C251 COMPILER V5.60.0,  speed                                                              03/07/24  18:33:36  PAGE 4   
+C251 COMPILER V5.60.0,  speed                                                              06/07/24  23:05:07  PAGE 4   
 
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------

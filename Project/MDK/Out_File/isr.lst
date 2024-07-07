@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  isr                                                                03/07/24  17:01:40  PAGE 1   
+C251 COMPILER V5.60.0,  isr                                                                06/07/24  23:05:07  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE isr
@@ -66,7 +66,7 @@ stmt  level    source
    53          {
    54   1          if(UART2_GET_TX_FLAG)
    55   1          {
-C251 COMPILER V5.60.0,  isr                                                                03/07/24  17:01:40  PAGE 2   
+C251 COMPILER V5.60.0,  isr                                                                06/07/24  23:05:07  PAGE 2   
 
    56   2              UART2_CLEAR_TX_FLAG;
    57   2              busy[2] = 0;
@@ -134,7 +134,7 @@ stmt  level    source
   119   1          LED = 0;    //点亮LED
   120   1      }
   121          void INT1_Isr() interrupt 2
-C251 COMPILER V5.60.0,  isr                                                                03/07/24  17:01:40  PAGE 3   
+C251 COMPILER V5.60.0,  isr                                                                06/07/24  23:05:07  PAGE 3   
 
   122          {
   123   1      
@@ -178,7 +178,7 @@ stmt  level    source
   161   1          t_1s++;
   162   1      
   163   1      //5ms控制周期：内环控制(给轮子PWM跑起来)
-  164   1          if(t_5ms == 1)
+  164   1          if(t_5ms >= 1)
   165   1          {
   166   2              // 复位标志位
   167   2              t_5ms = 0;
@@ -186,36 +186,36 @@ stmt  level    source
   169   2          }
   170   1      
   171   1      // 10ms控制
-  172   1          if (t_10ms == 2)
+  172   1          if (t_10ms >= 2)
   173   1          {
   174   2              t_10ms = 0;
   175   2              Flag.T_Turn = 1;
   176   2          }
   177   1      
   178   1      // 30ms控制
-  179   1          if(t_30ms == 6)
+  179   1          if(t_30ms >= 6)
   180   1          {
   181   2              t_30ms = 0;
   182   2              Flag.T_Distance = 1;
   183   2          }
   184   1      
   185   1      // 40ms控制
-  186   1          if(t_40ms == 8)
+  186   1          if(t_40ms >= 8)
   187   1          {
-C251 COMPILER V5.60.0,  isr                                                                03/07/24  17:01:40  PAGE 4   
+C251 COMPILER V5.60.0,  isr                                                                06/07/24  23:05:07  PAGE 4   
 
   188   2              t_40ms = 0;
   189   2              Flag.T_IMU = 1;
   190   2          }
   191   1      
   192   1      //50ms控制
-  193   1          if(t_50ms == 10)
+  193   1          if(t_50ms >= 10)
   194   1          {
   195   2              t_50ms = 0;
   196   2              Flag.T_Speed = 1;
   197   2                                                      // 采集编码器速度
   198   2      
-  199   2                      speed_measure();
+  199   2                      //speed_measure();
   200   2              if(T_ALready < 600000)          // 上限是10分钟运行时间，不会溢出
   201   2                  T_ALready++;
   202   2          }
@@ -270,7 +270,7 @@ stmt  level    source
   251          //void  CMP_Isr()   interrupt 21;
   252          //void  I2C_Isr()   interrupt 24;
   253          //void  USB_Isr()   interrupt 25;
-C251 COMPILER V5.60.0,  isr                                                                03/07/24  17:01:40  PAGE 5   
+C251 COMPILER V5.60.0,  isr                                                                06/07/24  23:05:07  PAGE 5   
 
   254          //void  PWM1_Isr()  interrupt 26;
   255          //void  PWM2_Isr()  interrupt 27;
@@ -278,7 +278,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       618     ------
+  code size            =       620     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

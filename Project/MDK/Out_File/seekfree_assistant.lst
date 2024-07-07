@@ -1,0 +1,227 @@
+C251 COMPILER V5.60.0,  seekfree_assistant                                                 05/07/24  23:42:18  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE seekfree_assistant
+OBJECT MODULE PLACED IN .\Out_File\seekfree_assistant.obj
+COMPILER INVOKED BY: G:\Keil_v5\C251\C251\BIN\C251.EXE ..\CODE\seekfree_assistant.c XSMALL INTR2 WARNINGLEVEL(3) OPTIMIZ
+                    -E(0,SPEED) BROWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_periphera
+                    -l;..\CODE;..\USER\inc;..\USER\src;..\CODE) DEBUG PRINT(.\Out_File\seekfree_assistant.lst) OBJECT(.\Out_File\seekfree_ass
+                    -istant.obj) 
+
+stmt  level    source
+
+    1          /********************************************************************************************************
+             -*************
+    2           * COPYRIGHT NOTICE
+    3           * Copyright (c) 2020,逐飞科技
+    4           * All rights reserved.
+    5           * 技术讨论QQ群：一群：179029047(已满)  二群：244861897(已满)  三群：824575535
+    6           *
+    7           * 以下所有内容版权均属逐飞科技所有，未经允许不得用于商业用途，
+    8           * 欢迎各位使用并传播本程序，修改内容时必须保留逐飞科技的版权声明。
+    9           *
+   10           * @file                seekfree_assistant
+   11           * @company                     成都逐飞科技有限公司
+   12           * @author              逐飞科技(QQ790875685)
+   13           * @version             查看doc内version文件 版本说明
+   14           * @Software            MDK FOR C251 V5.60
+   15           * @Target core         STC32G12K128
+   16           * @Taobao              https://seekfree.taobao.com/
+   17           * @date                2020-12-18
+   18           ********************************************************************************************************
+             -************/
+   19           
+   20          
+   21          #include "seekfree_assistant.h"
+   22          
+   23          seekfree_assistant_oscilloscope_struct          seekfree_assistant_oscilloscope_data;                    
+             -     // 虚拟示波器数据
+   24          
+   25          
+   26          static fifo_struct      seekfree_assistant_fifo;
+*** WARNING C34 IN LINE 26 OF ..\CODE\seekfree_assistant.c: 'seekfree_assistant_fifo': missing declaration specifiers
+*** ERROR C42 IN LINE 26 OF ..\CODE\seekfree_assistant.c: 'seekfree_assistant_fifo': not in formal parameter list
+   27          static uint8            seekfree_assistant_buffer[SEEKFREE_ASSISTANT_BUFFER_SIZE];                              // 数据
+             -存放数组
+*** ERROR C29 IN LINE 27 OF ..\CODE\seekfree_assistant.c: formal/parameter has illegal storage class
+*** ERROR C33 IN LINE 27 OF ..\CODE\seekfree_assistant.c: 'seekfree_assistant_buffer': invalid storage class
+   28          float                   seekfree_assistant_parameter[SEEKFREE_ASSISTANT_SET_PARAMETR_COUNT] = {0};      //
+             - 保存接收到的参数
+*** ERROR C142 IN LINE 28 OF ..\CODE\seekfree_assistant.c: illegal initialization
+   29          vuint8                                  seekfree_assistant_parameter_update_flag[SEEKFREE_ASSISTANT_SET_PARAMETR_COUNT] = {0};
+*** ERROR C142 IN LINE 29 OF ..\CODE\seekfree_assistant.c: illegal initialization
+   30          //-------------------------------------------------------------------------------------------------------
+             -------------
+   31          // 函数简介     逐飞助手求和函数
+   32          // 参数说明     *buffer         需要校验的数据地址
+   33          // 参数说明     length          校验长度
+   34          // 返回参数     uint8           和值
+   35          // 使用示例
+   36          //-------------------------------------------------------------------------------------------------------
+             -------------
+   37          static uint8 seekfree_assistant_sum (uint8 *buffer, uint32 length)
+*** ERROR C29 IN LINE 37 OF ..\CODE\seekfree_assistant.c: formal/parameter has illegal storage class
+   38          {
+*** ERROR C33 IN LINE 38 OF ..\CODE\seekfree_assistant.c: 'seekfree_assistant_sum': invalid storage class
+*** ERROR C25 IN LINE 38 OF ..\CODE\seekfree_assistant.c: syntax error near '{'
+   39              uint8 temp_sum = 0;
+   40          
+C251 COMPILER V5.60.0,  seekfree_assistant                                                 05/07/24  23:42:18  PAGE 2   
+
+   41              while(length--)
+   42              {
+   43                  temp_sum += *buffer++;
+*** ERROR C33 IN LINE 43 OF ..\CODE\seekfree_assistant.c: 'buffer': invalid storage class
+   44              }
+   45          
+   46              return temp_sum;
+   47          }
+   48          
+   49          
+   50          //-------------------------------------------------------------------------------------------------------
+             -------------
+   51          // 函数简介     逐飞助手 虚拟示波器发送函数
+   52          // 参数说明     *seekfree_assistant_oscilloscope  示波器数据结构体
+   53          // 返回参数     void
+   54          // 使用示例     seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
+   55          //-------------------------------------------------------------------------------------------------------
+             -------------
+   56          void seekfree_assistant_oscilloscope_send (seekfree_assistant_oscilloscope_struct *seekfree_assistant_osc
+             -illoscope)
+*** ERROR C33 IN LINE 56 OF ..\CODE\seekfree_assistant.c: 'seekfree_assistant_oscilloscope': invalid storage class
+   57          {
+   58              uint8 packet_size;
+   59                  uint8 i = 0;
+   60                  seekfree_assistant_oscilloscope_struct temp_oscilloscope;
+   61                  
+   62                  temp_oscilloscope.channel_num = seekfree_assistant_oscilloscope->channel_num & 0x0f;
+   63                  
+   64                  // 由于大小端不匹配，所以需要交换。
+   65                  for(i = 0; i < temp_oscilloscope.channel_num; i++)
+   66                  {
+   67                          ((uint8 *)&temp_oscilloscope.dat[i])[0] = ((uint8 *)&seekfree_assistant_oscilloscope->dat[i])[3];
+   68                          ((uint8 *)&temp_oscilloscope.dat[i])[1] = ((uint8 *)&seekfree_assistant_oscilloscope->dat[i])[2];
+   69                          ((uint8 *)&temp_oscilloscope.dat[i])[2] = ((uint8 *)&seekfree_assistant_oscilloscope->dat[i])[1];
+   70                          ((uint8 *)&temp_oscilloscope.dat[i])[3] = ((uint8 *)&seekfree_assistant_oscilloscope->dat[i])[0];
+   71                  }
+   72          
+   73              // 帧头
+   74              temp_oscilloscope.head         = SEEKFREE_ASSISTANT_SEND_HEAD;
+   75          
+   76              // 写入包长度信息
+   77              packet_size                     = sizeof(temp_oscilloscope) - (SEEKFREE_ASSISTANT_SET_OSCILLOSCOPE_CO
+             -UNT - temp_oscilloscope.channel_num) * 4;
+   78              temp_oscilloscope.length       = packet_size;
+   79          
+   80              // 写入功能字与通道数量
+   81              temp_oscilloscope.channel_num |= SEEKFREE_ASSISTANT_CAMERA_OSCILLOSCOPE;
+   82          
+   83              // 和校验计算
+   84              temp_oscilloscope.check_sum    = 0;
+   85              temp_oscilloscope.check_sum    = seekfree_assistant_sum((uint8 *)&temp_oscilloscope, packet_size);
+   86          
+   87              // 数据在调用本函数之前，由用户将需要发送的数据写入temp_oscilloscope.data[]
+   88          
+   89              seekfree_assistant_transfer((const uint8 *)&temp_oscilloscope, packet_size);
+   90          }
+   91          
+   92          
+   93          //-------------------------------------------------------------------------------------------------------
+             -------------
+   94          // 函数简介     逐飞助手解析接收到的数据
+   95          // 参数说明     void
+   96          // 返回参数     void
+   97          // 使用示例     函数只需要放到周期运行的PIT中断或者主循环即可
+   98          //-------------------------------------------------------------------------------------------------------
+             -------------
+C251 COMPILER V5.60.0,  seekfree_assistant                                                 05/07/24  23:42:18  PAGE 3   
+
+   99          void seekfree_assistant_data_analysis (void)
+  100          {
+  101              uint8  temp_sum;
+  102              uint32 read_length;
+  103              seekfree_assistant_parameter_struct *receive_packet;
+*** ERROR C33 IN LINE 103 OF ..\CODE\seekfree_assistant.c: 'receive_packet': invalid storage class
+  104          
+  105              // 这里使用uint32进行定义，目的是为了保证数组四字节对齐
+  106              uint32  temp_buffer[SEEKFREE_ASSISTANT_BUFFER_SIZE / 4];
+*** ERROR C42 IN LINE 106 OF ..\CODE\seekfree_assistant.c: 'temp_buffer': not in formal parameter list
+  107          
+  108                  uint32 i = 0;
+*** ERROR C142 IN LINE 108 OF ..\CODE\seekfree_assistant.c: illegal initialization
+  109              // 尝试读取数据, 如果不是自定义的传输方式则从接收回调中读取数据
+  110              read_length = seekfree_assistant_receive((uint8 *)temp_buffer, SEEKFREE_ASSISTANT_BUFFER_SIZE);
+*** ERROR C142 IN LINE 110 OF ..\CODE\seekfree_assistant.c: illegal initialization
+*** ERROR C67 IN LINE 110 OF ..\CODE\seekfree_assistant.c: 'temp_buffer': undefined identifier
+  111              if(read_length)
+*** ERROR C25 IN LINE 111 OF ..\CODE\seekfree_assistant.c: syntax error near 'if'
+  112              {
+*** ERROR C103 IN LINE 112 OF ..\CODE\seekfree_assistant.c: 'read_length': illegal function definition (missing ';' ?)
+  113                  // 将读取到的数据写入FIFO
+  114                  fifo_write_buffer(&seekfree_assistant_fifo, (uint8 *)temp_buffer, read_length);
+  115              }
+  116          
+  117              while(sizeof(seekfree_assistant_parameter_struct) <= fifo_used(&seekfree_assistant_fifo))
+  118              {
+  119                  read_length = sizeof(seekfree_assistant_parameter_struct);
+  120                  fifo_read_buffer(&seekfree_assistant_fifo, (uint8 *)temp_buffer, &read_length, FIFO_READ_ONLY);
+  121                  if(SEEKFREE_ASSISTANT_RECEIVE_HEAD != ((uint8 *)temp_buffer)[0])
+  122                  {
+  123                      // 没有帧头则从FIFO中去掉第一个数据
+  124                      read_length = 1;
+  125                  }
+  126                  else
+  127                  {
+  128          
+  129                      // 找到帧头
+  130                      receive_packet = (seekfree_assistant_parameter_struct *)temp_buffer;
+  131                      temp_sum = receive_packet->check_sum;
+  132                      receive_packet->check_sum = 0;
+  133          
+  134                      if(temp_sum == seekfree_assistant_sum((uint8 *)temp_buffer, sizeof(seekfree_assistant_paramet
+             -er_struct)))
+  135                      {
+  136                          // 和校验成功保存数据
+  137                                  
+  138                                          // 由于大小端不匹配，所以需要交换。
+  139                                          ((uint8 *)&seekfree_assistant_parameter[receive_packet->channel - 1])[3] = ((uint8 *)&receive_packet-
+             ->dat)[0];
+  140                                          ((uint8 *)&seekfree_assistant_parameter[receive_packet->channel - 1])[2] = ((uint8 *)&receive_packet-
+             ->dat)[1];
+  141                                          ((uint8 *)&seekfree_assistant_parameter[receive_packet->channel - 1])[1] = ((uint8 *)&receive_packet-
+             ->dat)[2];
+  142                                          ((uint8 *)&seekfree_assistant_parameter[receive_packet->channel - 1])[0] = ((uint8 *)&receive_packet-
+             ->dat)[3];
+  143                                          seekfree_assistant_parameter_update_flag[receive_packet->channel - 1] = 1;
+  144                      }
+  145                      else
+  146                      {
+  147                          read_length = 1;
+  148                      }
+  149                  }
+  150          
+  151                  // 丢弃无需使用的数据
+  152                  fifo_read_buffer(&seekfree_assistant_fifo, (uint8 *)temp_buffer, &read_length, FIFO_READ_AND_CLEA
+C251 COMPILER V5.60.0,  seekfree_assistant                                                 05/07/24  23:42:18  PAGE 4   
+
+             -N);
+  153              }
+  154          }
+  155          
+  156          //-------------------------------------------------------------------------------------------------------
+             -------------
+  157          // 函数简介     逐飞助手 初始化
+  158          // 参数说明
+  159          // 返回参数     void
+  160          // 使用示例
+  161          //-------------------------------------------------------------------------------------------------------
+             -------------
+  162          void seekfree_assistant_init ()
+  163          {
+  164              fifo_init(&seekfree_assistant_fifo,  FIFO_DATA_8BIT, seekfree_assistant_buffer, SEEKFREE_ASSISTANT_BU
+             -FFER_SIZE);
+  165          }
+  166          
+  167          
+
+C251 COMPILATION COMPLETE.  1 WARNING(S),  17 ERROR(S)

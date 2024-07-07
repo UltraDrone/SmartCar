@@ -95,7 +95,7 @@ void Motor_Init(void)
 返回：无
 时间：2023.06.19调试完毕
 **********************************************************/
-#define Duty_Max  7000   // 限幅最大值7000
+#define Duty_Max  10000   // 限幅最大值7000
 void go_motor(int16 left_PWM, int16 right_PWM)
 {
 //-------DRV驱动-----------
@@ -127,26 +127,26 @@ void go_motor(int16 left_PWM, int16 right_PWM)
 	if(left_PWM >= 0)           //左轮
 	{
 		left_PWM = left_PWM <= Duty_Max ? left_PWM : Duty_Max;
-		P60 = 1;
+		P60 = 0;
 		pwm_duty(Left_PWM_Pin, left_PWM); //正转
 	}
 	else
 	{
 		left_PWM = left_PWM >= -Duty_Max ? (-left_PWM) : Duty_Max;
-		P60 = 0;
+		P60 = 1;
 		pwm_duty(Left_PWM_Pin, left_PWM); //反转
 	}
 
 	if(right_PWM >= 0)           //右轮
 	{
 		right_PWM = right_PWM <= Duty_Max ? right_PWM : Duty_Max;
-		P64 = 1;
+		P64 = 0;
 		pwm_duty(Right_PWM_Pin, right_PWM);	// 正转
 	}
 	else
 	{
 		right_PWM = right_PWM >= -Duty_Max ? (-right_PWM) : Duty_Max;
-		P64 = 0;
+		P64 = 1;
 		pwm_duty(Right_PWM_Pin, right_PWM); // 反转
 	}
 }

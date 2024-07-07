@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  function                                                           03/07/24  22:13:08  PAGE 1   
+C251 COMPILER V5.60.0,  function                                                           06/07/24  23:05:08  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE function
@@ -12,210 +12,228 @@ stmt  level    source
     1          #include "function.h"
     2          
     3          /***************ËÙ¶ÈPID²ÎÊý************/
-    4          PID SpeedPID;                                                                                                                                                   //ËÙ¶ÈPID´¢´æ£¨Ö»ÊÇ´¢´æµÄÖÐ¼äÁ¿£¬ÎÞÐè¹ØÐÄ£©
-    5          float Speed_Pid[4]  = {1, 0.5, 1.0, 1500};//{3.0, 0.04, 0.5, 500};//{2.0, 0.001, 0, 500};                                       // ËÙ¶È»·PI
-             -D
-    6          
+    4          PID SpeedPIDL;                                                                                                                                                  //ËÙ¶ÈPID´¢´æ£¨Ö»ÊÇ´¢´æµÄÖÐ¼äÁ¿£¬ÎÞÐè¹ØÐÄ£©
+    5          PID SpeedPIDR;                                                                                                                                                  //ËÙ¶ÈPID´¢´æ£¨Ö»ÊÇ´¢´æµÄÖÐ¼äÁ¿£¬ÎÞÐè¹ØÐÄ£©
+    6          float Speed_Pid[4]  = {0.04, 0.02, 0.01, 500};//{0.12, 0.08, 0.04, 500};//{0.04, 0.02, 0.01, 500};//{1, 0
+             -.5, 1.0, 1500};//{3.0, 0.04, 0.5, 500};//{2.0, 0.001, 0, 500};                                 // ËÙ¶È»·PID
     7          
-    8          /***************×ªÏòPID²ÎÊý************/
-    9          PID DirectVelPID;                                                                                                                                // ×ªÏòÄÚ»·PID´¢´æ£¨Ö»ÊÇ´¢´æµÄÖÐ¼äÁ¿£¬ÎÞÐè¹ØÐÄ£©
-   10          float DirectVel_Pid[4]  = {0.006, 0, 0.01, 100};         // ×ªÏòÄÚ»·PID Î»ÖÃ    0.017   0.02
-   11          PID TurnPID;                                                                                                                                             // ×ªÏòPID´¢´æ£¨Ö»ÊÇ´¢´æµÄÖÐ¼äÁ¿£¬ÎÞÐè¹ØÐÄ£©
-   12          float Turn_Pid[][5] = {         /*{1.2, 0.2, 0, 200},    // ×îºóÒ»ÏîÎª»ý·ÖÏÞ·ù
-   13              {6, 1, 0, 150},        // µç´Å×ªÏò {8,1,0,150},    3:08 {5,1,0,150}
-   14              {0.5, 0.1, 0, 150},                  // Ô²»·µÄPID
-   15              {2.5, 0.1, 0, 100},    // ËÙ¶ÈÉÔÎ¢¿ì        {2.5, 0.1, 0, 100}
-   16              {1.0, 0.1, 0, 100},                                                                         // 2023.7.5 12:08
-   17              {0.9, 0.3, 150},             // 2023-07-11 xing sai dao
-   18                  {1.8, 1.8, 150, 0},                     //20240627  2700*/
-   19                  {1.0, 4.5, 250, 100},//{50, 2.5, 200, 50},
-   20          };
-   21          float ki_test = 0.5;
-   22          uint8 Turn_Suquence = 0;                                //×ªÏòPIDÑ¡Ôñ
-   23          
-   24          ////////È¥³ý¼«ÖµÇóÆ½¾ù
-   25          int16 I_Median_Average_Filter(int16 *DATE)
-   26          {
-   27   1          uint8 i;
-   28   1          int16 max, min; //¶¨Òå¼«ÖµÒÔ¼°ºÍ
-   29   1          int16 sum = 0;
-   30   1      
-   31   1          max = DATE[0];
-   32   1          min = DATE[0];
-   33   1      
-   34   1          for(i = 0; i < sizeof(DATE); i++)
-   35   1          {
-   36   2              if(max < DATE[i])max = DATE[i];
-   37   2      
-   38   2              if(min > DATE[i])min = DATE[i];
-   39   2      
-   40   2              sum += DATE[i];
-   41   2          }
-   42   1      
-   43   1          sum = (sum - max - min) / (sizeof(DATE) - 2); //>>3
-   44   1          return sum;
-   45   1      }
-   46          
-   47          /*****************²î±È»ý***********************
-   48          º¯Êý£º  float Cha_BI_He_Sqrt(int16 date_1,int16 date_2,int16 x)
-   49          ²ÎÊý£º  float date_1--µÚÒ»¸öÊý¾Ý  float date_2--µÚ¶þ¸öÊý¾Ý  float x-ËùÇó½á¹û·Å´óµÄ±¶Êý
-   50          ËµÃ÷£º  ÎÞ
-   51          ·µ»ØÖµ£ºÎÞ
-   52          **********************************************/
-   53          float Cha_BI_He_Sqrt(int16 date_1, int16 date_2, int16 x)
-   54          {
-   55   1          int16 cha = 0;
-   56   1          float he = 0;
-C251 COMPILER V5.60.0,  function                                                           03/07/24  22:13:08  PAGE 2   
+    8          
+    9          /***************×ªÏòPID²ÎÊý************/
+   10          PID DirectVelPID;                                                                                                                                // ×ªÏòÄÚ»·PID´¢´æ£¨Ö»ÊÇ´¢´æµÄÖÐ¼äÁ¿£¬ÎÞÐè¹ØÐÄ£©
+   11          float DirectVel_Pid[4]  = {0.006, 0, 0.01, 100};         // ×ªÏòÄÚ»·PID Î»ÖÃ    0.017   0.02
+   12          PID TurnPID;                                                                                                                                             // ×ªÏòPID´¢´æ£¨Ö»ÊÇ´¢´æµÄÖÐ¼äÁ¿£¬ÎÞÐè¹ØÐÄ£©
+   13          float Turn_Pid[][5] = {         /*{1.2, 0.2, 0, 200},    // ×îºóÒ»ÏîÎª»ý·ÖÏÞ·ù
+   14              {6, 1, 0, 150},        // µç´Å×ªÏò {8,1,0,150},    3:08 {5,1,0,150}
+   15              {0.5, 0.1, 0, 150},                  // Ô²»·µÄPID
+   16              {2.5, 0.1, 0, 100},    // ËÙ¶ÈÉÔÎ¢¿ì        {2.5, 0.1, 0, 100}
+   17              {1.0, 0.1, 0, 100},                                                                         // 2023.7.5 12:08
+   18              {0.9, 0.3, 150},             // 2023-07-11 xing sai dao
+   19                  {1.8, 1.8, 150, 0},                     //20240627  2700*/
+   20                  {1.0, 4.5, 250, 100},//{50, 2.5, 200, 50},
+   21          };
+   22          float ki_test = 0.5;
+   23          uint8 Turn_Suquence = 0;                                //×ªÏòPIDÑ¡Ôñ
+   24          
+   25          ////////È¥³ý¼«ÖµÇóÆ½¾ù
+   26          int16 I_Median_Average_Filter(int16 *DATE)
+   27          {
+   28   1          uint8 i;
+   29   1          int16 max, min; //¶¨Òå¼«ÖµÒÔ¼°ºÍ
+   30   1          int16 sum = 0;
+   31   1      
+   32   1          max = DATE[0];
+   33   1          min = DATE[0];
+   34   1      
+   35   1          for(i = 0; i < sizeof(DATE); i++)
+   36   1          {
+   37   2              if(max < DATE[i])max = DATE[i];
+   38   2      
+   39   2              if(min > DATE[i])min = DATE[i];
+   40   2      
+   41   2              sum += DATE[i];
+   42   2          }
+   43   1      
+   44   1          sum = (sum - max - min) / (sizeof(DATE) - 2); //>>3
+   45   1          return sum;
+   46   1      }
+   47          
+   48          /*****************²î±È»ý***********************
+   49          º¯Êý£º  float Cha_BI_He_Sqrt(int16 date_1,int16 date_2,int16 x)
+   50          ²ÎÊý£º  float date_1--µÚÒ»¸öÊý¾Ý  float date_2--µÚ¶þ¸öÊý¾Ý  float x-ËùÇó½á¹û·Å´óµÄ±¶Êý
+   51          ËµÃ÷£º  ÎÞ
+   52          ·µ»ØÖµ£ºÎÞ
+   53          **********************************************/
+   54          float Cha_BI_He_Sqrt(int16 date_1, int16 date_2, int16 x)
+   55          {
+   56   1          int16 cha = 0;
+C251 COMPILER V5.60.0,  function                                                           06/07/24  23:05:08  PAGE 2   
 
-   57   1          float resault;
-   58   1          cha = date_1 - date_2;   //²î
-   59   1          he = (float) ((date_1 + date_2) * sqrt((date_1 + date_2))); //ºÍµÄ1.5´Î·½
-   60   1          resault = (cha / he) * x ; //²î±ÈºÍ
-   61   1          return resault;
-   62   1      }
-   63          
-   64          // ********************Î»ÖÃÊ½¶¯Ì¬PID¿ØÖÆ£¨¶æ»úPID£©************************************
-   65          /*
-   66          º¯Êý£ºint32 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint)
-   67          ¹¦ÄÜ£ºÎ»ÖÃÊ½¶¯Ì¬PID¿ØÖÆ
-   68          ²ÎÊý£º
-   69          PID *sprt£º      ½á¹¹ÌåÖ¸Õë
-   70          float *PID£º     PIDÊý×é  £¨Í¨¹ýÊý×é¶¨ÒåPIDÖµ£©
-   71          int32 NowPiont£º µ±Ç°Öµ  £¨¿ÉÊ¹ÓÃ½á¹¹Ìå¶¨Òå±äÁ¿£©
-   72          int32 SetPoint£º Éè¶¨Ä¿±êÖµ   ×ªÏò¿ØÖÆÖÐÉè¶¨ÖµÎª0¡£
-   73          
-   74          ËµÃ÷£º  ¸Ãº¯Êý²Î¿¼ÆäËû³ÌÐò¡£¶¯Ì¬¿ØÖÆÒ»°ãÓÃÓÚ×ªÏò¿ØÖÆ
-   75          ·µ»ØÖµ£º int32 Realize
-   76          eg£ºRadius = PlacePID_Control(&Turn_PID, Turn[Fres], Difference, 0);// ¶¯Ì¬PID¿ØÖÆ×ªÏò
-   77          ***************************************************************************/
-   78          // Î»ÖÃÊ½¶¯Ì¬PID¿ØÖÆ
-   79          
-   80          int32 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint)
-   81          {
-   82   1          //¶¨ÒåÎª¼Ä´æÆ÷±äÁ¿£¬Ö»ÄÜÓÃÓÚÕûÐÍºÍ×Ö·ûÐÍ±äÁ¿£¬Ìá¸ßÔËËãËÙ¶È
-   83   1          int32 iError,       //µ±Ç°Îó²î
-   84   1                Actual;       //×îºóµÃ³öµÄÊµ¼ÊÊä³öÖµ
-   85   1          float Kp;           //¶¯Ì¬P
-   86   1          iError = SetPoint - NowPiont;       //¼ÆËãµ±Ç°Îó²î
-   87   1          sprt->SumError += iError * 0.01;
-   88   1      
-   89   1          if (sprt->SumError >= PID[KT])
-   90   1          {
-   91   2              sprt->SumError = PID[KT];
-   92   2          }
-   93   1          else if (sprt->SumError <= -PID[KT])
-   94   1          {
-   95   2              sprt->SumError = -PID[KT];
-   96   2          }
-   97   1      
-   98   1          Kp = 1.0 * (iError * iError) / PID[KP] + PID[KI];   //PÖµÓë²îÖµ³É¶þ´Îº¯Êý¹ØÏµ£¬´Ë´¦PºÍI²»ÊÇPID²ÎÊý£¬¶øÊ
+   57   1          float he = 0;
+   58   1          float resault;
+   59   1          cha = date_1 - date_2;   //²î
+   60   1          he = (float) ((date_1 + date_2) * sqrt((date_1 + date_2))); //ºÍµÄ1.5´Î·½
+   61   1          resault = (cha / he) * x ; //²î±ÈºÍ
+   62   1          return resault;
+   63   1      }
+   64          
+   65          // ********************Î»ÖÃÊ½¶¯Ì¬PID¿ØÖÆ£¨¶æ»úPID£©************************************
+   66          /*
+   67          º¯Êý£ºint32 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint)
+   68          ¹¦ÄÜ£ºÎ»ÖÃÊ½¶¯Ì¬PID¿ØÖÆ
+   69          ²ÎÊý£º
+   70          PID *sprt£º      ½á¹¹ÌåÖ¸Õë
+   71          float *PID£º     PIDÊý×é  £¨Í¨¹ýÊý×é¶¨ÒåPIDÖµ£©
+   72          int32 NowPiont£º µ±Ç°Öµ  £¨¿ÉÊ¹ÓÃ½á¹¹Ìå¶¨Òå±äÁ¿£©
+   73          int32 SetPoint£º Éè¶¨Ä¿±êÖµ   ×ªÏò¿ØÖÆÖÐÉè¶¨ÖµÎª0¡£
+   74          
+   75          ËµÃ÷£º  ¸Ãº¯Êý²Î¿¼ÆäËû³ÌÐò¡£¶¯Ì¬¿ØÖÆÒ»°ãÓÃÓÚ×ªÏò¿ØÖÆ
+   76          ·µ»ØÖµ£º int32 Realize
+   77          eg£ºRadius = PlacePID_Control(&Turn_PID, Turn[Fres], Difference, 0);// ¶¯Ì¬PID¿ØÖÆ×ªÏò
+   78          ***************************************************************************/
+   79          // Î»ÖÃÊ½¶¯Ì¬PID¿ØÖÆ
+   80          
+   81          int16 PlacePID_Control(PID *sprt, float *PID, int32 NowPiont, int32 SetPoint)
+   82          {
+   83   1          //¶¨ÒåÎª¼Ä´æÆ÷±äÁ¿£¬Ö»ÄÜÓÃÓÚÕûÐÍºÍ×Ö·ûÐÍ±äÁ¿£¬Ìá¸ßÔËËãËÙ¶È
+   84   1          int32 iError,       //µ±Ç°Îó²î
+   85   1                Actual;       //×îºóµÃ³öµÄÊµ¼ÊÊä³öÖµ
+   86   1          float Kp;           //¶¯Ì¬P
+   87   1          iError = SetPoint - NowPiont;       //¼ÆËãµ±Ç°Îó²î
+   88   1          sprt->SumError += iError;
+   89   1      
+   90   1          if (sprt->SumError >= PID[KT])
+   91   1          {
+   92   2              sprt->SumError = PID[KT];
+   93   2          }
+   94   1          else if (sprt->SumError <= -PID[KT])
+   95   1          {
+   96   2              sprt->SumError = -PID[KT];
+   97   2          }
+   98   1      
+   99   1          Kp = 1.0 * (iError * iError) / PID[KP] + PID[KI];   //PÖµÓë²îÖµ³É¶þ´Îº¯Êý¹ØÏµ£¬´Ë´¦PºÍI²»ÊÇPID²ÎÊý£¬¶øÊ
              -Ç¶¯Ì¬PID²ÎÊý£¬Òª×¢Òâ£¡£¡£¡
-   99   1      
-  100   1          Actual = Kp * iError
-  101   1                   + PID[KD] * ((0.8 * iError + 0.2 * sprt->LastError) - sprt->LastError); //Ö»ÓÃPD
-  102   1          sprt->LastError = iError;           //¸üÐÂÉÏ´ÎÎó²î
-  103   1      
-  104   1          Actual += sprt->SumError * ki_test;
-  105   1          //Actual = limit(Actual, 300); //ÏÞ·ù
-  106   1          return Actual;
-  107   1      }
-  108          
+  100   1      
+  101   1          Actual = Kp * iError
+  102   1                   + PID[KD] * ((0.8 * iError + 0.2 * sprt->LastError) - sprt->LastError); //Ö»ÓÃPD
+  103   1          sprt->LastError = iError;           //¸üÐÂÉÏ´ÎÎó²î
+  104   1      
+  105   1          Actual += sprt->SumError * ki_test;
+  106   1          //Actual = limit(Actual, 300); //ÏÞ·ù
+  107   1          return Actual;
+  108   1      }
   109          
-  110          //************************* Î»ÖÃÊ½PID¿ØÖÆ*****£¨ËÙ¶ÈPID£©*********************
-  111          /*
-  112          º¯Êý£ºint32 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point)
-  113          ¹¦ÄÜ£ºÎ»ÖÃÊ½PID¿ØÖÆ
-  114          ²ÎÊý£º
-  115          PID *sprt£º      ½á¹¹ÌåÖ¸Õë
-  116          float *PID£º     PIDÊý×é  £¨Í¨¹ýÊý×é¶¨ÒåPIDÖµ£©
-  117          int32 NowData  µ±Ç°Öµ  £¨¿ÉÊ¹ÓÃ½á¹¹Ìå¶¨Òå±äÁ¿£©
-  118          int32 Point    Éè¶¨Ä¿±êÖµ  £¨¿ÉÊ¹ÓÃ½á¹¹Ìå¶¨Òå±äÁ¿£©
-  119          
-  120          ËµÃ÷£º  ¸Ãº¯Êý²Î¿¼ÆäËû³ÌÐò¡£
-  121          ·µ»ØÖµ£º int32 Realize
-C251 COMPILER V5.60.0,  function                                                           03/07/24  22:13:08  PAGE 3   
+  110          
+  111          //************************* Î»ÖÃÊ½PID¿ØÖÆ*****£¨ËÙ¶ÈPID£©*********************
+  112          /*
+  113          º¯Êý£ºint32 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point)
+  114          ¹¦ÄÜ£ºÎ»ÖÃÊ½PID¿ØÖÆ
+  115          ²ÎÊý£º
+  116          PID *sprt£º      ½á¹¹ÌåÖ¸Õë
+  117          float *PID£º     PIDÊý×é  £¨Í¨¹ýÊý×é¶¨ÒåPIDÖµ£©
+  118          int32 NowData  µ±Ç°Öµ  £¨¿ÉÊ¹ÓÃ½á¹¹Ìå¶¨Òå±äÁ¿£©
+  119          int32 Point    Éè¶¨Ä¿±êÖµ  £¨¿ÉÊ¹ÓÃ½á¹¹Ìå¶¨Òå±äÁ¿£©
+  120          
+  121          ËµÃ÷£º  ¸Ãº¯Êý²Î¿¼ÆäËû³ÌÐò¡£
+C251 COMPILER V5.60.0,  function                                                           06/07/24  23:05:08  PAGE 3   
 
-  122          eg£ºTar_Ang_Vel.Y = PID_Realize(&Angle_PID, Angle, (int32)(Attitude_Angle.Y*100), (int32)Target_Angle.Y);
+  122          ·µ»ØÖµ£º int32 Realize
+  123          eg£ºTar_Ang_Vel.Y = PID_Realize(&Angle_PID, Angle, (int32)(Attitude_Angle.Y*100), (int32)Target_Angle.Y);
              -        // ½á¹ûÎª·Å´ó10±¶µÄÄ¿±ê½ÇËÙ¶È
-  123          *******************************************************************************/
-  124          ////////////
-  125          int32 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point)
-  126          {
-  127   1          //µ±Ç°Îó²î£¬¶¨ÒåÎª¼Ä´æÆ÷±äÁ¿£¬Ö»ÄÜÓÃÓÚÕûÐÍºÍ×Ö·ûÐÍ±äÁ¿£¬Ìá¸ßÔËËãËÙ¶È
-  128   1          int32 iError;       // µ±Ç°Îó²î
-  129   1          float        Realize;       // ×îºóµÃ³öµÄÊµ¼ÊÔöÁ¿
-  130   1      
-  131   1          iError = Point - NowData;   // ¼ÆËãµ±Ç°Îó²î      Éè¶¨¼õµ±Ç°
-  132   1          sptr->SumError += PID[KI] * iError; // Îó²î»ý·Ö
-  133   1          sptr->SumError = limit(sptr->SumError, PID[KT]);//»ý·ÖÏÞ·ù
-  134   1      
-  135   1          Realize = PID[KP] * iError
-  136   1                    + sptr->SumError
-  137   1                    + PID[KD] * (iError - sptr->LastError);     //P  I   D  Ïà¼Ó
-  138   1          sptr->PrevError = sptr->LastError;  // ¸üÐÂÇ°´ÎÎó²î
-  139   1          sptr->LastError = iError;                   // ¸üÐÂÉÏ´ÎÎó²î
-  140   1          sptr->LastData  = NowData;                  // ¸üÐÂÉÏ´ÎÊý¾Ý    Ã»ÓÃ */
-  141   1      
-  142   1          return Realize;     // ·µ»ØÊµ¼ÊÖµ
-  143   1      }
-  144          
-  145          
-  146          /****************ÏÞ·ùº¯Êý****************
-  147          //xÊÇÏÞ·ù¶ÔÏó
-  148          //yÊÇÏÞ·ù·¶Î§
-  149          //ÓÐÕý¸º
-  150          ****************************************/
-  151          int16 limit(int16 x, int y)
-  152          {
-  153   1          if(x > y)             return y;
-  154   1          else if(x < -y)       return -y;
-  155   1          else                return x;
-  156   1      }
-  157          
-  158          // µç»úÏÞ·ù
-  159          /******** ÏÞ·ù±£»¤ *********/
-  160          int32 range_protect(int32 duty, int32 min, int32 max)//ÏÞ·ù±£»¤
-  161          {
-  162   1          if (duty >= max)
-  163   1          {
-  164   2              return max;
-  165   2          }
-  166   1      
-  167   1          if (duty <= min)
-  168   1          {
-  169   2              return min;
-  170   2          }
-  171   1          else
-  172   1          {
-  173   2              return duty;
-  174   2          }
-  175   1      }
-  176          
-  177          
-  178          
-  179          // PID²ÎÊý³õÊ¼»¯
-  180          void PID_Parameter_Init(PID *sptr)
-  181          {
-  182   1          sptr->SumError  = 0;
-  183   1          sptr->LastError = 0;        //Error[-1]
-  184   1          sptr->PrevError = 0;        //Error[-2]
-  185   1          sptr->LastData  = 0;
-  186   1      }
-C251 COMPILER V5.60.0,  function                                                           03/07/24  22:13:08  PAGE 4   
+  124          *******************************************************************************/
+  125          ////////////
+  126          //int16 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point)
+  127          //{
+  128          //    //µ±Ç°Îó²î£¬¶¨ÒåÎª¼Ä´æÆ÷±äÁ¿£¬Ö»ÄÜÓÃÓÚÕûÐÍºÍ×Ö·ûÐÍ±äÁ¿£¬Ìá¸ßÔËËãËÙ¶È
+  129          //    int32 iError;     // µ±Ç°Îó²î
+  130          //    float      Realize;       // ×îºóµÃ³öµÄÊµ¼ÊÔöÁ¿
+  131          
+  132          //    iError = Point - NowData; // ¼ÆËãµ±Ç°Îó²î      Éè¶¨¼õµ±Ç°
+  133          //    sptr->SumError += PID[KI] * iError;       // Îó²î»ý·Ö
+  134          //    sptr->SumError = limit(sptr->SumError, PID[KT]);//»ý·ÖÏÞ·ù
+  135          
+  136          //    Realize = PID[KP] * iError
+  137          //              + sptr->SumError
+  138          //              + PID[KD] * (iError - sptr->LastError);     //P  I   D  Ïà¼Ó
+  139          //    sptr->PrevError = sptr->LastError;        // ¸üÐÂÇ°´ÎÎó²î
+  140          //    sptr->LastError = iError;                 // ¸üÐÂÉÏ´ÎÎó²î
+  141          //    sptr->LastData  = NowData;                        // ¸üÐÂÉÏ´ÎÊý¾Ý    Ã»ÓÃ */
+  142          
+  143          //    return Realize;   // ·µ»ØÊµ¼ÊÖµ
+  144          //}
+  145          //ÔöÁ¿Ê½
+  146          int16 PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point)
+  147          {
+  148   1          //µ±Ç°Îó²î£¬¶¨ÒåÎª¼Ä´æÆ÷±äÁ¿£¬Ö»ÄÜÓÃÓÚÕûÐÍºÍ×Ö·ûÐÍ±äÁ¿£¬Ìá¸ßÔËËãËÙ¶È
+  149   1          int32 iError;       // µ±Ç°Îó²î
+  150   1          float Realize;      // ×îºóµÃ³öµÄÊµ¼ÊÔöÁ¿
+  151   1      
+  152   1          iError = Point - NowData;   // ¼ÆËãµ±Ç°Îó²î      Éè¶¨¼õµ±Ç°
+  153   1      
+  154   1          Realize = PID[KP] * iError
+  155   1                    + PID[KI] * sptr->LastError
+  156   1                    + PID[KD] * sptr->PrevError;     //P  I   D  Ïà¼Ó
+  157   1          sptr->PrevError = sptr->LastError;  // ¸üÐÂÇ°´ÎÎó²î
+  158   1          sptr->LastError = iError;                   // ¸üÐÂÉÏ´ÎÎó²î
+  159   1          sptr->LastData  = NowData;                  // ¸üÐÂÉÏ´ÎÊý¾Ý    Ã»ÓÃ */
+  160   1      
+  161   1          return Realize;     // ·µ»ØÊµ¼ÊÖµ
+  162   1      }
+  163          
+  164          /****************ÏÞ·ùº¯Êý****************
+  165          //xÊÇÏÞ·ù¶ÔÏó
+  166          //yÊÇÏÞ·ù·¶Î§
+  167          //ÓÐÕý¸º
+  168          ****************************************/
+  169          int16 limit(int16 x, int y)
+  170          {
+  171   1          if(x > y)             return y;
+  172   1          else if(x < -y)       return -y;
+  173   1          else                return x;
+  174   1      }
+  175          
+  176          // µç»úÏÞ·ù
+  177          /******** ÏÞ·ù±£»¤ *********/
+  178          int16 range_protect(int32 duty, int32 min, int32 max)//ÏÞ·ù±£»¤
+  179          {
+  180   1          if (duty >= max)
+  181   1          {
+  182   2              return max;
+  183   2          }
+  184   1      
+  185   1          if (duty <= min)
+  186   1          {
+C251 COMPILER V5.60.0,  function                                                           06/07/24  23:05:08  PAGE 4   
 
+  187   2              return min;
+  188   2          }
+  189   1          else
+  190   1          {
+  191   2              return duty;
+  192   2          }
+  193   1      }
+  194          
+  195          
+  196          
+  197          // PID²ÎÊý³õÊ¼»¯
+  198          void PID_Parameter_Init(PID *sptr)
+  199          {
+  200   1          sptr->SumError  = 0;
+  201   1          sptr->LastError = 0;        //Error[-1]
+  202   1          sptr->PrevError = 0;        //Error[-2]
+  203   1          sptr->LastData  = 0;
+  204   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      1242     ------
+  code size            =      1149     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =       204     ------
+  edata size           =       220     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------

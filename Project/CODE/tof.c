@@ -1,7 +1,7 @@
 #include "tof.h"
 
 // 赛道元素TOF触发
-uint8 Tof_Trig[Tof_Trig_Num] = {2, 1,};			// 第i次触发的元素是什么, 1:障碍物 	2:坡道
+uint8 Tof_Trig[Tof_Trig_Num] = {1, 2, 0};			// 第i次触发的元素是什么, 1:障碍物 	2:坡道
 uint8 Tof_Index = 0;												// 触发数组索引
 
 // 打角延时数组
@@ -43,13 +43,14 @@ void Tof_Control(void)
 
 void Tof_Detect(void)
 {
-    if(Tof_Index < Tof_Trig_Num && dl1b_distance_mm < Dectect_Threshold_mm)			// 还未检测过障碍物并且检测结果小于阈值 且需为起始动作
+    if(Tof_Index < Tof_Trig_Num && /*dis_test < 50*/dl1b_distance_mm < Dectect_Threshold_mm)			// 还未检测过障碍物并且检测结果小于阈值 且需为起始动作
     {
         // 通过查看数组[index]得知对应处理tf检测的结果
         // 如果 arr[index]==1 是障碍物
         if(Tof_Trig[Tof_Index] == 1 && Obstacle_Step == 0)
         {
             LightOn;										// 检测到的时候先亮灯
+			BUZZOn;
             Flag_OpenLoop = 1;					// 执行开环避障控制
             Obstacle_Step = 1;					// 避障步骤标志位
         }
@@ -85,11 +86,11 @@ void Block_handler(uint8 lr, int16 *pt)
     {
         if(Obstacle_Step == 1)														// 左打角
         {
-            T_Tof++;
+            T_Tof = 0;
             OpenLoop_Speed = Speed_Tof;										// 降低速度
-            pwm_duty(Steer_Pin, pt[0]);										// 舵机左打角
-
-            if(T_Tof == pt[1])														// 30ms*20 = 0.6s
+            //pwm_duty(Steer_Pin, pt[0]);										// 舵机左打角
+			Turn_PWM = -750;
+            if(T_Tof >= pt[1])														// 30ms*20 = 0.6s
             {
                 Obstacle_Step = 2;
                 T_Tof = 0;
@@ -97,12 +98,12 @@ void Block_handler(uint8 lr, int16 *pt)
         }
 
         // 直走
-        if(Obstacle_Step == 2)
+        else if(Obstacle_Step == 2)
         {
             T_Tof++;
-            pwm_duty(Steer_Pin, Steer_Duty_Midle);			// 舵机打直
-
-            if(T_Tof == T_Move_Straight)								// 30ms*10 = 0.3s
+            //pwm_duty(Steer_Pin, Steer_Duty_Midle);			// 舵机打直
+			Turn_PWM = 0;
+            if(T_Tof >= T_Move_Straight)								// 30ms*10 = 0.3s
             {
                 Obstacle_Step = 3;
                 T_Tof = 0;
@@ -110,12 +111,12 @@ void Block_handler(uint8 lr, int16 *pt)
         }
 
         // 右打角
-        if(Obstacle_Step == 3)
+        else if(Obstacle_Step == 3)
         {
             T_Tof++;
-            pwm_duty(Steer_Pin, pt[2]);			// 舵机打右
-
-            if(T_Tof == pt[3])							// 30ms*20 = 0.6s
+            //pwm_duty(Steer_Pin, pt[2]);			// 舵机打右
+			Turn_PWM = +750;
+            if(T_Tof >= pt[3])							// 30ms*20 = 0.6s
             {
                 Obstacle_Step = 4;
                 T_Tof = 0;
@@ -123,7 +124,7 @@ void Block_handler(uint8 lr, int16 *pt)
         }
 
         // 复位标志位
-        if(Obstacle_Step == 4)
+        else if(Obstacle_Step == 4)
         {
             Obstacle_Step = 5;			// 若需要重复检测障碍物，可将此标志位复位为0
             //				Flag_Tof_Finish = 1;		// 防止二次避障

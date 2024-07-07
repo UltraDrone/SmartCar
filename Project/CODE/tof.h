@@ -3,7 +3,7 @@
 
 #include "headfile.h"
 
-#define Dectect_Threshold_mm  600		// 障碍物检测距离, mm为单位
+#define Dectect_Threshold_mm  500		// 障碍物检测距离, mm为单位
 #define Tof_Trig_Num					3			// TOF触发到的次数（人为规定）
 
 //////////////////////////////////////////////////////////////
@@ -23,12 +23,12 @@
 #define Speed_Tof					    1700		// 避障速度
 
 #define Steer_ObsLeft_Duty 	  820 			// 左打角避障占空比         中760  原 800 
-#define T_Move_Left       		23		 	// 舵机避障左打角几个30ms    // 原来 25 
+#define T_Move_Left       		100		 	// 舵机避障左打角几个30ms    // 原来 25 
 
-#define T_Move_Straight				1				// 直走时间（单位30ms）,尽量不要大改直走时间，保持1即可
+#define T_Move_Straight				100				// 直走时间（单位30ms）,尽量不要大改直走时间，保持1即可
 
 #define Steer_ObsRight_Duty 	700			// 右打角回归占空比
-#define T_Move_Right       		35			// 舵机回归右打角几个30ms   
+#define T_Move_Right       		100			// 舵机回归右打角几个30ms   
 /////////////////////////////////////////////////////////////
 
 // Tof被墙壁触发

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 1   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_pwm
@@ -66,7 +66,7 @@ stmt  level    source
    51          //-------------------------------------------------------------------------------------------------------
              -------------
    52          void pwm_set_gpio(PWMCH_enum pwmch)
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 2   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 2   
 
    53          {
    54   1          switch(pwmch)
@@ -134,7 +134,7 @@ stmt  level    source
   116   2              case PWMA_CH2P_P62:
   117   2              {
   118   3                  gpio_mode(P6_2, GPO_PP);
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 3   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 3   
 
   119   3                  break;
   120   3              }
@@ -202,7 +202,7 @@ stmt  level    source
   182   2      
   183   2              case PWMA_CH4N_P27:
   184   2              {
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 4   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 4   
 
   185   3                  gpio_mode(P2_7, GPO_PP);
   186   3                  break;
@@ -270,7 +270,7 @@ stmt  level    source
   248   3              }
   249   2      
   250   2              case PWMB_CH2_P01:
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 5   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 5   
 
   251   2              {
   252   3                  gpio_mode(P0_1, GPO_PP);
@@ -338,7 +338,7 @@ stmt  level    source
   314   1      }
   315          
   316          
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 6   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 6   
 
   317          //-------------------------------------------------------------------------------------------------------
              -------------
@@ -406,7 +406,7 @@ stmt  level    source
   376   2      
   377   2              // 配置通道输出使能和极性
   378   2              (*(unsigned char volatile far *) (PWM_CCER_ADDR[pwmch >> 5])) |= (1 << ((pwmch & 0x01) * 2 + ((pw
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 7   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 7   
 
              -mch >> 4) & 0x01) * 0x04));
   379   2      
@@ -474,7 +474,7 @@ stmt  level    source
   437   1      
   438   1      }
   439          
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 8   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 8   
 
   440          
   441          //-------------------------------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ stmt  level    source
   500          
 
 
-C251 COMPILER V5.60.0,  zf_pwm                                                             30/06/24  20:23:39  PAGE 9   
+C251 COMPILER V5.60.0,  zf_pwm                                                             06/07/24  23:05:04  PAGE 9   
 
 Module Information          Static   Overlayable
 ------------------------------------------------

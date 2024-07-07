@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 1   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE SEEKFREE_FONT
@@ -66,7 +66,7 @@ stmt  level    source
    43          
    44              {0x00, 0x02, 0x04, 0x08, 0x08, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x08, 0x08, 0x04, 0x02, 0x00}, /*"
              -)",9*/
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 2   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 2   
 
    45          
    46              {0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x6B, 0x1C, 0x1C, 0x6B, 0x08, 0x08, 0x00, 0x00, 0x00, 0x00}, /*"
@@ -134,7 +134,7 @@ stmt  level    source
    87          
    88              {0x00, 0x00, 0x00, 0x3C, 0x42, 0x42, 0x46, 0x20, 0x10, 0x10, 0x10, 0x00, 0x18, 0x18, 0x00, 0x00}, /*"
              -?",31*/
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 3   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 3   
 
    89          
    90              {0x00, 0x00, 0x00, 0x1C, 0x22, 0x5A, 0x55, 0x55, 0x55, 0x55, 0x55, 0x3A, 0x42, 0x3C, 0x00, 0x00}, /*"
@@ -202,7 +202,7 @@ stmt  level    source
   131          
   132              {0x00, 0x00, 0x00, 0xE7, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3C, 0x00, 0x00}, /*"
              -U",53*/
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 4   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 4   
 
   133          
   134              {0x00, 0x00, 0x00, 0xE7, 0x42, 0x42, 0x22, 0x24, 0x24, 0x14, 0x14, 0x18, 0x08, 0x08, 0x00, 0x00}, /*"
@@ -270,7 +270,7 @@ stmt  level    source
   175          
   176              {0x00, 0x00, 0x00, 0x00, 0x03, 0x02, 0x02, 0x72, 0x12, 0x0A, 0x0E, 0x12, 0x22, 0x77, 0x00, 0x00}, /*"
              -k",75*/
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 5   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 5   
 
   177          
   178              {0x00, 0x00, 0x00, 0x08, 0x0E, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x3E, 0x00, 0x00}, /*"
@@ -338,7 +338,7 @@ stmt  level    source
   221              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },   // sp
   222              { 0x00, 0x00, 0x00, 0x2f, 0x00, 0x00 },   // !
   223              { 0x00, 0x00, 0x07, 0x00, 0x07, 0x00 },   // "
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 6   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 6   
 
   224              { 0x00, 0x14, 0x7f, 0x14, 0x7f, 0x14 },   // #
   225              { 0x00, 0x24, 0x2a, 0x7f, 0x2a, 0x12 },   // $
@@ -406,7 +406,7 @@ stmt  level    source
   287              { 0x00, 0x7F, 0x48, 0x44, 0x44, 0x38 },   // b
   288              { 0x00, 0x38, 0x44, 0x44, 0x44, 0x20 },   // c
   289              { 0x00, 0x38, 0x44, 0x44, 0x48, 0x7F },   // d
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 7   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 7   
 
   290              { 0x00, 0x38, 0x54, 0x54, 0x54, 0x18 },   // e
   291              { 0x00, 0x08, 0x7E, 0x09, 0x01, 0x02 },   // f
@@ -474,7 +474,7 @@ stmt  level    source
              -1
   342              0x00, 0xE0, 0x10, 0x88, 0x88, 0x18, 0x00, 0x00, 0x00, 0x0F, 0x11, 0x20, 0x20, 0x11, 0x0E, 0x00, //6 2
              -2
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 8   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 8   
 
   343              0x00, 0x38, 0x08, 0x08, 0xC8, 0x38, 0x08, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, //7 2
              -3
@@ -542,7 +542,7 @@ stmt  level    source
              -4
   375              0xF8, 0x08, 0x00, 0xF8, 0x00, 0x08, 0xF8, 0x00, 0x03, 0x3C, 0x07, 0x00, 0x07, 0x3C, 0x03, 0x00, //W 5
              -5
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 9   
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 9   
 
   376              0x08, 0x18, 0x68, 0x80, 0x80, 0x68, 0x18, 0x08, 0x20, 0x30, 0x2C, 0x03, 0x03, 0x2C, 0x30, 0x20, //X 5
              -6
@@ -610,7 +610,7 @@ stmt  level    source
              -7
   408              0x00, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x00, 0x20, 0x31, 0x2E, 0x0E, 0x31, 0x20, 0x00, //x 8
              -8
-C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      30/06/24  20:23:40  PAGE 10  
+C251 COMPILER V5.60.0,  SEEKFREE_FONT                                                      06/07/24  23:05:05  PAGE 10  
 
   409              0x80, 0x80, 0x80, 0x00, 0x00, 0x80, 0x80, 0x80, 0x80, 0x81, 0x8E, 0x70, 0x18, 0x06, 0x01, 0x00, //y 8
              -9

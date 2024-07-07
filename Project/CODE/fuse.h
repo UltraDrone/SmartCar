@@ -23,7 +23,10 @@ extern unsigned char int_OK;
 extern unsigned char Flag_OpenLoop;
 extern int SideRate, CornerRate, XieRate;
 extern float vtest;
+extern float tmptest;
 extern float RateLow, RateUp;
+extern int dis_test;
+extern int test_speed;
 /*********函数声明**************/
 void Fuse_result(void);
 //核心关键的标志位结构体初始化

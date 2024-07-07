@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 1   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE SEEKFREE_ICM20602
@@ -66,7 +66,7 @@ stmt  level    source
                #define ICM20602_SDA_HIGH()         ICM20602_SDA_PIN = 1                //IO¿ÚÊä³ö¸ßµçÆ½
                
                #define ICM20602_SCL_LOW()          ICM20602_SCL_PIN = 0                //IO¿ÚÊä³öµÍµçÆ½
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 2   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 2   
 
                #define ICM20602_SCL_HIGH()         ICM20602_SCL_PIN = 1                //IO¿ÚÊä³ö¸ßµçÆ½
                
@@ -134,7 +134,7 @@ stmt  level    source
                
                    icm20602_simiic_delay();
                
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 3   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 3   
 
                    ICM20602_SCL_HIGH();
                    icm20602_simiic_delay();
@@ -202,7 +202,7 @@ stmt  level    source
                        }
                    }
                
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 4   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 4   
 
                    ICM20602_SCL_LOW();
                    icm20602_simiic_delay();
@@ -270,7 +270,7 @@ stmt  level    source
                //  @return     uint8                   ·µ»Ø¼Ä´æÆ÷µÄÊý¾Ý
                //  @since      v1.0
                //  Sample usage:
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 5   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 5   
 
                //-------------------------------------------------------------------------------------------------------
              -------------
@@ -338,7 +338,7 @@ stmt  level    source
   303   1      }
   304          //-------------------------------------------------------------------------------------------------------
              -------------
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 6   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 6   
 
   305          //  @brief      ½«valÐ´Èëcmd¶ÔÓ¦µÄ¼Ä´æÆ÷µØÖ·,Í¬Ê±·µ»Østatus×Ö½Ú
   306          //  @param      cmd         ÃüÁî×Ö
@@ -406,7 +406,7 @@ stmt  level    source
   362          //  @param      num         ¶ÁÈ¡µÄÊýÁ¿
   363          //  @since      v1.0
   364          //  Sample usage:
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 7   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 7   
 
   365          //-------------------------------------------------------------------------------------------------------
              -------------
@@ -474,7 +474,7 @@ stmt  level    source
   420   1          icm20602_simspi_r_reg_byte(reg | ICM20602_SPI_R, &dat);
   421   1          ICM20602_CS(1);
   422   1          return dat;
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 8   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 8   
 
   423   1      }
   424          
@@ -542,7 +542,7 @@ stmt  level    source
   479          void icm20602_get_acc (void)
   480          {
   481   1          uint8 dat[6];
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 9   
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 9   
 
   482   1      
   483   1          icm20602_read_registers(ICM20602_ACCEL_XOUT_H, dat, 6);
@@ -610,7 +610,7 @@ stmt  level    source
   536   2                  break;
   537   2          }
   538   1      
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 10  
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 10  
 
   539   1          return acc_data;
   540   1      }
@@ -678,7 +678,7 @@ stmt  level    source
              -CM20602_SDA_PIN);
   594   1      //#else
   595   1      //    spi_init(ICM20602_SPI, SPI_MODE0, ICM20602_SPI_SPEED, ICM20602_SPC_PIN, ICM20602_SDI_PIN, ICM20602_
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 11  
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 11  
 
              -SDO_PIN, SPI_CS_NULL);
   596   1      //    gpio_init(ICM20602_CS_PIN, GPO, GPIO_HIGH, GPO_PUSH_PULL);
@@ -746,7 +746,7 @@ stmt  level    source
              -»µÄÊý¾Ý£¬µ¥Î»Îª£º¡ã/s
   654   2      
   655   2              icm20602_write_register(ICM20602_ACCEL_CONFIG,   ICM20602_ACC_SAMPLE);  // ¡À8g
-C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  30/06/24  20:23:40  PAGE 12  
+C251 COMPILER V5.60.0,  SEEKFREE_ICM20602                                                  06/07/24  23:05:05  PAGE 12  
 
   656   2              // ICM20602_ACCEL_CONFIG¼Ä´æÆ÷
   657   2              // ÉèÖÃÎª:0x00 ¼ÓËÙ¶È¼ÆÁ¿³ÌÎª:¡À2g          »ñÈ¡µ½µÄ¼ÓËÙ¶È¼ÆÊý¾Ý ³ýÒÔ16384      ¿ÉÒÔ×ª»¯Îª´øÎïÀíµ

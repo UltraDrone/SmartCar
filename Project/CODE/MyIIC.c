@@ -243,11 +243,11 @@ u8 GY_GetMeasureResultTemp(u8 *distance)
 
 }
 
-int GY_GetMeasureResult(u8 *distance)
+int GY_GetMeasureResult()
 {
-
-	 if(!GY_GetMeasureResultTemp(distance)) {return -1;}
-	 return distance[0] << 8 | distance[1];
+	 u8 tempdistance[2] = {0};
+	 if(!GY_GetMeasureResultTemp(tempdistance)) {return -1;}
+	 return (((int)tempdistance[0]) << 8) | tempdistance[1];
 
 }
 
